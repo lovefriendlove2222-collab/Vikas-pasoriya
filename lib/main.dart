@@ -6,9 +6,9 @@ void main() {
     home: Scaffold(
       body: Center(
         child: Text(
-          "Vikas Pasoria App\nStatus: Online",
+          "Vikas Pasoria\nApp Building...",
           textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.blue),
         ),
       ),
     ),

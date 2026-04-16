@@ -1,16 +1,14 @@
+
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'screens/login_screen.dart';
+import 'screens/admin_dashboard.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(VikasPlatform());import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart'; 
-import 'screens/login_screen.dart';
-import 'screens/admin_dashboard.dart';
-
+  runApp(VikasPlatform());
 }
 
 class VikasPlatform extends StatelessWidget {
@@ -23,7 +21,7 @@ class VikasPlatform extends StatelessWidget {
         primarySwatch: Colors.orange,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: LoginScreen(),
+      home: LoginScreen(), // शुरुआती पेज लॉगिन होगा
     );
   }
-} 
+}

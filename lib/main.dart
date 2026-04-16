@@ -21,4 +21,4 @@ class VikasPlatform extends StatelessWidget {
       home: LoginScreen(),
     );
   }
-}
+} 

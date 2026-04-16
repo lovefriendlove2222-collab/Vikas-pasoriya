@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -7,54 +7,44 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final phoneController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _otpController = TextEditingController();
+  String _verificationId = "";
 
-  void handleLogin() async {
-    String phone = phoneController.text;
-    if (phone.isEmpty) return;
-
-    var userDoc = await FirebaseFirestore.instance.collection('users').doc(phone).get();
-
-    if (!userDoc.exists) {
-      // नया यूजर रजिस्टर करें
-      await FirebaseFirestore.instance.collection('users').doc(phone).set({
-        'mobile': phone,
-        'role': 'member',
-        'approved': false,
-        'org_id': 'default_org'
-      });
-      showMsg("Registration Successful. Wait for Approval.");
-    } else {
-      if (userDoc['approved']) {
-        showMsg("Welcome back! Role: ${userDoc['role']}");
-        // यहाँ से होम पेज पर भेजें
-      } else {
-        showMsg("Your account is pending approval.");
-      }
-    }
+  void _verifyPhone() async {
+    await FirebaseAuth.instance.verifyPhoneNumber(
+      phoneNumber: "+91${_phoneController.text}",
+      verificationCompleted: (PhoneAuthCredential credential) {},
+      verificationFailed: (FirebaseAuthException e) {
+        print(e.message);
+      },
+      codeSent: (String verId, int? resendToken) {
+        setState(() { _verificationId = verId; });
+      },
+      codeAutoRetrievalTimeout: (String verId) {},
+    );
   }
 
-  void showMsg(String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+  void _signInWithOTP() async {
+    PhoneAuthCredential credential = PhoneAuthProvider.credential(
+      verificationId: _verificationId,
+      smsCode: _otpController.text,
+    );
+    await FirebaseAuth.instance.signInWithCredential(credential);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(title: Text("Vikas Pasoria Login")),
       body: Padding(
-        padding: EdgeInsets.all(20),
+        padding: EdgeInsets.all(16.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text("VIKAS PASORIA OFFICIAL", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.orange)),
-            SizedBox(height: 40),
-            TextField(controller: phoneController, decoration: InputDecoration(border: OutlineInputBorder(), labelText: "Mobile Number")),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: handleLogin,
-              child: Text("LOGIN / REGISTER"),
-              style: ElevatedButton.styleFrom(minimumSize: Size(double.infinity, 50)),
-            )
+            TextField(controller: _phoneController, decoration: InputDecoration(labelText: "Mobile Number")),
+            ElevatedButton(onPressed: _verifyPhone, child: Text("Send OTP")),
+            TextField(controller: _otpController, decoration: InputDecoration(labelText: "Enter OTP")),
+            ElevatedButton(onPressed: _signInWithOTP, child: Text("Login")),
           ],
         ),
       ),

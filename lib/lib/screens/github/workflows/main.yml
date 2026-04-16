@@ -1,0 +1,38 @@
+name: Build Vikas Pasoria APK
+on: 
+  push:
+    branches:
+      - main  # या अगर आपकी ब्रांच का नाम 'master' है तो यहाँ master लिखें
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. कोड चेकआउट करना
+      - uses: actions/checkout@v3
+
+      # 2. Java सेटअप करना (Android Build के लिए जरूरी)
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '12.3x'
+          cache: 'gradle'
+
+      # 3. Flutter इंस्टॉल करना
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.10.0' # स्टेबल वर्जन
+          channel: 'stable'
+
+      # 4. जरूरी पैकेज डाउनलोड करना
+      - run: flutter pub get
+
+      # 5. APK बनाना (Release Mode)
+      - run: flutter build apk --release
+
+      # 6. तैयार APK को डाउनलोड के लिए उपलब्ध कराना
+      - name: Upload APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: vikas-pasoria-app-release
+          path: build/app/outputs/flutter-apk/app-release.apk

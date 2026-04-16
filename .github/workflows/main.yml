@@ -1,10 +1,8 @@
 name: Build APK
-
 on:
   push:
     branches:
-      - main  # या अगर आपकी ब्रांच का नाम master है तो यहाँ master लिखें
-
+      - main
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -12,7 +10,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.10.0' # आपकी फ्लटर वर्शन
+          flutter-version: '3.10.0'
       - run: flutter pub get
       - run: flutter build apk --release
       - name: Upload APK

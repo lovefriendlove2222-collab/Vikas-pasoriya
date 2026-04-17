@@ -9,10 +9,15 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-          flutter-version: '3.22.0' # अपडेटेड वर्जन
+          flutter-version: '3.22.0'
       
       - run: echo "flutter.sdk=$FLUTTER_ROOT" > android/local.properties
+      
+      # पुरानी फाइलों का कचरा साफ़ करने के लिए
+      - run: flutter clean
       - run: flutter pub get
+      
+      # फाइनल बिल्ड कमांड
       - run: flutter build apk --release --no-tree-shake-icons
       
       - name: Upload APK

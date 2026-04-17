@@ -1,48 +1,57 @@
-name: Build APK
+name: Flutter Build APK
+
 on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
-# पीला एरर हटाने और GitHub Actions को नया रखने के लिए
+# पीला वार्निंग मैसेज (Node.js) हटाने के लिए
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      # 1. कोड को GitHub से उठाना
-      - name: Checkout Code
+      # 1. कोड को GitHub से फेच करना
+      - name: Checkout repository
         uses: actions/checkout@v4
-      
-      # 2. जावा सेटअप करना (Android बिल्ड के लिए)
-      - name: Setup Java
+
+      # 2. जावा सेटअप (Android के लिए जरूरी)
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
           java-version: '17'
+          distribution: 'temurin'
 
       # 3. फ्लटर सेटअप करना
-      - name: Setup Flutter
+      - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.19.0'
           channel: 'stable'
-          
-      # 4. जरूरी फाइलों को सही जगह सेट करना
-      - name: Get Dependencies
+
+      # 4. डिपेंडेंसी लोड करना
+      - name: Install dependencies
         run: |
           flutter clean
           flutter pub get
-          
-      # 5. APK बनाना (Release Mode में)
+
+      # 5. प्लगइन्स और कॉन्फ़िगरेशन चेक करना
+      - name: Precache Flutter artifacts
+        run: flutter precache
+
+      # 6. APK बनाना (Release Mode)
       - name: Build APK
         run: flutter build apk --release --no-tree-shake-icons
-        
-      # 6. बने हुए APK को डाउनलोड के लिए उपलब्ध कराना
-      - name: Upload Artifact
+
+      # 7. बने हुए APK को डाउनलोड के लिए सेव करना
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: release-apk
+          name: app-release
           path: build/app/outputs/flutter-apk/app-release.apk

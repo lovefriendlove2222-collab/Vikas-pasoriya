@@ -15,6 +15,7 @@ jobs:
         with:
           flutter-version: '3.19.0'
           channel: 'stable'
+          cache: true # इससे अगली बार जल्दी बिल्ड होगा
           
       - name: Get Dependencies
         run: |

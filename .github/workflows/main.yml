@@ -14,18 +14,13 @@ jobs:
           channel: 'stable'
 
       - name: Install Dependencies
-        # अगर आपका कोड 'mobile_app' फोल्डर के अंदर है तो नीचे वाली लाइन रखें
-        # वरना 'working-directory' हटा दें
         run: flutter pub get
-        working-directory: mobile_app 
 
       - name: Build APK
-        # --no-tree-shake-icons एरर से बचने के लिए जोड़ा गया है
         run: flutter build apk --release --no-tree-shake-icons
-        working-directory: mobile_app
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: release-apk
-          path: mobile_app/build/app/outputs/flutter-apk/app-release.apk
+          path: build/app/outputs/flutter-apk/app-release.apk

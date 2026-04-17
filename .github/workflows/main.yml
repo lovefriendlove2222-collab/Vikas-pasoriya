@@ -21,15 +21,20 @@ jobs:
         with:
           flutter-version: '3.19.0'
 
-      # यो है असली इलाज - हर फाइल तै 'V' हटा देगा
-      - name: Clean and Force Lowercase
+      # यो कमांड हर फाइल में जाकर थारे नाम नै कति छोटा (lowercase) कर देगी
+      - name: Force Clean and Rename
         run: |
-          find . -type f -name "*" -not -path '*/.*' -exec sed -i 's/Vikas_Pasoriya/vikas_pasoriya/g' {} +
+          # जहाँ भी बड़ा V या Dash सै, उसे छोटा और Underscore करो
           find . -type f -name "*" -not -path '*/.*' -exec sed -i 's/Vikas-pasoriya/vikas_pasoriya/g' {} +
+          find . -type f -name "*" -not -path '*/.*' -exec sed -i 's/Vikas_Pasoriya/vikas_pasoriya/g' {} +
           
+          # फ्लटर नै दोबारा जगाओ
           flutter clean
           flutter pub get
-          flutter create . --platforms=android
+          
+          # एंड्राइड की फाइलां नै सही नाम तै दोबारा बनाओ
+          flutter create . --offline --platforms=android --project-name=vikas_pasoriya
+          
           chmod +x android/gradlew
 
       - name: Build APK
@@ -38,5 +43,5 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: vikas-app-final
+          name: vikas-app-final-success
           path: build/app/outputs/flutter-apk/app-release.apk

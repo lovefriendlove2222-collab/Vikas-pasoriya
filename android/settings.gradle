@@ -3,6 +3,7 @@ pluginManagement {
         def properties = new Properties()
         file("local.properties").withInputStream { properties.load(it) }
         def flutterSdkPath = properties.getProperty("flutter.sdk")
+        assert flutterSdkPath != null, "flutter.sdk not set in local.properties"
         return flutterSdkPath
     }()
 
@@ -24,7 +25,7 @@ plugins {
 
 include ":app"
 
-// प्लगइन्स को रजिस्टर करने का असली समाधान
+// प्लगइन्स को आपस में जोड़ने का पक्का कोड
 def flutterProjectRoot = rootProject.projectDir.parentFile
 def plugins = new Properties()
 def pluginsFile = new File(flutterProjectRoot, '.flutter-plugins')

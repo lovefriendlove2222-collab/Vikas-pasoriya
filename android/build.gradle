@@ -1,44 +1,31 @@
-def localProperties = new Properties()
-def localPropertiesFile = rootProject.file('local.properties')
-if (localPropertiesFile.exists()) {
-    localPropertiesFile.withReader('UTF-8') { reader ->
-        localProperties.load(reader)
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        // यह लाइन Android प्लगइन को ढूंढने में मदद करेगी
+        classpath 'com.android.tools.build:gradle:8.2.1'
+        // यह लाइन Firebase के लिए है
+        classpath 'com.google.gms:google-services:4.4.0'
     }
 }
 
-def flutterRoot = localProperties.getProperty('flutter.sdk')
-if (flutterRoot == null) {
-    // अगर local.properties नहीं है (जैसे GitHub Actions में), तो यह डिफॉल्ट उठाएगा
-    flutterRoot = System.getenv('FLUTTER_HOME')
-}
-
-apply plugin: 'com.android.application'
-apply plugin: 'com.google.gms.google-services' // Firebase के लिए ज़रूरी
-apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
-
-android {
-    namespace 'com.vikas.pasoriya'
-    compileSdkVersion 34
-
-    defaultConfig {
-        applicationId "com.vikas.pasoriya"
-        minSdkVersion 21
-        targetSdkVersion 34
-        versionCode 1
-        versionName "1.0"
-    }
-
-    buildTypes {
-        release {
-            signingConfig signingConfigs.debug
-            minifyEnabled false
-            shrinkResources false
-        }
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
     }
 }
 
-dependencies {
-    implementation platform('com.google.firebase:firebase-bom:32.7.0')
-    implementation 'com.google.firebase:firebase-analytics'
-    implementation 'com.google.firebase:firebase-firestore'
+rootProject.buildDir = '../build'
+subprojects {
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+}
+subprojects {
+    project.evaluationDependsOn(':app')
+}
+
+tasks.register("clean", Delete) {
+    delete rootProject.buildDir
 }

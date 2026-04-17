@@ -1,11 +1,11 @@
 plugins {
     id "com.android.application"
-    id "com.google.gms.google-services" // फायरबेस के लिए ज़रूरी
+    id "com.google.gms.google-services"
     id "dev.flutter.flutter-gradle-plugin"
 }
 
 android {
-    namespace "com.vikas.pasoriya" // आपका पैकेज नाम
+    namespace "com.vikas.pasoriya"
     compileSdk 34
 
     defaultConfig {
@@ -14,9 +14,7 @@ android {
         targetSdk 34
         versionCode 1
         versionName "1.0"
-        
-        // यह लाइन एरर खत्म करने के लिए सबसे ज़रूरी है
-        multiDexEnabled true 
+        multiDexEnabled true
     }
 
     buildTypes {
@@ -29,16 +27,9 @@ android {
 }
 
 dependencies {
-    // फायरबेस की मुख्य फाइलें
     implementation platform('com.google.firebase:firebase-bom:32.7.0')
     implementation 'com.google.firebase:firebase-analytics'
     implementation 'com.google.firebase:firebase-auth'
     implementation 'com.google.firebase:firebase-firestore'
-    
-    // मल्टीडेक्स सपोर्ट
     implementation 'com.android.support:multidex:1.0.3'
-}
-
-flutter {
-    source '../..'
 }

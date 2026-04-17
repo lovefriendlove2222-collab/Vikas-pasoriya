@@ -3,13 +3,14 @@ on:
   push:
     branches:
       - main
-
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true # एरर को बाईपास करने के लिए
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4 # v4 ही Node 24 को सपोर्ट करता है
+        uses: actions/checkout@v4
       
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -23,7 +24,7 @@ jobs:
           flutter-version: '3.19.0'
           channel: 'stable'
           
-      - name: Install Dependencies
+      - name: Clean and Get Deps
         run: |
           flutter clean
           flutter pub get

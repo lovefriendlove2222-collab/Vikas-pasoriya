@@ -1,4 +1,12 @@
 name: vikas_pasoriya
+description: "Vikas Pasoriya Official"
+version: 1.0.0+1
+publish_to: 'none'
+
+# यहाँ एरर थी, इसे कति ऐसे ही लिख दे भाई
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
 dependencies:
   flutter:
     sdk: flutter
@@ -6,3 +14,11 @@ dependencies:
   firebase_core: ^2.27.0
   cloud_firestore: ^4.15.8
   shared_preferences: ^2.2.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true

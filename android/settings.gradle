@@ -23,19 +23,3 @@ plugins {
 }
 
 include ":app"
-
-// प्लगइन्स को जोड़ने वाला हिस्सा
-def flutterProjectRoot = rootProject.projectDir.parentFile
-def plugins = new Properties()
-def pluginsFile = new File(flutterProjectRoot, '.flutter-plugins')
-if (pluginsFile.exists()) {
-    pluginsFile.withReader('UTF-8') { reader -> plugins.load(reader) }
-}
-
-plugins.each { name, path ->
-    def pluginDirectory = new File(path, 'android')
-    if (pluginDirectory.exists()) {
-        include ":$name"
-        project(":$name").projectDir = pluginDirectory
-    }
-}

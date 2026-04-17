@@ -21,21 +21,22 @@ jobs:
         with:
           flutter-version: '3.19.0'
 
-      - name: Force Fix and Build
+      # यो है असली इलाज - हर फाइल तै 'V' हटा देगा
+      - name: Clean and Force Lowercase
         run: |
-          # नाम का रोड़ा खत्म करण खातर
-          find . -type f -name "*" -print0 | xargs -0 sed -i 's/Vikas_Pasoriya/vikas_pasoriya/g' || true
+          find . -type f -name "*" -not -path '*/.*' -exec sed -i 's/Vikas_Pasoriya/vikas_pasoriya/g' {} +
+          find . -type f -name "*" -not -path '*/.*' -exec sed -i 's/Vikas-pasoriya/vikas_pasoriya/g' {} +
           
           flutter clean
           flutter pub get
           flutter create . --platforms=android
           chmod +x android/gradlew
-          
-          # बिल्ड कमांड
-          flutter build apk --release --no-tree-shake-icons
+
+      - name: Build APK
+        run: flutter build apk --release --no-tree-shake-icons
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: vikas-app-release
+          name: vikas-app-final
           path: build/app/outputs/flutter-apk/app-release.apk

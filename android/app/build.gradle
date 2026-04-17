@@ -16,6 +16,14 @@ android {
         versionName "1.0"
         multiDexEnabled true
     }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.debug
+            minifyEnabled false
+            shrinkResources false
+        }
+    }
 }
 
 dependencies {
@@ -26,5 +34,4 @@ dependencies {
     implementation 'com.android.support:multidex:1.0.3'
 }
 
-// यहाँ बदलाव है, इसे ध्यान से देखो
 apply plugin: 'com.google.gms.google-services'

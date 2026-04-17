@@ -1,6 +1,7 @@
 plugins {
     id "com.android.application"
     id "kotlin-android"
+    // Flutter और Google Services के प्लगइन्स
     id "dev.flutter.flutter-gradle-plugin"
     id "com.google.gms.google-services"
 }
@@ -25,7 +26,7 @@ if (flutterVersionName == null) {
 
 android {
     namespace "com.example.vikas_pasoria"
-    compileSdk 34
+    compileSdk 34 // Android 14 के लिए सपोर्ट
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
@@ -43,6 +44,7 @@ android {
 
     buildTypes {
         release {
+            // रिलीज़ के लिए सेटिंग्स
             signingConfig signingConfigs.debug
             shrinkResources false
             minifyEnabled false
@@ -55,6 +57,8 @@ flutter {
 }
 
 dependencies {
+    // Firebase के लिए ज़रूरी लाइब्रेरीज़
     implementation platform('com.google.firebase:firebase-bom:32.7.0')
     implementation 'com.google.firebase:firebase-analytics'
+    implementation 'com.google.firebase:firebase-firestore'
 }

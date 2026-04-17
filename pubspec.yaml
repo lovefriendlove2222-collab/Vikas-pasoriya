@@ -1,5 +1,5 @@
 name: vikas_pasoriya
-description: "A new Flutter project."
+description: "Vikas Pasoriya Official App"
 version: 1.0.0+1
 publish_to: 'none'
 
@@ -11,6 +11,7 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.6
   google_fonts: ^6.1.0
+  url_launcher: ^6.2.5
 
 dev_dependencies:
   flutter_test:

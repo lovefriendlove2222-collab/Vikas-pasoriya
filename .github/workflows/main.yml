@@ -5,10 +5,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-          flutter-version: '3.19.0'
+          flutter-version: '3.22.0' # अपडेटेड वर्जन
       
       - run: echo "flutter.sdk=$FLUTTER_ROOT" > android/local.properties
       - run: flutter pub get

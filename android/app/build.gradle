@@ -1,29 +1,17 @@
-def localProperties = new Properties()
-def localPropertiesFile = rootProject.file('local.properties')
-if (localPropertiesFile.exists()) {
-    localPropertiesFile.withReader('UTF-8') { reader ->
-        localProperties.load(reader)
-    }
+plugins {
+    id "com.android.application"
+    id "com.google.gms.google-services"
+    id "dev.flutter.flutter-gradle-plugin"
 }
-
-def flutterRoot = localProperties.getProperty('flutter.sdk')
-if (flutterRoot == null) {
-    flutterRoot = System.getenv('FLUTTER_HOME')
-}
-
-apply plugin: 'com.android.application'
-apply plugin: 'com.google.gms.google-services'
-// यह लाइन सबसे ज़रूरी है, इसे ध्यान से देखें
-apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
     namespace "com.vikas.pasoriya"
-    compileSdkVersion 34
+    compileSdk 34
 
     defaultConfig {
         applicationId "com.vikas.pasoriya"
-        minSdkVersion 21
-        targetSdkVersion 34
+        minSdk 21
+        targetSdk 34
         versionCode 1
         versionName "1.0"
     }
@@ -35,10 +23,6 @@ android {
             shrinkResources false
         }
     }
-}
-
-flutter {
-    source '../..'
 }
 
 dependencies {

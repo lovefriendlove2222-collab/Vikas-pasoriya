@@ -10,10 +10,12 @@ jobs:
           channel: 'stable'
           flutter-version: '3.19.0'
       
-      # यह लाइन local.properties का एरर खत्म कर देगी
+      # यह लाइन local.properties बनाएगी
       - run: echo "flutter.sdk=$FLUTTER_ROOT" > android/local.properties
       
       - run: flutter pub get
+      
+      # यहाँ हमने बिल्ड कमांड को साफ़ कर दिया है
       - run: flutter build apk --release --no-tree-shake-icons
       
       - name: Upload APK

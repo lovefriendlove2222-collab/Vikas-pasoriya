@@ -25,8 +25,12 @@ android {
     }
 }
 
+// यह जादुई लाइन एरर खत्म कर देगी
+flutter {
+    source '../..'
+}
+
 dependencies {
-    // Firebase के लिए ये लाइनें ज़रूरी हैं
     implementation platform('com.google.firebase:firebase-bom:32.7.0')
     implementation 'com.google.firebase:firebase-analytics'
     implementation 'com.google.firebase:firebase-firestore'

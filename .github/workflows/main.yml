@@ -1,32 +1,52 @@
-name: Ultimate Auto-Fix Build
+name: Flutter Build APK - Auto Repair
 on:
   push:
     branches:
       - main
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.19.0'
+          channel: 'stable'
 
-      # अगर gradlew गायब है, तो यह कमांड उसे खुद पैदा कर देगी
-      - name: Restore Gradle Wrapper
+      # 1. सबसे पहले अगर फाइल गायब है तो उसे वापस लाना
+      - name: Restore Missing Files
         run: |
-          cd android
-          flutter build apk --debug --dry-run || true
-          # अगर फिर भी नहीं है, तो एक खाली फाइल बनाकर उसे चलाने की कोशिश
-          touch gradlew
-          chmod +x gradlew
+          flutter precache
+          flutter create . --platforms=android
 
+      # 2. अब फाइल को चलाने की अनुमति देना
+      - name: Give Permission to Gradlew
+        run: chmod +x android/gradlew
+
+      # 3. local.properties बनाना
+      - name: Create local.properties
+        run: |
+          echo "sdk.dir=$ANDROID_SDK_ROOT" > android/local.properties
+          echo "flutter.sdk=$FLUTTER_HOME" >> android/local.properties
+
+      # 4. APK बनाना
       - name: Build APK
         run: flutter build apk --release --no-tree-shake-icons
 
+      # 5. APK सेव करना
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:

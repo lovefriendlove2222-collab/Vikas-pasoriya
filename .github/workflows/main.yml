@@ -21,28 +21,18 @@ jobs:
         with:
           flutter-version: '3.19.0'
 
-      - name: Master Clean and Rebuild
+      - name: Master Build
         run: |
-          # 1. पुराने कचरे का खात्मा (ताकि 'Source Directory' वाली एरर हट जाए)
-          rm -rf android/
           flutter clean
-          
-          # 2. नाम की कति सफाई (जहाँ भी बड़ा V या Dash सै)
-          find . -type f -not -path '*/.*' -exec sed -i 's/Vikas-pasoriya/vikas_pasoriya/g' {} +
-          find . -type f -not -path '*/.*' -exec sed -i 's/Vikas_Pasoriya/vikas_pasoriya/g' {} +
-          
-          # 3. नया एंड्राइड स्ट्रक्चर और डिपेंडेंसी लाओ
-          flutter create . --platforms=android --project-name=vikas_pasoriya
           flutter pub get
-          
-          # 4. परमिशन दो
+          # एंड्राइड फोल्डर रिपेयर
+          flutter create . --platforms=android --project-name=vikas_pasoriya
           chmod +x android/gradlew
-          
-          # 5. फाइनल बिल्ड
+          # फाइनल बिल्ड
           flutter build apk --release --no-tree-shake-icons
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: vikas-app-final-success
+          name: vikas-official-app
           path: build/app/outputs/flutter-apk/app-release.apk

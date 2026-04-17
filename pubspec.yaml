@@ -1,5 +1,5 @@
 name: vikas_pasoriya_official
-description: "Vikas Pasoriya Official App"
+description: "Official App for Vikas Pasoriya"
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -9,13 +9,14 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  firebase_core: ^2.27.0
-  firebase_auth: ^4.17.8
-  cloud_firestore: ^4.15.8
-  google_fonts: 6.1.0 # वर्जन फिक्स किया गया है
-  url_launcher: ^6.2.5
-  qr_flutter: ^4.1.0
-  image_picker: ^1.0.7
+  # स्थिर (Stable) वर्जन्स
+  firebase_core: 2.27.0
+  firebase_auth: 4.17.8
+  cloud_firestore: 4.15.8
+  google_fonts: 6.1.0
+  url_launcher: 6.2.5
+  qr_flutter: 4.1.0
+  image_picker: 1.0.7
   cupertino_icons: ^1.0.6
 
 dev_dependencies:

@@ -21,20 +21,16 @@ jobs:
         with:
           flutter-version: '3.19.0'
 
-      # यो स्टेप थारी settings.gradle नै खुद ठीक करेगा
-      - name: Auto-Fix Files
+      - name: Build and Repair
         run: |
-          rm -f android/settings.gradle
-          echo "include ':app'" > android/settings.gradle
-          echo "def flutterProjectRoot = rootProject.projectDir.parentFile" >> android/settings.gradle
+          flutter clean
+          flutter pub get
           flutter create . --platforms=android
           chmod +x android/gradlew
+          flutter build apk --release --no-tree-shake-icons
 
-      - name: Build APK
-        run: flutter build apk --release --no-tree-shake-icons
-
-      - name: Upload Artifact
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: app-release
+          name: vikas-app-apk
           path: build/app/outputs/flutter-apk/app-release.apk

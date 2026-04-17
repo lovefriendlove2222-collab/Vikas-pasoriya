@@ -21,28 +21,29 @@ jobs:
         with:
           flutter-version: '3.19.0'
 
-      - name: Repair and Build APK
+      - name: Nuclear Clean and Rebuild
         run: |
-          # 1. नाम की सारी गलतियां साफ़ करो
-          find . -type f -name "*" -not -path '*/.*' -exec sed -i 's/Vikas-pasoriya/vikas_pasoriya/g' {} +
-          find . -type f -name "*" -not -path '*/.*' -exec sed -i 's/Vikas_Pasoriya/vikas_pasoriya/g' {} +
+          # 1. सारी पुरानी एंड्राइड फाइलां का खात्मा
+          rm -rf android/
           
-          # 2. जो फाइलें मिसिंग हैं उन्हें दोबारा बनाओ
-          flutter clean
+          # 2. नाम की कति सफाई (जहाँ भी बड़ा V या Dash सै)
+          find . -type f -not -path '*/.*' -exec sed -i 's/Vikas-pasoriya/vikas_pasoriya/g' {} +
+          find . -type f -not -path '*/.*' -exec sed -i 's/Vikas_Pasoriya/vikas_pasoriya/g' {} +
+          
+          # 3. नया एंड्राइड स्ट्रक्चर खड़ा करना
+          flutter create . --platforms=android --project-name=vikas_pasoriya
+          
+          # 4. डिपेंडेंसी लाना
           flutter pub get
-          flutter config --no-analytics
           
-          # 3. एंड्राइड फोल्डर को रिपेयर करो (ताकि 'Flutter source directory' वाली एरर हट जाए)
-          flutter create . --platforms=android
-          
-          # 4. परमिशन दो
+          # 5. परमिशन देना
           chmod +x android/gradlew
-          
-          # 5. असली बिल्ड कमांड
-          flutter build apk --release --no-tree-shake-icons
+
+      - name: Build APK
+        run: flutter build apk --release --no-tree-shake-icons
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: vikas-app-final
+          name: vikas-app-final-success
           path: build/app/outputs/flutter-apk/app-release.apk

@@ -1,12 +1,12 @@
 pluginManagement {
-    def Array<String> flutterSdkPath = {
+    def flutterSdkPath = {
         def properties = new Properties()
         file("local.properties").withInputStream { properties.load(it) }
         def path = properties.getProperty("flutter.sdk")
-        return [path]
+        return path
     }()
 
-    includeBuild("${flutterSdkPath[0]}/packages/flutter_tools/gradle")
+    includeBuild("$flutterSdkPath/packages/flutter_tools/gradle")
 
     repositories {
         google()

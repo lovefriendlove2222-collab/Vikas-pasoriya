@@ -1,3 +1,5 @@
+rootProject.name = 'vikas_pasoriya'
+
 pluginManagement {
     def flutterSdkPath = {
         def properties = new Properties()

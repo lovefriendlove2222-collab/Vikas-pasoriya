@@ -8,17 +8,11 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-          flutter-version: '3.19.0'
+          flutter-version: '3.19.0' # हमने वर्जन अपडेट कर दिया है
       
-      # यह लाइन local.properties बनाएगी
       - run: echo "flutter.sdk=$FLUTTER_ROOT" > android/local.properties
-      
       - run: flutter pub get
-      
-      # यहाँ हमने FLUTTER_ROOT को साफ़ तौर पर बता दिया है
       - run: flutter build apk --release --no-tree-shake-icons
-        env:
-          FLUTTER_ROOT: ${{ env.FLUTTER_ROOT }}
       
       - name: Upload APK
         uses: actions/upload-artifact@v4

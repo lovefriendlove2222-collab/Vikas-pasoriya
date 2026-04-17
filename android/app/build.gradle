@@ -1,8 +1,23 @@
 plugins {
     id "com.android.application"
     id "com.google.gms.google-services"
-    id "dev.flutter.flutter-gradle-plugin"
 }
+
+// Flutter के रास्ते के लिए ज़रूरी हिस्सा
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withReader('UTF-8') { reader ->
+        localProperties.load(reader)
+    }
+}
+
+def flutterRoot = localProperties.getProperty('flutter.sdk')
+if (flutterRoot == null) {
+    flutterRoot = System.getenv('FLUTTER_HOME')
+}
+
+apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
     namespace "com.vikas.pasoriya"
@@ -22,6 +37,11 @@ android {
             minifyEnabled false
             shrinkResources false
         }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 }
 

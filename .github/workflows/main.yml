@@ -3,31 +3,45 @@ on:
   push:
     branches:
       - main
+
+# पीले (Yellow) एरर को खत्म करने के लिए पर्यावरण सेटिंग्स
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      # 1. कोड चेकआउट करना (v4 इस्तेमाल किया है ताकि एरर न आए)
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      
+      # 2. जावा सेटअप (Android बिल्ड के लिए जरूरी)
+      - name: Setup Java
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
-      - uses: subosito/flutter-action@v2
+
+      # 3. फ्लटर सेटअप
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.19.0'
           channel: 'stable'
           
+      # 4. डिपेंडेंसी और प्लगइन्स फिक्स करना
       - name: Get Dependencies
         run: |
           flutter clean
           flutter pub get
-          # प्लगइन्स की लोकेशन फिक्स करने के लिए
-          flutter precache
           
+      # 5. APK बनाना
       - name: Build APK
         run: flutter build apk --release --no-tree-shake-icons
         
-      - name: Upload APK
+      # 6. बने हुए APK को डाउनलोड के लिए उपलब्ध कराना
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: release-apk

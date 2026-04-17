@@ -10,6 +10,8 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.6
+  # यो है असली इलाज - इसे जोड़ना जरूरी था
+  google_fonts: ^6.1.0 
 
 dev_dependencies:
   flutter_test:

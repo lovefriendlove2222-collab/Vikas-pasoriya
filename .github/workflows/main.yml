@@ -4,7 +4,7 @@ on:
     branches:
       - main
 
-# पीले (Yellow) एरर को खत्म करने के लिए पर्यावरण सेटिंग्स
+# पीला एरर हटाने और GitHub Actions को नया रखने के लिए
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
@@ -12,31 +12,31 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      # 1. कोड चेकआउट करना (v4 इस्तेमाल किया है ताकि एरर न आए)
+      # 1. कोड को GitHub से उठाना
       - name: Checkout Code
         uses: actions/checkout@v4
       
-      # 2. जावा सेटअप (Android बिल्ड के लिए जरूरी)
+      # 2. जावा सेटअप करना (Android बिल्ड के लिए)
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
 
-      # 3. फ्लटर सेटअप
+      # 3. फ्लटर सेटअप करना
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.19.0'
           channel: 'stable'
           
-      # 4. डिपेंडेंसी और प्लगइन्स फिक्स करना
+      # 4. जरूरी फाइलों को सही जगह सेट करना
       - name: Get Dependencies
         run: |
           flutter clean
           flutter pub get
           
-      # 5. APK बनाना
+      # 5. APK बनाना (Release Mode में)
       - name: Build APK
         run: flutter build apk --release --no-tree-shake-icons
         

@@ -1,4 +1,4 @@
-name: Flutter Build APK - Auto Repair
+name: Flutter Build APK
 on:
   push:
     branches:
@@ -26,27 +26,27 @@ jobs:
           flutter-version: '3.19.0'
           channel: 'stable'
 
-      # 1. सबसे पहले अगर फाइल गायब है तो उसे वापस लाना
-      - name: Restore Missing Files
-        run: |
-          flutter precache
-          flutter create . --platforms=android
-
-      # 2. अब फाइल को चलाने की अनुमति देना
+      # यह स्टेप फाइल को ढूँढेगा और उसे परमिशन देगा
       - name: Give Permission to Gradlew
-        run: chmod +x android/gradlew
+        run: |
+          if [ -f "android/gradlew" ]; then
+            chmod +x android/gradlew
+          else
+            echo "Gradlew file not found, creating it..."
+            flutter create . --platforms=android
+            chmod +x android/gradlew
+          fi
 
-      # 3. local.properties बनाना
+      # local.properties को सही जगह बनाना
       - name: Create local.properties
         run: |
           echo "sdk.dir=$ANDROID_SDK_ROOT" > android/local.properties
           echo "flutter.sdk=$FLUTTER_HOME" >> android/local.properties
 
-      # 4. APK बनाना
+      # बिल्ड कमांड - अब यह सीधे Flutter के जरिए बिल्ड करेगा, gradlew को मैन्युअली नहीं छुएगा
       - name: Build APK
         run: flutter build apk --release --no-tree-shake-icons
 
-      # 5. APK सेव करना
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:

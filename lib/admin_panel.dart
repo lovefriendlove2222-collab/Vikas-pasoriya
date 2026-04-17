@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AdminLogin extends StatefulWidget {
   const AdminLogin({super.key});
@@ -7,12 +9,12 @@ class AdminLogin extends StatefulWidget {
 }
 
 class _AdminLoginState extends State<AdminLogin> {
-  final TextEditingController _passController = TextEditingController();
-  // भाई तेरा पासवर्ड यहाँ सै, इसे बदल सकै सै तू
-  final String superAdminPass = "vikas@bhagwa"; 
-
-  void _checkLogin() {
-    if (_passController.text == superAdminPass) {
+  final _passC = TextEditingController();
+  
+  _checkPass() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String savedPass = prefs.getString('admin_pass') ?? "vikas@bhagwa";
+    if (_passC.text == savedPass) {
       Navigator.push(context, MaterialPageRoute(builder: (context) => const AdminDashboard()));
     } else {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('गलत पासवर्ड!')));
@@ -22,15 +24,13 @@ class _AdminLoginState extends State<AdminLogin> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('सुपर एडमिन लॉगिन'), backgroundColor: Colors.black),
+      appBar: AppBar(title: const Text('एडमिन लॉगिन')),
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            const Icon(Icons.security, size: 80, color: Colors.black),
-            TextField(controller: _passController, decoration: const InputDecoration(labelText: 'एडमिन पासवर्ड'), obscureText: true),
-            const SizedBox(height: 20),
-            ElevatedButton(onPressed: _checkLogin, child: const Text('पैनल खोलें')),
+            TextField(controller: _passC, decoration: const InputDecoration(labelText: 'पासवर्ड डालें'), obscureText: true),
+            ElevatedButton(onPressed: _checkPass, child: const Text('प्रवेश करें')),
           ],
         ),
       ),
@@ -38,40 +38,52 @@ class _AdminLoginState extends State<AdminLogin> {
   }
 }
 
-// एडमिन कंट्रोल सेंटर
 class AdminDashboard extends StatelessWidget {
   const AdminDashboard({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('एडमिन कंट्रोल सेंटर'), backgroundColor: Colors.deepOrange),
-      body: GridView.count(
-        padding: const EdgeInsets.all(15),
-        crossAxisCount: 2,
-        children: [
-          _adminCard(context, 'यूजर रिमूव/ब्लॉक', Icons.block, Colors.red),
-          _adminCard(context, 'डोनेशन स्कीम', Icons.add_chart, Colors.green),
-          _adminCard(context, 'रसीद ले-आउट', Icons.edit_note, Colors.blue),
-          _adminCard(context, 'UPI/QR अपडेट', Icons.qr_code_scanner, Colors.orange),
-          _adminCard(context, 'आईडी कार्ड जारी करें', Icons.badge, Colors.purple),
-          _adminCard(context, 'प्रोग्राम अपडेट', Icons.notification_add, Colors.brown),
-        ],
+      appBar: AppBar(title: const Text('एडमिन कंट्रोल'), actions: [
+        IconButton(icon: const Icon(Icons.settings), onPressed: () => _showChangePassDialog(context))
+      ]),
+      body: StreamBuilder(
+        stream: FirebaseFirestore.instance.collection('users').snapshots(),
+        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+          return ListView.builder(
+            itemCount: snapshot.data!.docs.length,
+            itemBuilder: (context, index) {
+              var user = snapshot.data!.docs[index];
+              return Card(
+                child: ListTile(
+                  title: Text(user['name']),
+                  subtitle: Text("${user['village']} - ${user['mobile']}"),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                    onPressed: () => FirebaseFirestore.instance.collection('users').doc(user.id).delete(),
+                  ),
+                ),
+              );
+            },
+          );
+        },
       ),
     );
   }
 
-  Widget _adminCard(BuildContext context, String title, IconData icon, Color color) {
-    return Card(
-      child: InkWell(
-        onTap: () { /* यहाँ हर फीचर की अलग सेटिंग खुलेगी */ },
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 40, color: color),
-            Text(title, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.bold)),
-          ],
-        ),
-      ),
-    );
+  _showChangePassDialog(BuildContext context) {
+    final newPassC = TextEditingController();
+    showDialog(context: context, builder: (context) => AlertDialog(
+      title: const Text('नया एडमिन पासवर्ड'),
+      content: TextField(controller: newPassC),
+      actions: [
+        ElevatedButton(onPressed: () async {
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.setString('admin_pass', newPassC.text);
+          Navigator.pop(context);
+        }, child: const Text('बदलें'))
+      ],
+    ));
   }
 }

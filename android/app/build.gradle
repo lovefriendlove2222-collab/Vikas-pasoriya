@@ -1,6 +1,40 @@
 plugins {
     id "com.android.application"
-    // नीचे वाली लाइन को ध्यान से देखें, यही जादू करेगी
+    id "kotlin-android"
+    // Flutter का नया प्लगइन तरीका
     id "dev.flutter.flutter-gradle-plugin"
-    id "com.google.gms.google-services"
 }
+
+android {
+    // यहाँ हमने साफ़ लिख दिया है ताकि एरर न आए
+    namespace "com.vikas.pasoriya"
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.vikas.pasoriya"
+        minSdk 21
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+        multiDexEnabled true
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.debug
+            minifyEnabled false
+            shrinkResources false
+        }
+    }
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation platform('com.google.firebase:firebase-bom:32.7.0')
+    implementation 'com.google.firebase:firebase-analytics'
+    implementation 'com.google.firebase:firebase-auth'
+    implementation 'com.google.firebase:firebase-firestore'
+    implementation 'com.android.support:multidex:1.0.3'
+}
+
+apply plugin: 'com.google.gms.google-services'

@@ -1,4 +1,4 @@
-name: Auto-Fix and Build APK
+name: Flutter Build APK - Auto Fix
 on:
   push:
     branches:
@@ -15,40 +15,41 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # 2. जावा सेटअप (v17)
+      # 2. जावा सेटअप करना
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
 
-      # 3. फ्लटर सेटअप
+      # 3. फ्लटर सेटअप करना
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.19.0'
           channel: 'stable'
 
-      # 4. ऑटो-फिक्स: local.properties खुद बनाना (यही सबसे बड़ी गड़बड़ थी)
+      # 4. ऑटो-फिक्स: local.properties खुद बनाना (यही गड़बड़ थी)
       - name: Auto-Create local.properties
         run: |
+          mkdir -p android
           echo "sdk.dir=$ANDROID_SDK_ROOT" > android/local.properties
           echo "flutter.sdk=$FLUTTER_HOME" >> android/local.properties
-          cat android/local.properties
+          echo "बधाई हो! local.properties फाइल बन गई है।"
 
-      # 5. डिपेंडेंसी लोड करना
+      # 5. डिपेंडेंसी और प्लगइन्स फिक्स करना
       - name: Get Dependencies
         run: |
           flutter clean
           flutter pub get
           
-      # 6. APK बनाना (Release)
+      # 6. APK बनाना
       - name: Build APK
         run: flutter build apk --release --no-tree-shake-icons
 
-      # 7. APK को सेव करना ताकि आप डाउनलोड कर सकें
-      - name: Upload Artifact
+      # 7. APK सेव करना
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: vikas-app-release
+          name: app-release
           path: build/app/outputs/flutter-apk/app-release.apk

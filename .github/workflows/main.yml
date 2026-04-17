@@ -3,40 +3,30 @@ on:
   push:
     branches:
       - main
-
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
-
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.19.0'
-
-      - name: Force Rebuild Android
+      - name: Complete Build
         run: |
-          # पुरानी गड़बड़ हटाओ
           rm -rf android/
           flutter clean
-          
-          # नया स्ट्रक्चर बनाओ
           flutter create . --platforms=android --project-name=vikas_pasoriya
           flutter pub get
-          
-          # बिल्ड करो
           chmod +x android/gradlew
           flutter build apk --release --no-tree-shake-icons
-
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: vikas-full-app
+          name: vikas-system-app
           path: build/app/outputs/flutter-apk/app-release.apk

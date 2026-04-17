@@ -3,6 +3,7 @@ pluginManagement {
         def properties = new Properties()
         file("local.properties").withInputStream { properties.load(it) }
         def flutterSdkPath = properties.getProperty("flutter.sdk")
+        assert flutterSdkPath != null, "flutter.sdk not set in local.properties"
         return flutterSdkPath
     }()
 
@@ -23,3 +24,19 @@ plugins {
 }
 
 include ":app"
+
+// यह लाइन प्लगइन्स को आपस में जोड़ेगी
+def flutterProjectRoot = rootProject.projectDir.parentFile
+def plugins = new Properties()
+def pluginsFile = new File(flutterProjectRoot, '.flutter-plugins')
+if (pluginsFile.exists()) {
+    pluginsFile.withReader('UTF-8') { reader -> plugins.load(reader) }
+}
+
+plugins.each { name, path ->
+    def pluginDirectory = Array.newInstance(File, 1)
+    pluginDirectory[0] = new File(path, 'android')
+    assert pluginDirectory[0].exists()
+    include ":$name"
+    project(":$name").projectDir = pluginDirectory[0]
+}

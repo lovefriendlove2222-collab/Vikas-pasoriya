@@ -8,7 +8,8 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.19.0'
-      - run: |
+      - name: Master Build
+        run: |
           rm -rf android/
           flutter clean
           flutter create . --platforms=android --project-name=vikas_pasoriya
@@ -16,5 +17,5 @@ jobs:
           flutter build apk --release --no-tree-shake-icons
       - uses: actions/upload-artifact@v4
         with:
-          name: vikas-photo-app
+          name: vikas-final-system
           path: build/app/outputs/flutter-apk/app-release.apk

@@ -1,5 +1,5 @@
 name: vikas_pasoriya
-description: "Vikas Pasoriya Official - All Features"
+description: "Vikas Pasoriya Official - Full System"
 version: 1.0.0+1
 publish_to: 'none'
 
@@ -15,7 +15,8 @@ dependencies:
   firebase_core: ^2.27.0
   firebase_auth: ^4.17.8
   cloud_firestore: ^4.15.8
-  qr_flutter: ^4.1.0 # QR कोड के लिए
+  shared_preferences: ^2.2.2 # पासवर्ड और लॉगिन याद रखने के लिए
+  qr_flutter: ^4.1.0
 
 flutter:
   uses-material-design: true

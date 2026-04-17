@@ -1,13 +1,37 @@
+plugins {
+    id "com.android.application"
+    id "kotlin-android"
+    id "dev.flutter.flutter-gradle-plugin"
+    id "com.google.gms.google-services"
+}
+
 android {
-    namespace "com.vikas.pasoriya" // JSON के अनुसार बदला गया
+    namespace "com.vikas.pasoriya"
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.vikas.pasoriya" // यहाँ पक्का "com.vikas.pasoriya" रखें
+        applicationId "com.vikas.pasoriya"
         minSdkVersion 21
         targetSdkVersion 34
         versionCode 1
         versionName "1.0"
     }
-    // ... बाकी कोड पहले जैसा
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.debug
+            shrinkResources false
+            minifyEnabled false
+        }
+    }
+}
+
+flutter {
+    source '../..'
+}
+
+dependencies {
+    implementation platform('com.google.firebase:firebase-bom:32.7.0')
+    implementation 'com.google.firebase:firebase-analytics'
+    implementation 'com.google.firebase:firebase-firestore'
 }

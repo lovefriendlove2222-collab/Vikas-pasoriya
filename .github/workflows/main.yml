@@ -21,11 +21,12 @@ jobs:
         with:
           flutter-version: '3.19.0'
 
-      # यह स्टेप आपकी गलत फाइलों को हटाकर सही फाइलें खुद बनाएगा
-      - name: Clean and Repair Project
+      # यो स्टेप थारी settings.gradle नै खुद ठीक करेगा
+      - name: Auto-Fix Files
         run: |
-          rm -rf android/settings.gradle
+          rm -f android/settings.gradle
           echo "include ':app'" > android/settings.gradle
+          echo "def flutterProjectRoot = rootProject.projectDir.parentFile" >> android/settings.gradle
           flutter create . --platforms=android
           chmod +x android/gradlew
 
@@ -35,5 +36,5 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: vikas-app-apk
+          name: app-release
           path: build/app/outputs/flutter-apk/app-release.apk

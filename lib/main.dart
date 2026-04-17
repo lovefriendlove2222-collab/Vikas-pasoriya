@@ -14,8 +14,8 @@ class VikasApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Vikas Pasoriya Official',
       theme: ThemeData(
-        useMaterial: true,
-        textTheme: GoogleFonts.hindTextTheme(), // हरियाणवी/हिंदी फोंट के लिए
+        useMaterial3: true, // यहाँ 'useMaterial' की जगह 'useMaterial3' आएगा
+        textTheme: GoogleFonts.hindTextTheme(),
       ),
       home: const HomeScreen(),
     );
@@ -28,12 +28,12 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      app_bar: AppBar(
+      // ध्यान तै देखिये भाई, यहाँ 'app_bar' की जगह 'appBar' (B बड़ा) कर दिया सै
+      appBar: AppBar(
         title: const Text('विकास पासोरिया ऑफिशियल'),
         backgroundColor: Colors.orangeAccent,
         centerTitle: true,
       ),
-      // --- यहाँ से साइड मेन्यू (Options) शुरू होता है ---
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
@@ -44,7 +44,7 @@ class HomeScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   CircleAvatar(radius: 40, backgroundColor: Colors.white, child: Icon(Icons.person, size: 50)),
-                  S_box(height: 10),
+                  SizedBox(height: 10),
                   Text('राम-राम जी!', style: TextStyle(color: Colors.white, fontSize: 20)),
                 ],
               ),
@@ -56,7 +56,7 @@ class HomeScreen extends StatelessWidget {
             ),
             ListTile(
               leading: const Icon(Icons.video_library),
-              title: const Text('मेरे प्रोग्राम (Videos)'),
+              title: const Text('मेरे प्रोग्राम'),
               onTap: () {},
             ),
             ListTile(
@@ -64,15 +64,9 @@ class HomeScreen extends StatelessWidget {
               title: const Text('नए रागनी / गाने'),
               onTap: () {},
             ),
-            ListTile(
-              leading: const Icon(Icons.contact_phone),
-              title: const Text('संपर्क करें'),
-              onTap: () {},
-            ),
           ],
         ),
       ),
-      // --- होम स्क्रीन के बटन ---
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: GridView.count(
@@ -100,19 +94,11 @@ class HomeScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(icon, size: 50, color: color),
-            const S_box(height: 10),
+            const SizedBox(height: 10),
             Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           ],
         ),
       ),
     );
   }
-}
-
-// छोटी सी हेल्पर क्लास
-class S_box extends StatelessWidget {
-  final double height;
-  const S_box({super.key, required this.height});
-  @override
-  Widget build(BuildContext context) { return SizedBox(height: height); }
 }

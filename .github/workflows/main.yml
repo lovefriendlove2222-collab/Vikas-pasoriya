@@ -21,24 +21,31 @@ jobs:
         with:
           flutter-version: '3.19.0'
 
-      - name: Repair and Build
+      - name: Master Repair and Build
         run: |
-          # पुरानी गड़बड़ साफ़ करो
+          # 1. पुराने कचरे की सफाई
           flutter clean
           
-          # सारी डिपेंडेंसी (Fonts समेत) दोबारा लाओ
+          # 2. नाम को हर जगह छोटा (lowercase) करना
+          find . -type f -not -path '*/.*' -exec sed -i 's/Vikas-pasoriya/vikas_pasoriya/g' {} +
+          find . -type f -not -path '*/.*' -exec sed -i 's/Vikas_Pasoriya/vikas_pasoriya/g' {} +
+          
+          # 3. डिपेंडेंसी दोबारा लाना
           flutter pub get
           
-          # एंड्राइड ढांचा दोबारा तैयार करो
+          # 4. एंड्राइड फोल्डर को कति नया बनाना (ताकि Source Directory वाली एरर हट जाए)
           flutter create . --platforms=android --project-name=vikas_pasoriya
           
-          chmod +x android/gradlew
+          # 5. प्लगइन्स को सिंक करना
+          cd android
+          ./gradlew clean
+          cd ..
           
-          # बिल्ड शुरू करो
+          # 6. असली बिल्ड
           flutter build apk --release --no-tree-shake-icons
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: vikas-app-final-build
+          name: vikas-app-success
           path: build/app/outputs/flutter-apk/app-release.apk

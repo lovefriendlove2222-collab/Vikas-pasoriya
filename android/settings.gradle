@@ -24,7 +24,7 @@ plugins {
 
 include ":app"
 
-// प्लगइन्स को जोड़ने वाला पक्का कोड
+// प्लगइन्स को रजिस्टर करने का कोड
 def flutterProjectRoot = rootProject.projectDir.parentFile
 def plugins = new Properties()
 def pluginsFile = new File(flutterProjectRoot, '.flutter-plugins')

@@ -3,20 +3,27 @@ on:
   push:
     branches:
       - main
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4 # v4 ही Node 24 को सपोर्ट करता है
       
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.19.0'
           channel: 'stable'
           
-      - name: Get Dependencies
+      - name: Install Dependencies
         run: |
           flutter clean
           flutter pub get
@@ -24,7 +31,7 @@ jobs:
       - name: Build APK
         run: flutter build apk --release --no-tree-shake-icons
         
-      - name: Upload Artifact
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: release-apk

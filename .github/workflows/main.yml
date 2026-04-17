@@ -5,15 +5,35 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: subosito/flutter-action@v2
+      
+      - name: Setup Java
+        uses: actions/setup-java@v4
         with:
-          flutter-version: '3.19.0' # स्टेबल वर्जन
-      - name: Master Final Build
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.19.0'
+
+      - name: Full System Repair and Build
         run: |
-          flutter clean
+          # 1. पुराने एंड्राइड फोल्डर की छुट्टी
+          rm -rf android/
+          
+          # 2. कति नए स्टाइल का एंड्राइड ढांचा तैयार करना
+          flutter create . --platforms=android --project-name=vikas_pasoriya
+          
+          # 3. लाइब्रेरी सेट करना
           flutter pub get
+          
+          # 4. परमिशन सेट करके बिल्ड करना
+          chmod +x android/gradlew
           flutter build apk --release --no-tree-shake-icons
-      - uses: actions/upload-artifact@v4
+
+      - name: Upload Final APK
+        uses: actions/upload-artifact@v4
         with:
-          name: vikas-official-final
+          name: vikas-official-final-v1
           path: build/app/outputs/flutter-apk/app-release.apk

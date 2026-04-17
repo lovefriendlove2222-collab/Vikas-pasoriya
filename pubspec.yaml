@@ -11,6 +11,8 @@ dependencies:
     sdk: flutter
   firebase_core: ^2.27.0
   cloud_firestore: ^4.15.8
+  youtube_player_flutter: ^8.1.2 # यूट्यूब वीडियो के लिए
+  google_fonts: ^6.2.1
   cupertino_icons: ^1.0.6
 
 dev_dependencies:

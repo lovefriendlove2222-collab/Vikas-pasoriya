@@ -1,12 +1,11 @@
 plugins {
     id "com.android.application"
     id "kotlin-android"
-    // Flutter का नया प्लगइन तरीका
+    // ये लाइन प्लगइन्स को लोड करने के लिए सबसे जरूरी है
     id "dev.flutter.flutter-gradle-plugin"
 }
 
 android {
-    // यहाँ हमने साफ़ लिख दिया है ताकि एरर न आए
     namespace "com.vikas.pasoriya"
     compileSdk 34
 
@@ -37,4 +36,5 @@ dependencies {
     implementation 'com.android.support:multidex:1.0.3'
 }
 
+// यह लाइन गूगल सर्विसेज को कनेक्ट करेगी
 apply plugin: 'com.google.gms.google-services'

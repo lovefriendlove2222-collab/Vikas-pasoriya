@@ -9,7 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  # फिक्स वर्जन्स ताकि टकराव न हो
+  # ये वर्जन्स आपस में एकदम फिट बैठते हैं
   firebase_core: 2.27.0
   firebase_auth: 4.17.8
   cloud_firestore: 4.15.8

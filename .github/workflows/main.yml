@@ -1,4 +1,4 @@
-name: Flutter Build APK
+name: Flutter Android Build (Firebase Ready)
 
 on:
   push:
@@ -8,50 +8,47 @@ on:
     branches:
       - main
 
-# पीला वार्निंग मैसेज (Node.js) हटाने के लिए
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. कोड को GitHub से फेच करना
-      - name: Checkout repository
+      # 1. Checkout repo
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. जावा सेटअप (Android के लिए जरूरी)
-      - name: Set up JDK 17
+      # 2. Setup Java (Gradle के लिए जरूरी)
+      - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
           distribution: 'temurin'
+          java-version: '17'
 
-      # 3. फ्लटर सेटअप करना
-      - name: Set up Flutter
+      # 3. Setup Flutter
+      - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.19.0'
-          channel: 'stable'
+          flutter-version: '3.22.0'
 
-      # 4. डिपेंडेंसी लोड करना
+      # 4. Flutter pub get
       - name: Install dependencies
+        run: flutter pub get
+
+      # 5. Firebase config check (optional)
+      - name: Check google-services.json
         run: |
-          flutter clean
-          flutter pub get
+          if [ ! -f android/app/google-services.json ]; then
+            echo "❌ google-services.json missing!"
+            exit 1
+          fi
 
-      # 5. प्लगइन्स और कॉन्फ़िगरेशन चेक करना
-      - name: Precache Flutter artifacts
-        run: flutter precache
-
-      # 6. APK बनाना (Release Mode)
+      # 6. Build APK
       - name: Build APK
-        run: flutter build apk --release --no-tree-shake-icons
+        run: flutter build apk --release
 
-      # 7. बने हुए APK को डाउनलोड के लिए सेव करना
-      - name: Upload APK
+      # 7. Upload APK
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-release
+          name: app-release-apk
           path: build/app/outputs/flutter-apk/app-release.apk

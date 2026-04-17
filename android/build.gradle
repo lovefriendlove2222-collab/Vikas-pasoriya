@@ -3,11 +3,14 @@ buildscript {
         google()
         mavenCentral()
     }
+
     dependencies {
-        // यह लाइन Android प्लगइन को ढूंढने में मदद करेगी
+        // यह लाइन Android प्लगइन को रास्ता दिखाएगी
         classpath 'com.android.tools.build:gradle:8.2.1'
-        // यह लाइन Firebase के लिए है
+        // यह लाइन Firebase को कनेक्ट करेगी
         classpath 'com.google.gms:google-services:4.4.0'
+        // Kotlin के लिए ज़रूरी
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.22"
     }
 }
 

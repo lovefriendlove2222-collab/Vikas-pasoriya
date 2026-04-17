@@ -21,9 +21,14 @@ jobs:
         with:
           flutter-version: '3.19.0'
 
-      # यह स्टेप गायब फाइलों को खुद ठीक करेगा
-      - name: Repair Android Files
+      # यह स्टेप नाम और गायब फाइलें खुद ठीक करेगा
+      - name: Auto-Fix Project Name & Files
         run: |
+          cd android
+          echo "rootProject.name = 'app'" > settings.gradle.tmp
+          cat settings.gradle >> settings.gradle.tmp || true
+          mv settings.gradle.tmp settings.gradle
+          cd ..
           flutter create . --platforms=android
           chmod +x android/gradlew
 

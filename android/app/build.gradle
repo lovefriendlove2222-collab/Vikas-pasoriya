@@ -1,64 +1,13 @@
-plugins {
-    id "com.android.application"
-    id "kotlin-android"
-    // Flutter और Google Services के प्लगइन्स
-    id "dev.flutter.flutter-gradle-plugin"
-    id "com.google.gms.google-services"
-}
-
-def localProperties = new Properties()
-def localPropertiesFile = rootProject.file('local.properties')
-if (localPropertiesFile.exists()) {
-    localPropertiesFile.withReader('UTF-8') { reader ->
-        localProperties.load(reader)
-    }
-}
-
-def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
-if (flutterVersionCode == null) {
-    flutterVersionCode = '1'
-}
-
-def flutterVersionName = localProperties.getProperty('flutter.versionName')
-if (flutterVersionName == null) {
-    flutterVersionName = '1.0'
-}
-
 android {
-    namespace "com.example.vikas_pasoria"
-    compileSdk 34 // Android 14 के लिए सपोर्ट
-
-    sourceSets {
-        main.java.srcDirs += 'src/main/kotlin'
-    }
+    namespace "com.vikas.pasoriya" // JSON के अनुसार बदला गया
+    compileSdk 34
 
     defaultConfig {
-        applicationId "com.example.vikas_pasoria"
+        applicationId "com.vikas.pasoriya" // यहाँ पक्का "com.vikas.pasoriya" रखें
         minSdkVersion 21
         targetSdkVersion 34
-        versionCode flutterVersionCode.toInteger()
-        versionName flutterVersionName
-
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        versionCode 1
+        versionName "1.0"
     }
-
-    buildTypes {
-        release {
-            // रिलीज़ के लिए सेटिंग्स
-            signingConfig signingConfigs.debug
-            shrinkResources false
-            minifyEnabled false
-        }
-    }
-}
-
-flutter {
-    source '../..'
-}
-
-dependencies {
-    // Firebase के लिए ज़रूरी लाइब्रेरीज़
-    implementation platform('com.google.firebase:firebase-bom:32.7.0')
-    implementation 'com.google.firebase:firebase-analytics'
-    implementation 'com.google.firebase:firebase-firestore'
+    // ... बाकी कोड पहले जैसा
 }

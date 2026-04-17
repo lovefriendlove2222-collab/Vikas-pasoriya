@@ -1,18 +1,14 @@
-name: Flutter Build APK
+name: Build APK
 on:
   push:
     branches:
       - main
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -24,31 +20,18 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.19.0'
-          channel: 'stable'
 
-      # यह स्टेप फाइल को ढूँढेगा और उसे परमिशन देगा
-      - name: Give Permission to Gradlew
+      # यह स्टेप गायब फाइलों को खुद ठीक करेगा
+      - name: Repair Android Files
         run: |
-          if [ -f "android/gradlew" ]; then
-            chmod +x android/gradlew
-          else
-            echo "Gradlew file not found, creating it..."
-            flutter create . --platforms=android
-            chmod +x android/gradlew
-          fi
+          flutter create . --platforms=android
+          chmod +x android/gradlew
 
-      # local.properties को सही जगह बनाना
-      - name: Create local.properties
-        run: |
-          echo "sdk.dir=$ANDROID_SDK_ROOT" > android/local.properties
-          echo "flutter.sdk=$FLUTTER_HOME" >> android/local.properties
-
-      # बिल्ड कमांड - अब यह सीधे Flutter के जरिए बिल्ड करेगा, gradlew को मैन्युअली नहीं छुएगा
       - name: Build APK
         run: flutter build apk --release --no-tree-shake-icons
 
-      - name: Upload APK
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-release
+          name: release-apk
           path: build/app/outputs/flutter-apk/app-release.apk

@@ -10,7 +10,7 @@ jobs:
           channel: 'stable'
           flutter-version: '3.19.0'
       
-      # यह जादुई लाइन वो रास्ता बना देगी जो अभी नहीं मिल रहा
+      # यह लाइन local.properties का एरर खत्म कर देगी
       - run: echo "flutter.sdk=$FLUTTER_ROOT" > android/local.properties
       
       - run: flutter pub get

@@ -1,48 +1,23 @@
-def localProperties = new Properties()
-def localPropertiesFile = rootProject.file('local.properties')
-if (localPropertiesFile.exists()) {
-    localPropertiesFile.withReader('UTF-8') { reader ->
-        localProperties.load(reader)
-    }
+plugins {
+    id "com.android.application"
+    id "com.google.gms.google-services"
+    id "dev.flutter.flutter-gradle-plugin"
 }
-
-def flutterRoot = localProperties.getProperty('flutter.sdk')
-if (flutterRoot == null) {
-    flutterRoot = System.getenv('FLUTTER_HOME')
-}
-
-apply plugin: 'com.android.application'
-apply plugin: 'com.google.gms.google-services'
-apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
-    namespace "com.vikas.pasoriya" // पक्का करें कि आपका पैकेज नेम यही है
-    compileSdkVersion 34
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
-    }
-
-    kotlinOptions {
-        jvmTarget = '17'
-    }
-
-    sourceSets {
-        main.java.srcDirs += 'src/main/kotlin'
-    }
+    namespace "com.vikas.pasoriya"
+    compileSdk 34
 
     defaultConfig {
         applicationId "com.vikas.pasoriya"
-        minSdkVersion 21
-        targetSdkVersion 34
+        minSdk 21
+        targetSdk 34
         versionCode 1
         versionName "1.0"
     }
 
     buildTypes {
         release {
-            // यहाँ आप अपनी की-स्टोर सेटिंग्स डाल सकते हैं, अभी के लिए डिबग यूज़ होगा
             signingConfig signingConfigs.debug
             minifyEnabled false
             shrinkResources false

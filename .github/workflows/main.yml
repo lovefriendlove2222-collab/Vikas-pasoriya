@@ -21,29 +21,24 @@ jobs:
         with:
           flutter-version: '3.19.0'
 
-      - name: Nuclear Clean and Rebuild
+      - name: Repair and Build
         run: |
-          # 1. सारी पुरानी एंड्राइड फाइलां का खात्मा
-          rm -rf android/
+          # पुरानी गड़बड़ साफ़ करो
+          flutter clean
           
-          # 2. नाम की कति सफाई (जहाँ भी बड़ा V या Dash सै)
-          find . -type f -not -path '*/.*' -exec sed -i 's/Vikas-pasoriya/vikas_pasoriya/g' {} +
-          find . -type f -not -path '*/.*' -exec sed -i 's/Vikas_Pasoriya/vikas_pasoriya/g' {} +
-          
-          # 3. नया एंड्राइड स्ट्रक्चर खड़ा करना
-          flutter create . --platforms=android --project-name=vikas_pasoriya
-          
-          # 4. डिपेंडेंसी लाना
+          # सारी डिपेंडेंसी (Fonts समेत) दोबारा लाओ
           flutter pub get
           
-          # 5. परमिशन देना
+          # एंड्राइड ढांचा दोबारा तैयार करो
+          flutter create . --platforms=android --project-name=vikas_pasoriya
+          
           chmod +x android/gradlew
-
-      - name: Build APK
-        run: flutter build apk --release --no-tree-shake-icons
+          
+          # बिल्ड शुरू करो
+          flutter build apk --release --no-tree-shake-icons
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: vikas-app-final-success
+          name: vikas-app-final-build
           path: build/app/outputs/flutter-apk/app-release.apk

@@ -15,8 +15,10 @@ jobs:
       
       - run: flutter pub get
       
-      # यहाँ हमने बिल्ड कमांड को साफ़ कर दिया है
+      # यहाँ हमने FLUTTER_ROOT को साफ़ तौर पर बता दिया है
       - run: flutter build apk --release --no-tree-shake-icons
+        env:
+          FLUTTER_ROOT: ${{ env.FLUTTER_ROOT }}
       
       - name: Upload APK
         uses: actions/upload-artifact@v4

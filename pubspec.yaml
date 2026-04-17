@@ -1,5 +1,6 @@
-name: vikas_pasoria
-description: Vikas Pasoria Official App
+name: vikas_pasoriya
+description: Vikas Pasoriya Official Project
+publish_to: 'none'
 version: 1.0.0+1
 
 environment:

@@ -5,27 +5,32 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
+    // Firebase शुरू करने की कोशिश
     await Firebase.initializeApp();
   } catch (e) {
-    debugPrint("Firebase Error: $e");
+    debugPrint("Firebase connection failed: $e");
   }
   runApp(const VikasApp());
 }
 
 class VikasApp extends StatelessWidget {
   const VikasApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'विकास पासोरिया ऑफिशियल',
-      theme: ThemeData(primarySwatch: Colors.orange),
+      theme: ThemeData(
+        primarySwatch: Colors.orange,
+        scaffoldBackgroundColor: Colors.white,
+      ),
       home: const HomePage(),
     );
   }
 }
 
-// --- 1. होम पेज (Home Page) ---
+// --- 1. मुख्य स्क्रीन (होम पेज) ---
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
@@ -35,6 +40,7 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(
         title: const Text("विकास पासोरिया ऑफिशियल"),
         backgroundColor: Colors.orange[900],
+        centerTitle: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.admin_panel_settings),
@@ -42,51 +48,65 @@ class HomePage extends StatelessWidget {
           )
         ],
       ),
-      body: Column(
-        children: [
-          const SizedBox(height: 20),
-          const Text("🚩 जय श्री राम 🚩", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.red)),
-          const Text("लोकगायक विकास पासोरिया", style: TextStyle(fontSize: 16)),
-          const Divider(height: 40),
-          
-          // यहाँ भविष्य में यूट्यूब वीडियोस आएंगे
-          const Expanded(
-            child: Center(child: Text("यहाँ आपकी ताज़ा रागनियां दिखेंगी (Coming Soon)")),
+      body: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.orange[100]!, Colors.white],
+            begin: Alignment.topCenter,
           ),
-          
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: ElevatedButton.icon(
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text("🚩 जय श्री राम 🚩", 
+              style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.red)),
+            const SizedBox(height: 10),
+            const Text("लोकगायक विकास पासोरिया", 
+              style: TextStyle(fontSize: 18, fontStyle: FontStyle.italic)),
+            const SizedBox(height: 50),
+            
+            // मेंबर रजिस्ट्रेशन बटन
+            ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.orange[800],
-                minimumSize: const Size(double.infinity, 55),
+                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
               ),
               onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const RegistrationPage())),
               icon: const Icon(Icons.person_add, color: Colors.white),
-              label: const Text("मेंबर रजिस्ट्रेशन", style: TextStyle(color: Colors.white, fontSize: 18)),
+              label: const Text("मेंबर रजिस्ट्रेशन", style: TextStyle(fontSize: 18, color: Colors.white)),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
+  // एडमिन लॉगिन पॉप-अप
   void _adminLogin(BuildContext context) {
     TextEditingController pass = TextEditingController();
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text("एडमिन लॉगिन"),
-        content: TextField(controller: pass, decoration: const InputDecoration(hintText: "पासवर्ड"), obscureText: true),
+        content: TextField(
+          controller: pass, 
+          decoration: const InputDecoration(hintText: "पासवर्ड यहाँ लिखें"), 
+          obscureText: true
+        ),
         actions: [
-          TextButton(onPressed: () {
-            if (pass.text == "1008@pasoriya") { // आपका पासवर्ड
-              Navigator.pop(context);
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const AdminPanel()));
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("गलत पासवर्ड!")));
-            }
-          }, child: const Text("लॉगिन"))
+          TextButton(
+            onPressed: () {
+              if (pass.text == "1008@pasoriya") {
+                Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const AdminPanel()));
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("गलत पासवर्ड!")));
+              }
+            }, 
+            child: const Text("लॉगिन")
+          )
         ],
       ),
     );
@@ -105,21 +125,30 @@ class _RegistrationPageState extends State<RegistrationPage> {
   final TextEditingController _phone = TextEditingController();
   final TextEditingController _village = TextEditingController();
 
-  void _save() async {
+  void _saveData() async {
     if (_name.text.isEmpty || _phone.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("नाम और नंबर ज़रूरी है!")));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("कृपया नाम और नंबर भरें!")));
       return;
     }
     try {
-      // 'menus' आपके Firebase फोल्डर का नाम है
       await FirebaseFirestore.instance.collection('menus').add({
         'name': _name.text,
         'phone': _phone.text,
         'village': _village.text,
-        'time': DateTime.now().toString(),
+        'date': DateTime.now().toString(),
       });
       if (mounted) {
-        showDialog(context: context, builder: (context) => const AlertDialog(title: Text("सफल!"), content: Text("आपकी जानकारी सेव हो गई है।")));
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text("सफल!"),
+            content: const Text("आपकी जानकारी सेव हो गई है।"),
+            actions: [TextButton(onPressed: () {
+              Navigator.pop(context);
+              Navigator.pop(context);
+            }, child: const Text("ठीक है"))],
+          ),
+        );
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("कनेक्शन एरर: $e")));
@@ -130,15 +159,24 @@ class _RegistrationPageState extends State<RegistrationPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("मेंबर रजिस्ट्रेशन")),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            TextField(controller: _name, decoration: const InputDecoration(labelText: "आपका नाम")),
-            TextField(controller: _village, decoration: const InputDecoration(labelText: "गाँव")),
-            TextField(controller: _phone, decoration: const InputDecoration(labelText: "मोबाइल नंबर")),
+            TextField(controller: _name, decoration: const InputDecoration(labelText: "आपका नाम", border: OutlineInputBorder())),
+            const SizedBox(height: 15),
+            TextField(controller: _village, decoration: const InputDecoration(labelText: "गाँव का नाम", border: OutlineInputBorder())),
+            const SizedBox(height: 15),
+            TextField(controller: _phone, keyboardType: TextInputType.phone, decoration: const InputDecoration(labelText: "मोबाइल नंबर", border: OutlineInputBorder())),
             const SizedBox(height: 30),
-            ElevatedButton(onPressed: _save, child: const Text("सबमिट करें")),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green[700],
+                minimumSize: const Size(double.infinity, 50),
+              ),
+              onPressed: _saveData, 
+              child: const Text("डाटा सबमिट करें", style: TextStyle(color: Colors.white, fontSize: 18))
+            ),
           ],
         ),
       ),
@@ -146,23 +184,33 @@ class _RegistrationPageState extends State<RegistrationPage> {
   }
 }
 
-// --- 3. एडमिन पैनल (मेंबर लिस्ट देखने के लिए) ---
+// --- 3. एडमिन पैनल (डेटा देखने के लिए) ---
 class AdminPanel extends StatelessWidget {
   const AdminPanel({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("मेंबर लिस्ट"), backgroundColor: Colors.black),
+      appBar: AppBar(title: const Text("सभी मेंबर्स की लिस्ट"), backgroundColor: Colors.black),
       body: StreamBuilder(
-        stream: FirebaseFirestore.instance.collection('menus').snapshots(),
+        stream: FirebaseFirestore.instance.collection('menus').orderBy('date', descending: true).snapshots(),
         builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
-          return ListView(
-            children: snapshot.data!.docs.map((doc) => ListTile(
-              leading: const Icon(Icons.person),
-              title: Text(doc['name'] ?? 'Unknown'),
-              subtitle: Text("${doc['village'] ?? ''} - ${doc['phone'] ?? ''}"),
-            )).toList(),
+          if (snapshot.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator());
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) return const Center(child: Text("अभी कोई मेंबर नहीं है।"));
+          
+          return ListView.builder(
+            itemCount: snapshot.data!.docs.length,
+            itemBuilder: (context, index) {
+              var doc = snapshot.data!.docs[index];
+              return Card(
+                margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                child: ListTile(
+                  leading: const CircleAvatar(child: Icon(Icons.person)),
+                  title: Text(doc['name'] ?? 'No Name'),
+                  subtitle: Text("गाँव: ${doc['village']} | मो: ${doc['phone']}"),
+                ),
+              );
+            },
           );
         },
       ),

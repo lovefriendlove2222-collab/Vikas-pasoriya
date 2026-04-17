@@ -6,17 +6,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.10.0'
+          flutter-version: '3.19.0'
           channel: 'stable'
 
       - name: Install Dependencies
         run: flutter pub get
 
       - name: Build APK
+        # यह कमांड पुराने एरर्स को नजरअंदाज करके बिल्ड बनाएगी
         run: flutter build apk --release --no-tree-shake-icons
 
       - name: Upload APK

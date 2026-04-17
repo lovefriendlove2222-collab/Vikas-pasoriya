@@ -1,40 +1,17 @@
-plugins {
-    id "com.android.application"
-    id "kotlin-android"
-    // ये लाइन प्लगइन्स को लोड करने के लिए सबसे जरूरी है
-    id "dev.flutter.flutter-gradle-plugin"
-}
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle" // यह लाइन सबसे जरूरी है
 
 android {
     namespace "com.vikas.pasoriya"
-    compileSdk 34
-
+    compileSdkVersion 34 // यहाँ 'compileSdkVersion' लिखें, सिर्फ 'compileSdk' नहीं
+    
     defaultConfig {
         applicationId "com.vikas.pasoriya"
-        minSdk 21
-        targetSdk 34
+        minSdkVersion 21
+        targetSdkVersion 34
         versionCode 1
         versionName "1.0"
         multiDexEnabled true
     }
-
-    buildTypes {
-        release {
-            signingConfig signingConfigs.debug
-            minifyEnabled false
-            shrinkResources false
-        }
-    }
 }
-
-dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    implementation platform('com.google.firebase:firebase-bom:32.7.0')
-    implementation 'com.google.firebase:firebase-analytics'
-    implementation 'com.google.firebase:firebase-auth'
-    implementation 'com.google.firebase:firebase-firestore'
-    implementation 'com.android.support:multidex:1.0.3'
-}
-
-// यह लाइन गूगल सर्विसेज को कनेक्ट करेगी
-apply plugin: 'com.google.gms.google-services'

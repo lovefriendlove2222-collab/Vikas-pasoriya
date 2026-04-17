@@ -1,4 +1,4 @@
-name: Flutter Build APK
+name: Build APK
 on: [push]
 jobs:
   build:
@@ -7,10 +7,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.19.0' # सही वर्जन डालना ज़रूरी है
           channel: 'stable'
       - run: flutter pub get
-      - run: flutter build apk --release
+      - run: flutter build apk --release --no-tree-shake-icons
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:

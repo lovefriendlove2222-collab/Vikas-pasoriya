@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:image_picker/image_picker.dart';
-import 'dart:io';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  try {
+    await Firebase.initializeApp().timeout(const Duration(seconds: 5));
+  } catch (e) { print("Firebase Error: $e"); }
   runApp(const VikasApp());
 }
 
@@ -18,17 +17,12 @@ class VikasApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.deepOrange,
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
-        textTheme: GoogleFonts.hindTextTheme(),
-      ),
+      theme: ThemeData(primarySwatch: Colors.deepOrange, textTheme: GoogleFonts.hindTextTheme()),
       home: const WelcomeScreen(),
     );
   }
 }
 
-// 1. स्वागत स्क्रीन
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
   @override
@@ -47,12 +41,11 @@ class WelcomeScreen extends StatelessWidget {
             ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: Colors.deepOrange, padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15)),
               onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterPage())),
-              child: const Text('रजिस्टर/लॉगिन करें', style: TextStyle(color: Colors.white, fontSize: 18)),
+              child: const Text('लॉगिन / रजिस्टर करें', style: TextStyle(color: Colors.white, fontSize: 18)),
             ),
-            const SizedBox(height: 15),
             TextButton(
               onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const AdminPage())),
-              child: const Text('एडमिन पैनल', style: TextStyle(color: Colors.grey)),
+              child: const Text('एडमिन लॉगिन', style: TextStyle(color: Colors.grey)),
             ),
           ],
         ),
@@ -61,7 +54,6 @@ class WelcomeScreen extends StatelessWidget {
   }
 }
 
-// 2. फोटो के साथ रजिस्ट्रेशन
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
   @override
@@ -71,28 +63,19 @@ class RegisterPage extends StatefulWidget {
 class _RegisterPageState extends State<RegisterPage> {
   final _name = TextEditingController();
   final _mobile = TextEditingController();
-  File? _img;
+  final _village = TextEditingController();
   bool _loading = false;
 
-  Future<void> _pick() async {
-    final file = await ImagePicker().pickImage(source: ImageSource.gallery, imageQuality: 40);
-    if (file != null) setState(() => _img = File(file.path));
-  }
-
-  Future<void> _save() async {
-    if (_name.text.isEmpty || _img == null) return;
+  _save() async {
+    if (_name.text.isEmpty || _mobile.text.isEmpty) return;
     setState(() => _loading = true);
     try {
-      String path = 'users/${_mobile.text}.jpg';
-      var ref = FirebaseStorage.instance.ref().child(path);
-      await ref.putFile(_img!);
-      String url = await ref.getDownloadURL();
-
       await FirebaseFirestore.instance.collection('users').add({
         'name': _name.text,
         'mobile': _mobile.text,
-        'photo': url,
-        'time': DateTime.now(),
+        'village': _village.text,
+        'role': 'Member', // डिफ़ॉल्ट पद
+        'date': DateTime.now(),
       });
       Navigator.pop(context);
     } catch (e) { print(e); }
@@ -105,17 +88,13 @@ class _RegisterPageState extends State<RegisterPage> {
       appBar: AppBar(title: const Text('नया रजिस्ट्रेशन')),
       body: _loading ? const Center(child: CircularProgressIndicator()) : Padding(
         padding: const EdgeInsets.all(20),
-        child: ListView(
+        child: Column(
           children: [
-            GestureDetector(
-              onTap: _pick,
-              child: CircleAvatar(radius: 60, backgroundImage: _img != null ? FileImage(_img!) : null, child: _img == null ? const Icon(Icons.add_a_photo, size: 40) : null),
-            ),
-            const SizedBox(height: 20),
-            TextField(controller: _name, decoration: const InputDecoration(labelText: 'आपका नाम')),
-            TextField(controller: _mobile, decoration: const InputDecoration(labelText: 'मोबाईल नम्बर')),
+            TextField(controller: _name, decoration: const InputDecoration(labelText: 'नाम')),
+            TextField(controller: _mobile, decoration: const InputDecoration(labelText: 'मोबाइल नम्बर')),
+            TextField(controller: _village, decoration: const InputDecoration(labelText: 'गाँव/शहर')),
             const SizedBox(height: 30),
-            ElevatedButton(onPressed: _save, child: const Text('रजिस्टर करें')),
+            ElevatedButton(onPressed: _save, child: const Text('डेटा सेव करें')),
           ],
         ),
       ),
@@ -123,13 +102,12 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 }
 
-// 3. एडमिन पैनल (यूजर लिस्ट)
 class AdminPage extends StatelessWidget {
   const AdminPage({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('एडमिन कंट्रोल'), backgroundColor: Colors.deepOrange),
+      appBar: AppBar(title: const Text('एडमिन - यूजर लिस्ट')),
       body: StreamBuilder(
         stream: FirebaseFirestore.instance.collection('users').snapshots(),
         builder: (context, AsyncSnapshot<QuerySnapshot> snap) {
@@ -139,9 +117,9 @@ class AdminPage extends StatelessWidget {
             itemBuilder: (context, i) {
               var user = snap.data!.docs[i];
               return ListTile(
-                leading: CircleAvatar(backgroundImage: NetworkImage(user['photo'])),
+                leading: const Icon(Icons.person, color: Colors.deepOrange),
                 title: Text(user['name']),
-                subtitle: Text(user['mobile']),
+                subtitle: Text("${user['mobile']} - ${user['village']}"),
                 trailing: IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: () => user.reference.delete()),
               );
             },

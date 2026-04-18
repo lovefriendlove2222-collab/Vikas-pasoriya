@@ -5,11 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  try {
-    await Firebase.initializeApp();
-  } catch (e) {
-    debugPrint("Firebase Error: $e");
-  }
+  await Firebase.initializeApp();
   runApp(const MaterialApp(debugShowCheckedModeBanner: false, home: VikasApp()));
 }
 
@@ -20,7 +16,7 @@ class VikasApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFFF3E0),
-      appBar: AppBar(title: const Text('विकास पासोरिया ऑफिसियल'), backgroundColor: Colors.deepOrange, centerTitle: true),
+      appBar: AppBar(title: const Text('विकास पासोरिया ऑफिसियल'), backgroundColor: Colors.deepOrange),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('settings').snapshots(),
         builder: (context, snapshot) {
@@ -30,6 +26,7 @@ class VikasApp extends StatelessWidget {
           if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
             var data = snapshot.data!.docs.first.data() as Map<String, dynamic>;
             String youtubeUrl = data['youtube'] ?? "https://youtube.com/@VikasPasoriya";
+
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -42,7 +39,7 @@ class VikasApp extends StatelessWidget {
                     style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
                     onPressed: () => launchUrl(Uri.parse(youtubeUrl), mode: LaunchMode.externalApplication),
                     icon: const Icon(Icons.play_arrow),
-                    label: const Text("यूट्यूब चैनल"),
+                    label: const Text("यूट्यूब चैनल देखें"),
                   ),
                 ],
               ),

@@ -1,4 +1,4 @@
-name: Build Official Final PRO
+name: Auto_Fix_And_Build_Machine
 on:
   push:
     branches: [ main ]
@@ -8,22 +8,33 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Flutter
+      - name: Set up Flutter Machine
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.19.0'
 
-      - name: Master Build
+      - name: 🤖 Smart Auto-Fixer
         run: |
-          # थारे पुराने फोल्डर के अंदर घुसकै काम करणा
-          cd Vikas-pasoriya
+          # मशीन खुद फोल्डर ढूँढेगी (तनै नाम बताण की जरूरत कोनी)
+          PROJECT_PATH=$(find . -name "pubspec.yaml" -exec dirname {} \;)
+          echo "Found project at: $PROJECT_PATH"
+          
+          cd $PROJECT_PATH
+          
+          # मशीन खुद फालतू फाइलें (local.properties) डिलीट करेगी
           rm -f local.properties
+          rm -f android/local.properties
+          
+          # मशीन खुद पैकेट अपडेट करेगी
           flutter clean
           flutter pub get
+          
+          # मशीन खुद भारी बिल्ड बणावेगी
           flutter build apk --release --no-tree-shake-icons
           
-      - name: Upload APK
+      - name: 📦 Delivery Office
         uses: actions/upload-artifact@v4
         with:
-          name: Vikas_Official_App
-          path: "Vikas-pasoriya/build/app/outputs/flutter-apk/*.apk"
+          name: Vikas_Official_App_Done
+          # यो रास्ता अब कति पत्थर की लकीर सै
+          path: "**/build/app/outputs/flutter-apk/*.apk"

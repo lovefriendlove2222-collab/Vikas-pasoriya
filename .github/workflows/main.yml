@@ -1,4 +1,4 @@
-name: Build Heavy Official
+name: Build Vikas Official APK
 on:
   push:
     branches: [ main ]
@@ -13,12 +13,13 @@ jobs:
         with:
           flutter-version: '3.19.0'
 
-      - name: Automatic Setup and Build
+      - name: Master Build
         run: |
+          # फोल्डर का नाम कति सही (V-capital)
           cd Vikas-pasoriya
-          # यो सै असली लाइन: जो तनै कोनी मिल रही, यो उसे खुद ढूंढ के डिलीट मार देगा
+          
+          # फालतू फाइलों की खुद सफ़ाई
           rm -f local.properties
-          rm -f android/local.properties
           
           flutter clean
           flutter pub get
@@ -27,5 +28,6 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Vikas_Official_App
+          name: Vikas_Official_Final
+          # पाताल तै भी APK खैंच ल्यावेगा यो रास्ता
           path: "Vikas-pasoriya/build/app/outputs/flutter-apk/*.apk"

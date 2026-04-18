@@ -1,4 +1,4 @@
-name: Build Heavy Final
+name: Build Final APK
 on:
   push:
     branches: [ main ]
@@ -7,24 +7,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.19.0'
-          cache: false
-
-      - name: Fix Path and Build
+      
+      - name: Build Official APK
         run: |
-          # अगर फोल्डर का नाम अलग भी होया, तो यो उसे ढूँढ लेगा
           flutter clean
           flutter pub get
-          # सीधा APK बणाण का हुक्म
+          # सीधा और साफ बिल्ड
           flutter build apk --release --no-tree-shake-icons
           
-      - name: Upload Final APK
+      - name: Find and Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: Vikas_Official_App
-          # यो रास्ता कति असली सै जो थारी फोटो तै मैच करै सै
-          path: build/app/outputs/flutter-apk/app-release.apk
+          # यो रास्ता अब कति पक्का सै
+          path: build/app/outputs/flutter-apk/*.apk

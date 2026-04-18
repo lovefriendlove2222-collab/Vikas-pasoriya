@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,10 +29,11 @@ class VikasApp extends StatelessWidget {
         centerTitle: true,
       ),
       body: StreamBuilder<QuerySnapshot>(
+        // थारे कलेक्शन का नाम 'menus' सै
         stream: FirebaseFirestore.instance.collection('menus').snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator(color: Colors.deepOrange));
           }
           if (snapshot.hasError) {
             return Center(child: Text("Error: ${snapshot.error}"));
@@ -49,13 +49,18 @@ class VikasApp extends StatelessWidget {
                 children: [
                   const Icon(Icons.fort_rounded, size: 100, color: Colors.deepOrange),
                   const SizedBox(height: 20),
-                  Text(title, style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+                  Text(title, style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.deepOrange)),
                   const SizedBox(height: 10),
-                  Text(desc, textAlign: TextAlign.center),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Text(desc, textAlign: TextAlign.center, style: const TextStyle(fontSize: 18)),
+                  ),
                   const SizedBox(height: 30),
-                  ElevatedButton(
+                  ElevatedButton.icon(
                     onPressed: () => launchUrl(Uri.parse('https://youtube.com/@VikasPasoriya')),
-                    child: const Text("यूट्यूब चैनल"),
+                    icon: const Icon(Icons.video_library),
+                    label: const Text("यूट्यूब चैनल"),
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.deepOrange, foregroundColor: Colors.white),
                   )
                 ],
               ),

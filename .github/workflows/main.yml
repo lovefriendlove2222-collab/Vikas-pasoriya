@@ -1,4 +1,4 @@
-name: Build Heavy Final PRO
+name: Build Heavy Final OK
 on:
   push:
     branches: [ main ]
@@ -13,17 +13,16 @@ jobs:
         with:
           flutter-version: '3.19.0'
 
-      - name: Build Official APK
+      - name: Automatic Fix and Build
         run: |
-          # यो कमांड थारे फोल्डर के अंदर घुसकै सारा काम करेगी
-          cd Vikas-pasoriya || echo "Already in root"
-          flutter clean
-          flutter pub get
-          flutter build apk --release --no-tree-shake-icons
+          # फोल्डर ढूँढना और सफाई करना
+          find . -name "pubspec.yaml" -execdir flutter clean \;
+          find . -name "pubspec.yaml" -execdir flutter pub upgrade \;
+          find . -name "pubspec.yaml" -execdir flutter build apk --release --no-tree-shake-icons \;
           
-      - name: Upload Final APK
+      - name: Upload Heavy APK
         uses: actions/upload-artifact@v4
         with:
           name: Vikas_Pasoriya_Official
-          # यो रास्ता अब पाताल तै भी APK ढूँढ ल्यावेगा
+          # यो रास्ता अब कति पक्का सै
           path: "**/build/app/outputs/flutter-apk/*.apk"

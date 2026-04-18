@@ -2,16 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
     await Firebase.initializeApp();
   } catch (e) {
-    debugPrint("Firebase Error: $e");
+    debugPrint("Firebase Initialize Error: $e");
   }
-  runApp(const VikasApp());
+  runApp(const MaterialApp(
+    debugShowCheckedModeBanner: false,
+    home: VikasApp(),
+  ));
 }
 
 class VikasApp extends StatelessWidget {
@@ -19,38 +21,29 @@ class VikasApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.deepOrange,
-        textTheme: GoogleFonts.hindTextTheme(),
-      ),
-      home: const HomeScreen(),
-    );
-  }
-}
-
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFFF8E1),
+      backgroundColor: const Color(0xFFFFF3E0),
       appBar: AppBar(
         title: const Text('विकास पासोरिया ऑफिसियल'),
         backgroundColor: Colors.deepOrange,
         centerTitle: true,
       ),
       body: StreamBuilder<QuerySnapshot>(
+        // थारे डेटाबेस का नाम 'menus' सै
         stream: FirebaseFirestore.instance.collection('menus').snapshots(),
         builder: (context, snapshot) {
+          
+          // १. जब तक डेटा आ रहा है (Loading)
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator(color: Colors.deepOrange));
           }
+
+          // २. अगर कोई गड़बड़ है (Error)
           if (snapshot.hasError) {
-            return Center(child: Text("गड़बड़: ${snapshot.error}"));
+            return Center(child: Text("गड़बड़: ${snapshot.error}", style: const TextStyle(color: Colors.red)));
           }
+
+          // ३. अगर डेटा मिल गया
           if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
             var data = snapshot.data!.docs.first.data() as Map<String, dynamic>;
             String title = data['title'] ?? "हरि ॐ जी!";
@@ -60,31 +53,37 @@ class HomeScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.fort_rounded, size: 100, color: Colors.deepOrange),
+                  const Icon(Icons.music_video, size: 100, color: Colors.deepOrange),
                   const SizedBox(height: 20),
-                  Text(title, style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+                  Text(title, style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.brown)),
                   const SizedBox(height: 10),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 25),
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Text(desc, textAlign: TextAlign.center, style: const TextStyle(fontSize: 18)),
                   ),
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 40),
                   ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.deepOrange),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                    ),
                     onPressed: () async {
                       final url = Uri.parse('https://youtube.com/@VikasPasoriya');
                       if (await canLaunchUrl(url)) {
                         await launchUrl(url, mode: LaunchMode.externalApplication);
                       }
                     },
-                    icon: const Icon(Icons.video_library, color: Colors.white),
-                    label: const Text("यूट्यूब चैनल", style: TextStyle(color: Colors.white)),
-                  )
+                    icon: const Icon(Icons.play_circle_filled),
+                    label: const Text("यूट्यूब चैनल", style: TextStyle(fontSize: 18)),
+                  ),
                 ],
               ),
             );
           }
-          return const Center(child: Text("डेटाबेस खाली सै भाई!"));
+
+          // ४. अगर सब सही है पर डेटाबेस खाली है
+          return const Center(child: Text("भाई, Firestore में डेटा नी मिल्या!"));
         },
       ),
     );

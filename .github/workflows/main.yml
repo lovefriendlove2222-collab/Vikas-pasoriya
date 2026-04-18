@@ -1,4 +1,4 @@
-name: Build Heavy Final OK
+name: Build Heavy Final PRO
 on:
   push:
     branches: [ main ]
@@ -13,16 +13,16 @@ jobs:
         with:
           flutter-version: '3.19.0'
 
-      - name: Automatic Fix and Build
+      - name: Build Official Release
         run: |
-          # फोल्डर ढूँढना और सफाई करना
+          # पुरानी फाइलों की जड़ तै सफाई
           find . -name "pubspec.yaml" -execdir flutter clean \;
-          find . -name "pubspec.yaml" -execdir flutter pub upgrade \;
+          find . -name "pubspec.yaml" -execdir flutter pub get \;
+          # भारी APK बणाण का हुक्म
           find . -name "pubspec.yaml" -execdir flutter build apk --release --no-tree-shake-icons \;
           
-      - name: Upload Heavy APK
+      - name: Upload Official APK
         uses: actions/upload-artifact@v4
         with:
           name: Vikas_Pasoriya_Official
-          # यो रास्ता अब कति पक्का सै
           path: "**/build/app/outputs/flutter-apk/*.apk"

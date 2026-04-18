@@ -13,13 +13,18 @@ jobs:
         with:
           flutter-version: '3.19.0'
 
-      - name: 🤖 Auto-Pilot Build
+      - name: 🤖 Smart Auto-Build
         run: |
           # यो कमांड खुद थारे फोल्डर के अंदर घुस ज्यागी, चाहे नाम कुछ भी हो
-          find . -name "pubspec.yaml" -execdir rm -f local.properties \;
-          find . -name "pubspec.yaml" -execdir flutter clean \;
-          find . -name "pubspec.yaml" -execdir flutter pub get \;
-          find . -name "pubspec.yaml" -execdir flutter build apk --release --no-tree-shake-icons \;
+          # तनै फोल्डर का नाम लिखण की जरूरत कोनी
+          PROJECT_ROOT=$(find . -name "pubspec.yaml" -exec dirname {} \; | head -n 1)
+          echo "Project found at: $PROJECT_ROOT"
+          
+          cd $PROJECT_ROOT
+          rm -f local.properties
+          flutter clean
+          flutter pub get
+          flutter build apk --release --no-tree-shake-icons
           
       - name: 📦 Deliver APK
         uses: actions/upload-artifact@v4

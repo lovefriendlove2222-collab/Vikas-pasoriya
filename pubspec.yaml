@@ -1,6 +1,6 @@
 name: vikas_official
-description: Professional App for Vikas Pasoriya
-version: 17.0.0+1
+description: Professional Official App
+version: 19.0.0+1
 
 environment:
   sdk: '>=3.3.0 <4.0.0'

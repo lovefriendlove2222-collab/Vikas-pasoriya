@@ -8,7 +8,7 @@ void main() async {
   try {
     await Firebase.initializeApp();
   } catch (e) {
-    debugPrint("Firebase Initialize Error: $e");
+    debugPrint("Firebase Error: $e");
   }
   runApp(const MaterialApp(
     debugShowCheckedModeBanner: false,
@@ -29,25 +29,25 @@ class VikasApp extends StatelessWidget {
         centerTitle: true,
       ),
       body: StreamBuilder<QuerySnapshot>(
-        // थारे डेटाबेस का नाम 'menus' सै
-        stream: FirebaseFirestore.instance.collection('menus').snapshots(),
+        // इब यो 'settings' तै डेटा ठावैगा
+        stream: FirebaseFirestore.instance.collection('settings').snapshots(),
         builder: (context, snapshot) {
           
-          // १. जब तक डेटा आ रहा है (Loading)
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator(color: Colors.deepOrange));
           }
 
-          // २. अगर कोई गड़बड़ है (Error)
           if (snapshot.hasError) {
-            return Center(child: Text("गड़बड़: ${snapshot.error}", style: const TextStyle(color: Colors.red)));
+            return Center(child: Text("गड़बड़: ${snapshot.error}"));
           }
 
-          // ३. अगर डेटा मिल गया
+          // अगर settings में डेटा मिल गया
           if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
             var data = snapshot.data!.docs.first.data() as Map<String, dynamic>;
-            String title = data['title'] ?? "हरि ॐ जी!";
-            String desc = data['desc'] ?? "टीम विकास पासोरिया";
+            
+            // डेटाबेस में 'title' और 'desc' नाम के फील्ड होणे जरूरी सैं
+            String title = data['title'] ?? "विकास पासोरिया";
+            String desc = data['desc'] ?? "राम राम भाईयो!";
 
             return Center(
               child: Column(
@@ -55,7 +55,7 @@ class VikasApp extends StatelessWidget {
                 children: [
                   const Icon(Icons.music_video, size: 100, color: Colors.deepOrange),
                   const SizedBox(height: 20),
-                  Text(title, style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.brown)),
+                  Text(title, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.brown)),
                   const SizedBox(height: 10),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -70,9 +70,7 @@ class VikasApp extends StatelessWidget {
                     ),
                     onPressed: () async {
                       final url = Uri.parse('https://youtube.com/@VikasPasoriya');
-                      if (await canLaunchUrl(url)) {
-                        await launchUrl(url, mode: LaunchMode.externalApplication);
-                      }
+                      await launchUrl(url, mode: LaunchMode.externalApplication);
                     },
                     icon: const Icon(Icons.play_circle_filled),
                     label: const Text("यूट्यूब चैनल", style: TextStyle(fontSize: 18)),
@@ -82,8 +80,10 @@ class VikasApp extends StatelessWidget {
             );
           }
 
-          // ४. अगर सब सही है पर डेटाबेस खाली है
-          return const Center(child: Text("भाई, Firestore में डेटा नी मिल्या!"));
+          // अगर settings कलेक्शन खाली सै
+          return const Center(
+            child: Text("भाई, 'settings' में डेटा डालणा पड़ेगा!"),
+          );
         },
       ),
     );

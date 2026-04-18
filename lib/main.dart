@@ -29,55 +29,33 @@ class VikasApp extends StatelessWidget {
         centerTitle: true,
       ),
       body: StreamBuilder<QuerySnapshot>(
-        // थारे डेटाबेस के 'settings' तै सीधा कनेक्शन
         stream: FirebaseFirestore.instance.collection('settings').snapshots(),
         builder: (context, snapshot) {
-          
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator(color: Colors.deepOrange));
           }
-
-          if (snapshot.hasError) {
-            return const Center(child: Text("नेटवर्क चैक करो भाई!"));
-          }
-
           if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
             var data = snapshot.data!.docs.first.data() as Map<String, dynamic>;
-            
-            // डेटाबेस तै 'youtube' लिंक उठा लिया
             String youtubeUrl = data['youtube'] ?? "https://youtube.com/@VikasPasoriya";
-
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Icon(Icons.music_video, size: 100, color: Colors.deepOrange),
                   const SizedBox(height: 20),
-                  const Text("विकास पासोरिया", 
-                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.brown)),
-                  const SizedBox(height: 10),
-                  const Text("हरियाणा की बुलंद आवाज़", style: TextStyle(fontSize: 18)),
+                  const Text("विकास पासोरिया", style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 40),
                   ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                    ),
-                    onPressed: () async {
-                      final url = Uri.parse(youtubeUrl);
-                      if (await canLaunchUrl(url)) {
-                        await launchUrl(url, mode: LaunchMode.externalApplication);
-                      }
-                    },
-                    icon: const Icon(Icons.play_circle_filled),
-                    label: const Text("यूट्यूब चैनल", style: TextStyle(fontSize: 18)),
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+                    onPressed: () => launchUrl(Uri.parse(youtubeUrl), mode: LaunchMode.externalApplication),
+                    icon: const Icon(Icons.play_arrow),
+                    label: const Text("यूट्यूब चैनल"),
                   ),
                 ],
               ),
             );
           }
-          return const Center(child: Text("डेटाबेस खाली सै भाई!"));
+          return const Center(child: Text("डेटाबेस चैक करो भाई!"));
         },
       ),
     );

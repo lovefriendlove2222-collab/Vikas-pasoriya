@@ -29,7 +29,7 @@ class VikasApp extends StatelessWidget {
         centerTitle: true,
       ),
       body: StreamBuilder<QuerySnapshot>(
-        // थारे डेटाबेस के 'settings' कलेक्शन तै सीधा लिंक
+        // सीधा थारे 'settings' कलेक्शन तै लिंक
         stream: FirebaseFirestore.instance.collection('settings').snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -37,7 +37,6 @@ class VikasApp extends StatelessWidget {
           }
           if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
             var data = snapshot.data!.docs.first.data() as Map<String, dynamic>;
-            // डेटाबेस तै 'youtube' फील्ड उठा रह्या सै
             String youtubeUrl = data['youtube'] ?? "https://youtube.com/@VikasPasoriya";
 
             return Center(

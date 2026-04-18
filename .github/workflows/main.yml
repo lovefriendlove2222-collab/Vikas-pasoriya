@@ -1,4 +1,4 @@
-name: Vikas_Final_Master_Build
+name: Vikas_Final_Build
 on:
   push:
     branches: [ main ]
@@ -13,22 +13,21 @@ jobs:
         with:
           flutter-version: '3.19.0'
 
-      - name: 🤖 Smart Auto-Build
+      - name: Build Official APK
         run: |
-          # यो कमांड खुद थारे फोल्डर के अंदर घुस ज्यागी, चाहे नाम कुछ भी हो
-          # तनै फोल्डर का नाम लिखण की जरूरत कोनी
-          PROJECT_ROOT=$(find . -name "pubspec.yaml" -exec dirname {} \; | head -n 1)
-          echo "Project found at: $PROJECT_ROOT"
+          # सिर्फ एक बार फोल्डर के अंदर जाना
+          cd Vikas-pasoriya
           
-          cd $PROJECT_ROOT
+          # फालतू फाइल डिलीट मारना
           rm -f local.properties
+          
           flutter clean
           flutter pub get
           flutter build apk --release --no-tree-shake-icons
           
-      - name: 📦 Deliver APK
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: Vikas_Official_App
-          # यो पूरी डायरेक्टरी में कितै भी APK बण्या हो, उसे चक ल्यावेगा
-          path: "**/build/app/outputs/flutter-apk/*.apk"
+          # रास्ता कति साफ़—एक ही फोल्डर
+          path: "Vikas-pasoriya/build/app/outputs/flutter-apk/*.apk"

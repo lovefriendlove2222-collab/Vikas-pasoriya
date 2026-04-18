@@ -1,19 +1,20 @@
-name: vikas_official_heavy
-description: High Performance Official App for Vikas Pasoriya
-version: 3.0.0+1
+name: vikas_pasoriya
+description: Official Professional App
+version: 6.0.0+1
 
 environment:
-  sdk: ">=3.3.0 <4.0.0"
+  sdk: '>=3.3.0 <4.0.0' # कति लेटेस्ट वर्जन
 
 dependencies:
   flutter:
     sdk: flutter
-  firebase_core: ^2.24.2
-  cloud_firestore: ^4.14.0
-  firebase_auth: ^4.15.0
-  url_launcher: ^6.2.2
-  animate_do: ^3.3.4 # ऐप ने चमकता हुआ बणाण खात्तर
-  cached_network_image: ^3.3.1 # फोटो ने जल्दी लोड करण खात्तर
+  cupertino_icons: ^1.0.6
+  animate_do: ^3.3.4
+  url_launcher: ^6.2.5
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
 
 flutter:
   uses-material-design: true

@@ -1,12 +1,30 @@
+plugins {
+    id "com.android.application"
+    id "kotlin-android"
+    id "com.google.gms.google-services"
+}
+
 android {
-    namespace "com.vikas.pasoriya"
+    namespace "com.vikas.pasoriya.ai"
     compileSdk 34
+
     defaultConfig {
-        applicationId "com.vikas.pasoriya"
-        minSdk 21
+        applicationId "com.vikas.pasoriya.ai"
+        minSdk 23
         targetSdk 34
-        versionCode 1
-        versionName "1.0"
-        apply plugin: 'com.google.gms.google-services'
-  }
+        versionCode 2
+        versionName "2.0.0"
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.debug
+            shrinkResources false // साइज़ भारी रखण खात्तर
+            minifyEnabled false
+        }
+    }
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.9.22"
 }

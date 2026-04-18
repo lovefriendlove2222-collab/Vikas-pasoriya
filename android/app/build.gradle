@@ -2,11 +2,9 @@ plugins {
     id "com.android.application"
     id "kotlin-android"
     id "dev.flutter.flutter-gradle-plugin"
-    id "com.google.gms.google-services" // JSON फाइल ने पढ़ण खात्तर
 }
 
 android {
-    // कति वही नाम जो थारी JSON फोटो में सै
     namespace "com.vikas.pasoriya" 
     compileSdk 34
 
@@ -14,8 +12,8 @@ android {
         applicationId "com.vikas.pasoriya"
         minSdk 23
         targetSdk 34
-        versionCode 14
-        versionName "14.0.0"
+        versionCode 15
+        versionName "15.0.0"
     }
 
     buildTypes {

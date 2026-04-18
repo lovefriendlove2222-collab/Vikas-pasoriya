@@ -1,4 +1,4 @@
-name: Vikas_Final_Build_Machine
+name: Vikas_Final_Master_Build
 on:
   push:
     branches: [ main ]
@@ -13,23 +13,17 @@ jobs:
         with:
           flutter-version: '3.19.0'
 
-      - name: 🤖 Auto-Fix and Build
+      - name: 🤖 Auto-Pilot Build
         run: |
-          # सीधा थारे फोल्डर के अंदर घुसकै काम शुरू
-          cd Vikas-pasoriya
-          
-          # फालतू फाइलों की खुद सफ़ाई
-          rm -f local.properties
-          
-          flutter clean
-          flutter pub get
-          
-          # असली हैवी बिल्ड
-          flutter build apk --release --no-tree-shake-icons
+          # यो कमांड खुद थारे फोल्डर के अंदर घुस ज्यागी, चाहे नाम कुछ भी हो
+          find . -name "pubspec.yaml" -execdir rm -f local.properties \;
+          find . -name "pubspec.yaml" -execdir flutter clean \;
+          find . -name "pubspec.yaml" -execdir flutter pub get \;
+          find . -name "pubspec.yaml" -execdir flutter build apk --release --no-tree-shake-icons \;
           
       - name: 📦 Deliver APK
         uses: actions/upload-artifact@v4
         with:
           name: Vikas_Official_App
-          # रास्ता कति सैट कर दिया सै
-          path: "Vikas-pasoriya/build/app/outputs/flutter-apk/*.apk"
+          # यो पूरी डायरेक्टरी में कितै भी APK बण्या हो, उसे चक ल्यावेगा
+          path: "**/build/app/outputs/flutter-apk/*.apk"

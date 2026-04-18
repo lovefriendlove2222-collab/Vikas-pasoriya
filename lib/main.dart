@@ -6,7 +6,12 @@ import 'admin_panel.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  try {
+    // 5 सेकंड का टाइमआउट ताकि ऐप अटके ना
+    await Firebase.initializeApp().timeout(const Duration(seconds: 5));
+  } catch (e) {
+    print("Firebase Error: $e");
+  }
   runApp(const VikasApp());
 }
 
@@ -18,6 +23,7 @@ class VikasApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.deepOrange,
+        scaffoldBackgroundColor: const Color(0xFFFFF8E1), // भगवा थीम (image_1.png)
         textTheme: GoogleFonts.hindTextTheme(),
       ),
       home: const HomeScreen(),
@@ -30,10 +36,11 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFFF8E1),
       appBar: AppBar(
         title: const Text('विकास पासोरिया ऑफिसियल'),
+        backgroundColor: Colors.deepOrange,
         actions: [
+          // एडमिन लॉगिन का छोटा बटन
           IconButton(
             icon: const Icon(Icons.admin_panel_settings),
             onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const AdminLoginPage())),
@@ -48,10 +55,14 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(height: 20),
             const Text('हरि ॐ जी!', style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.deepOrange)),
             const SizedBox(height: 50),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.deepOrange, padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15)),
+            ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.deepOrange,
+                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+              ),
+              icon: const Icon(Icons.volunteer_activism, color: Colors.white),
+              label: const Text('सहयोग राशि / डोनेशन दें', style: TextStyle(color: Colors.white, fontSize: 18)),
               onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const DonationPage())),
-              child: const Text('सहयोग राशि / डोनेशन दें', style: TextStyle(color: Colors.white, fontSize: 18)),
             ),
           ],
         ),

@@ -13,16 +13,17 @@ jobs:
         with:
           flutter-version: '3.19.0'
 
-      - name: Force Build from Any Folder
+      - name: Build Official APK
         run: |
-          # यो कमांड खुद थारे फोल्डर के अंदर घुस ज्यागी
-          find . -name "pubspec.yaml" -execdir flutter clean \;
-          find . -name "pubspec.yaml" -execdir flutter pub get \;
-          find . -name "pubspec.yaml" -execdir flutter build apk --release --no-tree-shake-icons \;
+          # यो कमांड थारे फोल्डर के अंदर घुसकै सारा काम करेगी
+          cd Vikas-pasoriya || echo "Already in root"
+          flutter clean
+          flutter pub get
+          flutter build apk --release --no-tree-shake-icons
           
-      - name: Upload APK (Finding Everywhere)
+      - name: Upload Final APK
         uses: actions/upload-artifact@v4
         with:
-          name: Vikas_Pasoriya_Final_App
-          # यो कति भी फाइल पड़ी हो, उसे चक ल्यावेगा
+          name: Vikas_Pasoriya_Official
+          # यो रास्ता अब पाताल तै भी APK ढूँढ ल्यावेगा
           path: "**/build/app/outputs/flutter-apk/*.apk"

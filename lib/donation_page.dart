@@ -16,8 +16,11 @@ class _DonationPageState extends State<DonationPage> {
   final _amount = TextEditingController();
   bool _loading = false;
 
-  _sendData() async {
-    if (_name.text.isEmpty || _mobile.text.isEmpty) return;
+  _saveAndDonate() async {
+    if (_name.text.isEmpty || _mobile.text.isEmpty || _amount.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('कृपया पूरी जानकारी भरें!')));
+      return;
+    }
     setState(() => _loading = true);
     try {
       await FirebaseFirestore.instance.collection('donations').add({
@@ -29,11 +32,14 @@ class _DonationPageState extends State<DonationPage> {
         'amount': _amount.text,
         'time': DateTime.now(),
       });
-      // यहाँ पेमेंट गेटवे का लिंक भी डाल सकते हो
+      // यहाँ तू अपना पेमेंट लिंक या QR भी दिखा सके सै
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('डेटा सुरक्षित सेव हो गया!')));
       Navigator.pop(context);
-    } catch (e) { print(e); }
-    setState(() => _loading = false);
+    } catch (e) {
+      print(e);
+    } finally {
+      setState(() => _loading = false);
+    }
   }
 
   @override
@@ -44,14 +50,16 @@ class _DonationPageState extends State<DonationPage> {
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            TextField(controller: _name, decoration: const InputDecoration(labelText: 'नाम')),
-            TextField(controller: _mobile, decoration: const InputDecoration(labelText: 'मोबाइल')),
-            TextField(controller: _village, decoration: const InputDecoration(labelText: 'गाँव')),
-            TextField(controller: _city, decoration: const InputDecoration(labelText: 'शहर')),
-            TextField(controller: _state, decoration: const InputDecoration(labelText: 'राज्य')),
-            TextField(controller: _amount, decoration: const InputDecoration(labelText: 'राशि (₹)'), keyboardType: TextInputType.number),
+            const Text('सहयोग राशि हेतु अपनी जानकारी दें', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 20),
+            TextField(controller: _name, decoration: const InputDecoration(labelText: 'नाम (Name) *')),
+            TextField(controller: _mobile, decoration: const InputDecoration(labelText: 'मोबाइल नम्बर *'), keyboardType: TextInputType.phone),
+            TextField(controller: _village, decoration: const InputDecoration(labelText: 'गाँव (Village)')),
+            TextField(controller: _city, decoration: const InputDecoration(labelText: 'शहर (City)')),
+            TextField(controller: _state, decoration: const InputDecoration(labelText: 'राज्य (State)')),
+            TextField(controller: _amount, decoration: const InputDecoration(labelText: 'राशि (Amount ₹) *'), keyboardType: TextInputType.number),
             const SizedBox(height: 30),
-            ElevatedButton(onPressed: _sendData, child: const Text('सेव करें और आगे बढ़ें')),
+            ElevatedButton(onPressed: _saveAndDonate, child: const Text('डेटा सेव करें और आगे बढ़ें')),
           ],
         ),
       ),

@@ -1,9 +1,9 @@
 name: vikas_pasoriya
-description: Official Professional App
-version: 6.0.0+1
+description: Official High Performance App
+version: 7.0.0+1
 
 environment:
-  sdk: '>=3.3.0 <4.0.0' # कति लेटेस्ट वर्जन
+  sdk: '>=3.3.0 <4.0.0'
 
 dependencies:
   flutter:
@@ -11,10 +11,6 @@ dependencies:
   cupertino_icons: ^1.0.6
   animate_do: ^3.3.4
   url_launcher: ^6.2.5
-
-dev_dependencies:
-  flutter_test:
-    sdk: flutter
 
 flutter:
   uses-material-design: true

@@ -36,6 +36,7 @@ class VikasApp extends StatelessWidget {
           }
           if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
             var data = snapshot.data!.docs.first.data() as Map<String, dynamic>;
+            // थारे Firebase 'settings' कलेक्शन तै डेटा ठा रहा सै
             String youtubeUrl = data['youtube'] ?? "https://youtube.com/@VikasPasoriya";
             return Center(
               child: Column(
@@ -55,7 +56,7 @@ class VikasApp extends StatelessWidget {
               ),
             );
           }
-          return const Center(child: Text("Firebase Rule Publish करो भाई!"));
+          return const Center(child: Text("Firebase Rules Publish करो भाई!"));
         },
       ),
     );

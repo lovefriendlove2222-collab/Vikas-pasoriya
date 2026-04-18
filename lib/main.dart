@@ -7,9 +7,10 @@ import 'package:url_launcher/url_launcher.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
-    await Firebase.initializeApp();
+    // Firebase को 5 सेकंड का टाइमआउट दिया ताकि ऐप सफ़ेद स्क्रीन पे न फंसे
+    await Firebase.initializeApp().timeout(const Duration(seconds: 5));
   } catch (e) {
-    print("Firebase Setup Error: $e");
+    print("Firebase Error: $e");
   }
   runApp(const VikasApp());
 }
@@ -20,41 +21,48 @@ class VikasApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(primarySwatch: Colors.deepOrange, textTheme: GoogleFonts.hindTextTheme()),
+      theme: ThemeData(
+        primarySwatch: Colors.deepOrange,
+        scaffoldBackgroundColor: const Color(0xFFFFF8E1), // लाइट क्रीम बैकग्राउंड
+        textTheme: GoogleFonts.hindTextTheme(),
+      ),
       home: const HomeScreen(),
     );
   }
 }
 
-// ---------------- 1. होम स्क्रीन (Dynamic Control) ----------------
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder(
-      stream: FirebaseFirestore.instance.collection('settings').doc('app_config').snapshots(),
-      builder: (context, AsyncSnapshot<DocumentSnapshot> snap) {
-        // अगर डेटा लोड हो रहा या नहीं मिला, तो ये डिफॉल्ट वैल्यू काम करेंगी
-        String ytLink = "https://youtube.com/@VikasPasoriya";
-        String aboutText = "विकास पासोरिया ऑफिसियल जनसेवा हेतु समर्पित है।";
-        
-        if (snap.hasData && snap.data!.exists) {
-          var d = snap.data!;
-          ytLink = d['youtube'] ?? ytLink;
-          aboutText = d['about'] ?? aboutText;
-        }
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('विकास पासोरिया ऑफिसियल'),
+        backgroundColor: Colors.deepOrange,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.admin_panel_settings),
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const AdminLoginPage())),
+          )
+        ],
+      ),
+      body: StreamBuilder(
+        stream: FirebaseFirestore.instance.collection('settings').doc('app_config').snapshots(),
+        builder: (context, AsyncSnapshot<DocumentSnapshot> snap) {
+          // डिफ़ॉल्ट डेटा (अगर इंटरनेट न हो या Firebase न चले)
+          String yt = "https://youtube.com/@VikasPasoriya";
+          String upi = "your-upi@id";
+          String info = "विकास पासोरिया ऑफिसियल जनसेवा हेतु समर्पित है।";
 
-        return Scaffold(
-          appBar: AppBar(
-            title: const Text('विकास पासोरिया ऑफिसियल'),
-            backgroundColor: Colors.deepOrange,
-            actions: [
-              IconButton(icon: const Icon(Icons.admin_panel_settings), 
-              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const AdminLoginPage())))
-            ],
-          ),
-          body: SingleChildScrollView(
+          if (snap.hasData && snap.data!.exists) {
+            var d = snap.data!;
+            yt = d['youtube'] ?? yt;
+            upi = d['upi'] ?? upi;
+            info = d['about'] ?? info;
+          }
+
+          return SingleChildScrollView(
             child: Column(children: [
               const SizedBox(height: 30),
               const Icon(Icons.fort_rounded, size: 100, color: Colors.deepOrange),
@@ -66,8 +74,8 @@ class HomeScreen extends StatelessWidget {
                 child: ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(backgroundColor: Colors.deepOrange, minimumSize: const Size(double.infinity, 60)),
                   icon: const Icon(Icons.volunteer_activism, color: Colors.white),
-                  label: const Text('सहयोग राशि / डोनेशन दें', style: TextStyle(color: Colors.white, fontSize: 20)),
-                  onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const DonationPage())),
+                  label: const Text('डोनेशन दें (विवरण भरें)', style: TextStyle(color: Colors.white, fontSize: 18)),
+                  onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => DonationPage(upiID: upi))),
                 ),
               ),
 
@@ -75,87 +83,89 @@ class HomeScreen extends StatelessWidget {
                 shrinkWrap: true, physics: const NeverScrollableScrollPhysics(),
                 crossAxisCount: 2, padding: const EdgeInsets.all(20), mainAxisSpacing: 15, crossAxisSpacing: 15,
                 children: [
-                  _box(Icons.account_balance, "संस्था जानकारी", () => _msg(context, aboutText)),
-                  _box(Icons.video_library, "यूट्यूब वीडियो", () => _launch(ytLink)),
-                  _box(Icons.music_note, "भजन संगीत", () => _launch("$ytLink/videos")),
-                  _box(Icons.contact_support, "संपर्क करें", () => _launch("tel:+91XXXXXXXXXX")),
+                  _btn(Icons.account_balance, "संस्था जानकारी", () => _showPop(context, info)),
+                  _btn(Icons.video_library, "यूट्यूब वीडियो", () => _launch(yt)),
+                  _btn(Icons.music_note, "भजन संगीत", () => _launch("$yt/videos")),
+                  _btn(Icons.contact_support, "संपर्क करें", () => _launch("tel:+91XXXXXXXXXX")),
                 ],
               ),
             ]),
-          ),
-        );
-      }
+          );
+        },
+      ),
     );
   }
 
-  Widget _box(IconData icon, String title, VoidCallback onTap) => InkWell(
-    onTap: onTap,
+  Widget _btn(IconData i, String t, VoidCallback a) => InkWell(
+    onTap: a,
     child: Container(
       decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(15), boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 5)]),
-      child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(icon, size: 40, color: Colors.deepOrange), const SizedBox(height: 10), Text(title, style: const TextStyle(fontWeight: FontWeight.bold))]),
+      child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(i, size: 40, color: Colors.deepOrange), Text(t, style: const TextStyle(fontWeight: FontWeight.bold))]),
     ),
   );
 
-  _launch(url) async { if (await canLaunchUrl(Uri.parse(url))) await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication); }
-  _msg(context, txt) => showDialog(context: context, builder: (c) => AlertDialog(title: const Text("सूचना"), content: Text(txt), actions: [TextButton(onPressed: () => Navigator.pop(c), child: const Text("ठीक है"))]));
+  _launch(u) async { if (await canLaunchUrl(Uri.parse(u))) await launchUrl(Uri.parse(u), mode: LaunchMode.externalApplication); }
+  _showPop(context, txt) => showDialog(context: context, builder: (c) => AlertDialog(content: Text(txt), actions: [TextButton(onPressed: () => Navigator.pop(c), child: const Text("OK"))]));
 }
 
-// ---------------- 2. डोनेशन + पेमेंट (पहले डिटेल, फिर पेमेंट) ----------------
+// ---------------- 2. डोनेशन और पेमेंट ----------------
 class DonationPage extends StatefulWidget {
-  const DonationPage({super.key});
+  final String upiID;
+  const DonationPage({super.key, required this.upiID});
   @override
   State<DonationPage> createState() => _DonationPageState();
 }
 
 class _DonationPageState extends State<DonationPage> {
-  final _name = TextEditingController();
-  final _mobile = TextEditingController();
-  final _amount = TextEditingController();
-  final _village = TextEditingController();
-  bool _loading = false;
-
-  _pay() async {
-    if (_name.text.isEmpty || _mobile.text.isEmpty || _amount.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('पूरी जानकारी भरें!')));
-      return;
-    }
-    setState(() => _loading = true);
-    try {
-      // डेटा सेव करें
-      await FirebaseFirestore.instance.collection('donations').add({
-        'name': _name.text, 'mobile': _mobile.text, 'village': _village.text,
-        'amount': _amount.text, 'time': DateTime.now()
-      });
-      // पेमेंट लिंक खोलें
-      var snap = await FirebaseFirestore.instance.collection('settings').doc('app_config').get();
-      String upi = snap.exists ? snap['upi'] : "YOUR_UPI@okicici";
-      final url = "upi://pay?pa=$upi&pn=VikasPasoriya&am=${_amount.text}&cu=INR";
-      await launchUrl(Uri.parse(url));
-      Navigator.pop(context);
-    } catch (e) { print(e); }
-    setState(() => _loading = false);
-  }
+  final _n = TextEditingController();
+  final _m = TextEditingController();
+  final _a = TextEditingController();
+  bool _load = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('सहयोग विवरण')),
-      body: _loading ? const Center(child: CircularProgressIndicator()) : Padding(
+      body: _load ? const Center(child: CircularProgressIndicator()) : Padding(
         padding: const EdgeInsets.all(20),
         child: Column(children: [
-          TextField(controller: _name, decoration: const InputDecoration(labelText: 'नाम *')),
-          TextField(controller: _mobile, decoration: const InputDecoration(labelText: 'मोबाइल *'), keyboardType: TextInputType.phone),
-          TextField(controller: _village, decoration: const InputDecoration(labelText: 'गाँव/शहर')),
-          TextField(controller: _amount, decoration: const InputDecoration(labelText: 'राशि (₹) *'), keyboardType: TextInputType.number),
+          TextField(controller: _n, decoration: const InputDecoration(labelText: 'नाम')),
+          TextField(controller: _m, decoration: const InputDecoration(labelText: 'मोबाइल'), keyboardType: TextInputType.phone),
+          TextField(controller: _a, decoration: const InputDecoration(labelText: 'राशि (₹)'), keyboardType: TextInputType.number),
           const SizedBox(height: 30),
-          ElevatedButton(onPressed: _pay, style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 50)), child: const Text('सेव करें और पेमेंट करें')),
+          ElevatedButton(
+            onPressed: () async {
+              if (_n.text.isEmpty || _a.text.isEmpty) return;
+              setState(() => _load = true);
+              await FirebaseFirestore.instance.collection('donations').add({'name': _n.text, 'mobile': _m.text, 'amount': _a.text, 'time': DateTime.now()});
+              final url = "upi://pay?pa=${widget.upiID}&pn=Vikas&am=${_a.text}&cu=INR";
+              await launchUrl(Uri.parse(url));
+              Navigator.pop(context);
+            },
+            child: const Text('विवरण सेव करें और पेमेंट करें'),
+          )
         ]),
       ),
     );
   }
 }
 
-// ---------------- 3. एडमिन पैनल (जहाँ से सब अपडेट होगा) ----------------
+// ---------------- 3. एडमिन पैनल ----------------
+class AdminLoginPage extends StatelessWidget {
+  const AdminLoginPage({super.key});
+  @override
+  Widget build(BuildContext context) {
+    final pass = TextEditingController();
+    return Scaffold(
+      appBar: AppBar(title: const Text('एडमिन लॉगिन')),
+      body: Padding(padding: const EdgeInsets.all(20), child: Column(children: [
+        TextField(controller: pass, decoration: const InputDecoration(labelText: 'पासवर्ड'), obscureText: true),
+        ElevatedButton(onPressed: () { if (pass.text == "vikas@bhagwa") Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const AdminDashboard())); }, child: const Text('लॉगिन'))
+      ])),
+    );
+  }
+}
+
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
   @override
@@ -163,23 +173,16 @@ class AdminDashboard extends StatefulWidget {
 }
 
 class _AdminDashboardState extends State<AdminDashboard> {
-  final _ytC = TextEditingController();
-  final _upiC = TextEditingController();
-  final _aboutC = TextEditingController();
-
-  _saveSettings() async {
-    await FirebaseFirestore.instance.collection('settings').doc('app_config').set({
-      'youtube': _ytC.text, 'upi': _upiC.text, 'about': _aboutC.text,
-    }, SetOptions(merge: true));
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('सिस्टम अपडेट हो गया!')));
-  }
+  final _yt = TextEditingController();
+  final _up = TextEditingController();
+  final _ab = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        appBar: AppBar(title: const Text('एडमिन कंट्रोल'), bottom: const TabBar(tabs: [Tab(text: "डोनेशन"), Tab(text: "सेटिंग्स")])),
+        appBar: AppBar(title: const Text('एडमिन कंट्रोल'), bottom: const TabBar(tabs: [Tab(text: "Data"), Tab(text: "Settings")])),
         body: TabBarView(children: [
           StreamBuilder(
             stream: FirebaseFirestore.instance.collection('donations').orderBy('time', descending: true).snapshots(),
@@ -192,30 +195,16 @@ class _AdminDashboardState extends State<AdminDashboard> {
             },
           ),
           Padding(padding: const EdgeInsets.all(20), child: ListView(children: [
-            TextField(controller: _ytC, decoration: const InputDecoration(labelText: 'नया यूट्यूब लिंक')),
-            TextField(controller: _upiC, decoration: const InputDecoration(labelText: 'नया UPI ID (Payment)')),
-            TextField(controller: _aboutC, decoration: const InputDecoration(labelText: 'संस्था जानकारी'), maxLines: 3),
-            const SizedBox(height: 20),
-            ElevatedButton(onPressed: _saveSettings, child: const Text('सारी जानकारी अपडेट करें'))
+            TextField(controller: _yt, decoration: const InputDecoration(labelText: 'यूट्यूब लिंक')),
+            TextField(controller: _up, decoration: const InputDecoration(labelText: 'UPI ID')),
+            TextField(controller: _ab, decoration: const InputDecoration(labelText: 'संस्था जानकारी')),
+            ElevatedButton(onPressed: () async {
+              await FirebaseFirestore.instance.collection('settings').doc('app_config').set({'youtube': _yt.text, 'upi': _up.text, 'about': _ab.text}, SetOptions(merge: true));
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Updated!')));
+            }, child: const Text('अपडेट करें'))
           ])),
         ]),
       ),
-    );
-  }
-}
-
-class AdminLoginPage extends StatelessWidget {
-  const AdminLoginPage({super.key});
-  @override
-  Widget build(BuildContext context) {
-    final pass = TextEditingController();
-    return Scaffold(
-      appBar: AppBar(title: const Text('एडमिन लॉगिन')),
-      body: Padding(padding: const EdgeInsets.all(20), child: Column(children: [
-        TextField(controller: pass, decoration: const InputDecoration(labelText: 'पासवर्ड'), obscureText: true),
-        const SizedBox(height: 20),
-        ElevatedButton(onPressed: () { if (pass.text == "vikas@bhagwa") Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const AdminDashboard())); }, child: const Text('लॉगिन'))
-      ])),
     );
   }
 }

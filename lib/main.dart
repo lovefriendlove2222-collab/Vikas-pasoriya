@@ -5,76 +5,84 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
-    // Firebase को पूरी तरह लोड होने का इंतज़ार करें
     await Firebase.initializeApp();
-    // Firestore की सेटिंग्स को "Persistence" मोड में डालें (ताकि ऑफलाइन भी चले)
-    FirebaseFirestore.instance.settings = const Settings(persistenceEnabled: true);
   } catch (e) {
-    debugPrint("Firebase Error: $e");
+    debugPrint("शुरुआत में ही गड़बड़ सै: $e");
   }
   runApp(const MaterialApp(
     debugShowCheckedModeBanner: false,
-    home: VikasApp(),
+    home: DebugScreen(),
   ));
 }
 
-class VikasApp extends StatelessWidget {
-  const VikasApp({super.key});
+class DebugScreen extends StatelessWidget {
+  const DebugScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFFF8E1),
-      appBar: AppBar(
-        title: const Text('विकास पासोरिया ऑफिसियल'),
-        backgroundColor: Colors.deepOrange,
-        centerTitle: true,
-      ),
-      // थारे Firebase का कलेक्शन 'menus'
+      appBar: AppBar(title: const Text("Firebase चेकिंग..."), backgroundColor: Colors.red),
       body: StreamBuilder<QuerySnapshot>(
+        // थारे कलेक्शन का नाम 'menus' सै
         stream: FirebaseFirestore.instance.collection('menus').snapshots(),
         builder: (context, snapshot) {
           
-          // १. अगर डेटा अभी लोड हो रहा है
+          // १. अगर अभी इंतज़ार हो रह्या सै
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator(color: Colors.deepOrange));
+            return const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 20),
+                  Text("डेटाबेस तै हाथ मिलाण की कोशिश जारी सै..."),
+                ],
+              ),
+            );
           }
 
-          // २. अगर कोई एरर आ गया (यही बताएगा कि डेटाबेस क्यों नहीं मिल रहा)
+          // २. अगर एरर आया—यही सबसे ज़रूरी हिस्सा सै!
           if (snapshot.hasError) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Text("कनेक्शन एरर: ${snapshot.error}", textAlign: TextAlign.center),
+            return Container(
+              color: Colors.yellow[100],
+              padding: const EdgeInsets.all(20),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.error, color: Colors.red, size: 50),
+                    const SizedBox(height: 20),
+                    const Text("गड़बड़ मिल गई भाई!", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 10),
+                    // यो मैसेज थारी स्क्रीन पै दिखेगा, इसकी फोटो भेज दियो
+                    Text("${snapshot.error}", 
+                      style: const TextStyle(color: Colors.red, fontSize: 16),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
               ),
             );
           }
 
           // ३. अगर डेटा मिल गया
           if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
-            var data = snapshot.data!.docs.first.data() as Map<String, dynamic>;
-            String title = data['title'] ?? "हरि ॐ जी!";
-            String desc = data['desc'] ?? "टीम विकास पासोरिया";
-
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.fort_rounded, size: 100, color: Colors.deepOrange),
-                  const SizedBox(height: 30),
-                  Text(title, style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.deepOrange)),
-                  const SizedBox(height: 15),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 25),
-                    child: Text(desc, textAlign: TextAlign.center, style: const TextStyle(fontSize: 18)),
-                  ),
+                  const Icon(Icons.check_circle, color: Colors.green, size: 60),
+                  const SizedBox(height: 20),
+                  const Text("बधाई हो! डेटा मिल गया!", style: TextStyle(fontSize: 22, color: Colors.green)),
+                  const SizedBox(height: 20),
+                  Text("कुल आइटम्स: ${snapshot.data!.docs.length}"),
                 ],
               ),
             );
           }
 
-          // ४. अगर डेटाबेस में कोई डॉक्यूमेंट ही नहीं है
-          return const Center(child: Text("डेटाबेस खाली है भाई!"));
+          // ४. अगर डेटाबेस खाली सै
+          return const Center(child: Text("डेटाबेस में कुछ नी मिल्या, कति खाली सै!"));
         },
       ),
     );

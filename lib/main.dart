@@ -7,8 +7,8 @@ import 'package:url_launcher/url_launcher.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
-    // Firebase शुरू करें, अगर 3 सेकंड में न हो तो भी ऐप खोल दें
-    await Firebase.initializeApp().timeout(const Duration(seconds: 3));
+    // Firebase को कनेक्ट करें
+    await Firebase.initializeApp();
   } catch (e) {
     print("Firebase Error: $e");
   }
@@ -21,10 +21,11 @@ class VikasApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      title: 'Vikas Pasoriya Official',
       theme: ThemeData(
         primarySwatch: Colors.deepOrange,
-        scaffoldBackgroundColor: const Color(0xFFFFF8E1), // क्रीम कलर
-        textTheme: GoogleFonts.hindTextTheme(),
+        scaffoldBackgroundColor: const Color(0xFFFFF8E1), // हल्का क्रीम कलर
+        textTheme: GoogleFonts.hindTextTheme(), // हिंदी फोंट्स के लिए
       ),
       home: const HomeScreen(),
     );
@@ -41,85 +42,71 @@ class HomeScreen extends StatelessWidget {
         title: const Text('विकास पासोरिया ऑफिसियल'),
         backgroundColor: Colors.deepOrange,
         centerTitle: true,
+        elevation: 0,
       ),
-      body: StreamBuilder<DocumentSnapshot>(
-        // ध्यान तै देख भाई, यहाँ वही स्पेलिंग सै जो थारे Firebase में सै
-        stream: FirebaseFirestore.instance.collection('settilng').doc('app_config').snapshots(),
+      body: StreamBuilder<QuerySnapshot>(
+        // थारे डेटाबेस में 'menus' नाम का कलेक्शन सै
+        stream: FirebaseFirestore.instance.collection('menus').snapshots(),
         builder: (context, snapshot) {
           
-          // डिफ़ॉल्ट डेटा - जो हमेशा दिखेगा (सफ़ेद स्क्रीन को रोकने के लिए)
-          String yt = "https://youtube.com/@VikasPasoriya";
-          String upi = "your-upi@okicici";
-          String info = "पंडित विकास पासोरिया सांस्कृतिक एवं आध्यात्मिक पाठशाला";
+          // डिफ़ॉल्ट डेटा (अगर नेट ना हो या डेटाबेस खाली हो तो यो दिखेगा)
+          String mainTitle = "हरि ॐ जी!";
+          String description = "टीम विकास पासोरिया";
+          String ytUrl = "https://youtube.com/@VikasPasoriya";
 
-          // अगर Cloud Firestore में डेटा मिल गया तो उसे अपडेट कर दो
-          if (snapshot.hasData && snapshot.data!.exists) {
-            var d = snapshot.data!.data() as Map<String, dynamic>;
-            yt = d['youtube'] ?? yt;
-            upi = d['upi'] ?? upi;
-            info = d['about'] ?? info;
+          // अगर डेटाबेस तै डेटा मिल गया
+          if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+            var doc = snapshot.data!.docs.first.data() as Map<String, dynamic>;
+            mainTitle = doc['title'] ?? mainTitle;
+            description = doc['desc'] ?? description;
+            // अगर यूट्यूब लिंक भी डेटाबेस में डालोगे तो यहाँ से अपडेट होगा
+            ytUrl = doc['youtube'] ?? ytUrl;
           }
 
-          // यहाँ हमने कोई 'if waiting' नहीं लगाया, इसलिए ऐप तुरंत खुलेगा
+          // सफ़ेद स्क्रीन का झंझट खत्म - सीधा डिज़ाइन दिखाओ
           return SingleChildScrollView(
             child: Column(
               children: [
-                const SizedBox(height: 40),
+                const SizedBox(height: 50),
+                // थारा किला वाला आइकॉन
                 const Icon(Icons.fort_rounded, size: 120, color: Colors.deepOrange),
-                const SizedBox(height: 10),
-                const Text('हरि ॐ जी!', 
-                  style: TextStyle(fontSize: 35, fontWeight: FontWeight.bold, color: Colors.deepOrange)),
+                const SizedBox(height: 20),
                 
-                const SizedBox(height: 30),
+                Text(mainTitle, 
+                  style: const TextStyle(fontSize: 38, fontWeight: FontWeight.bold, color: Colors.deepOrange)),
                 
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 25),
-                  child: Text(info, 
-                    textAlign: TextAlign.center, 
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
-                ),
-
-                const SizedBox(height: 40),
-
-                // डोनेशन बटन
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 25),
-                  child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.deepOrange, 
-                      minimumSize: const Size(double.infinity, 70),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(35))
-                    ),
-                    icon: const Icon(Icons.volunteer_activism, color: Colors.white, size: 30),
-                    label: const Text('सहयोग राशि दें', 
-                      style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
-                    onPressed: () => _pay(upi),
-                  ),
-                ),
-
                 const SizedBox(height: 25),
+                
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 30),
+                  child: Text(description, 
+                    textAlign: TextAlign.center, 
+                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500, color: Colors.black87)),
+                ),
+
+                const SizedBox(height: 50),
+
+                // सहयोग राशि (UPI) बटन
+                _buildActionButton(
+                  context,
+                  label: 'सहयोग राशि दें',
+                  icon: Icons.volunteer_activism,
+                  color: Colors.deepOrange,
+                  onTap: () => _payUPI("your-upi@okicici"), // अपनी UPI ID यहाँ डालें
+                ),
+
+                const SizedBox(height: 20),
 
                 // यूट्यूब बटन
-                InkWell(
-                  onTap: () => _launch(yt),
-                  child: Container(
-                    padding: const EdgeInsets.all(15),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(15),
-                      border: Border.all(color: Colors.red.withOpacity(0.3))
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: const [
-                        Icon(Icons.video_library, color: Colors.red),
-                        SizedBox(width: 10),
-                        Text("यूट्यूब चैनल देखें", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                      ],
-                    ),
-                  ),
+                _buildActionButton(
+                  context,
+                  label: 'यूट्यूब चैनल देखें',
+                  icon: Icons.video_library,
+                  color: Colors.red,
+                  onTap: () => _launchURL(ytUrl),
                 ),
-                const SizedBox(height: 40),
+                
+                const SizedBox(height: 50),
               ],
             ),
           );
@@ -128,13 +115,41 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  _launch(url) async {
+  // बटन बनाने का सुंदर डिज़ाइन
+  Widget _buildActionButton(BuildContext context, {required String label, required IconData icon, required Color color, required VoidCallback onTap}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 30),
+      child: InkWell(
+        onTap: onTap,
+        child: Container(
+          height: 70,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(35),
+            boxShadow: [BoxShadow(color: color.withOpacity(0.3), blurRadius: 10, offset: const Offset(0, 5))],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, color: Colors.white, size: 28),
+              const SizedBox(width: 15),
+              Text(label, style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // यूआरएल खोलने के लिए
+  _launchURL(String url) async {
     if (await canLaunchUrl(Uri.parse(url))) {
       await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
     }
   }
 
-  _pay(upi) async {
+  // पेमेंट के लिए
+  _payUPI(String upi) async {
     final url = "upi://pay?pa=$upi&pn=Vikas&cu=INR";
     if (await canLaunchUrl(Uri.parse(url))) {
       await launchUrl(Uri.parse(url));

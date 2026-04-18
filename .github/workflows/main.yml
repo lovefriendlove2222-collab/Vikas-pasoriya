@@ -1,39 +1,83 @@
-name: Build APK
-on: push
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
+import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.19.0'
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  try {
+    await Firebase.initializeApp();
+  } catch (e) {
+    debugPrint("Firebase Error: $e");
+  }
+  runApp(const MaterialApp(
+    debugShowCheckedModeBanner: false,
+    home: VikasApp(),
+  ));
+}
 
-      - name: Full System Repair and Build
-        run: |
-          # 1. पुराने एंड्राइड फोल्डर की छुट्टी
-          rm -rf android/
-          
-          # 2. कति नए स्टाइल का एंड्राइड ढांचा तैयार करना
-          flutter create . --platforms=android --project-name=vikas_pasoriya
-          
-          # 3. लाइब्रेरी सेट करना
-          flutter pub get
-          
-          # 4. परमिशन सेट करके बिल्ड करना
-          chmod +x android/gradlew
-          flutter build apk --release --no-tree-shake-icons
+class VikasApp extends StatelessWidget {
+  const VikasApp({super.key});
 
-      - name: Upload Final APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: vikas-official-final-v1
-          path: build/app/outputs/flutter-apk/app-release.apk
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFFFF3E0),
+      appBar: AppBar(
+        title: const Text('विकास पासोरिया ऑफिसियल'),
+        backgroundColor: Colors.deepOrange,
+        centerTitle: true,
+      ),
+      body: StreamBuilder<QuerySnapshot>(
+        // इब यो सीधा 'settings' तै डेटा ठावैगा
+        stream: FirebaseFirestore.instance.collection('settings').snapshots(),
+        builder: (context, snapshot) {
+          
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator(color: Colors.deepOrange));
+          }
+
+          if (snapshot.hasError) {
+            return Center(child: Text("नेटवर्क की दिक्कत सै भाई!"));
+          }
+
+          if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+            var data = snapshot.data!.docs.first.data() as Map<String, dynamic>;
+            
+            // डेटाबेस तै 'youtube' लिंक ठा लिया
+            String youtubeUrl = data['youtube'] ?? "https://youtube.com/@VikasPasoriya";
+
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.music_video, size: 100, color: Colors.deepOrange),
+                  const SizedBox(height: 20),
+                  const Text("विकास पासोरिया", style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.brown)),
+                  const SizedBox(height: 10),
+                  const Text("हरियाणा की शान", style: TextStyle(fontSize: 18)),
+                  const SizedBox(height: 40),
+                  ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                    ),
+                    onPressed: () async {
+                      final url = Uri.parse(youtubeUrl);
+                      await launchUrl(url, mode: LaunchMode.externalApplication);
+                    },
+                    icon: const Icon(Icons.play_circle_filled),
+                    label: const Text("यूट्यूब चैनल देखें", style: TextStyle(fontSize: 18)),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          return const Center(child: Text("डेटाबेस में कुछ नी मिल्या!"));
+        },
+      ),
+    );
+  }
+}

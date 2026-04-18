@@ -1,9 +1,3 @@
-plugins {
-    id "com.android.application"
-    id "kotlin-android"
-    id "dev.flutter.flutter-gradle-plugin"
-}
-
 android {
     namespace "com.vikas.pasoriya" 
     compileSdk 34
@@ -12,15 +6,7 @@ android {
         applicationId "com.vikas.pasoriya"
         minSdk 23
         targetSdk 34
-        versionCode 15
-        versionName "15.0.0"
-    }
-
-    buildTypes {
-        release {
-            signingConfig signingConfigs.debug
-            shrinkResources false
-            minifyEnabled false
-        }
+        versionCode 16
+        versionName "16.0.0"
     }
 }

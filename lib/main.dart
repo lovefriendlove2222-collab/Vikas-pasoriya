@@ -7,8 +7,8 @@ import 'package:url_launcher/url_launcher.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
-    // Firebase को कनेक्ट करने की कोशिश, 5 सेकंड में जवाब ना आए तो भी ऐप खुलेगा
-    await Firebase.initializeApp().timeout(const Duration(seconds: 5));
+    // Firebase शुरू करें, अगर 3 सेकंड में न हो तो भी ऐप खोल दें
+    await Firebase.initializeApp().timeout(const Duration(seconds: 3));
   } catch (e) {
     print("Firebase Error: $e");
   }
@@ -21,10 +21,9 @@ class VikasApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Vikas Pasoriya Official',
       theme: ThemeData(
         primarySwatch: Colors.deepOrange,
-        scaffoldBackgroundColor: const Color(0xFFFFF8E1),
+        scaffoldBackgroundColor: const Color(0xFFFFF8E1), // क्रीम कलर
         textTheme: GoogleFonts.hindTextTheme(),
       ),
       home: const HomeScreen(),
@@ -44,15 +43,16 @@ class HomeScreen extends StatelessWidget {
         centerTitle: true,
       ),
       body: StreamBuilder<DocumentSnapshot>(
-        // यहाँ वही स्पेलिंग है जो थारे Firebase में है
+        // ध्यान तै देख भाई, यहाँ वही स्पेलिंग सै जो थारे Firebase में सै
         stream: FirebaseFirestore.instance.collection('settilng').doc('app_config').snapshots(),
         builder: (context, snapshot) {
           
-          // डिफ़ॉल्ट डेटा (अगर नेट ना हो तो यो पेज दिखेगा, सफ़ेद स्क्रीन नहीं!)
+          // डिफ़ॉल्ट डेटा - जो हमेशा दिखेगा (सफ़ेद स्क्रीन को रोकने के लिए)
           String yt = "https://youtube.com/@VikasPasoriya";
           String upi = "your-upi@okicici";
           String info = "पंडित विकास पासोरिया सांस्कृतिक एवं आध्यात्मिक पाठशाला";
 
+          // अगर Cloud Firestore में डेटा मिल गया तो उसे अपडेट कर दो
           if (snapshot.hasData && snapshot.data!.exists) {
             var d = snapshot.data!.data() as Map<String, dynamic>;
             yt = d['youtube'] ?? yt;
@@ -60,11 +60,11 @@ class HomeScreen extends StatelessWidget {
             info = d['about'] ?? info;
           }
 
+          // यहाँ हमने कोई 'if waiting' नहीं लगाया, इसलिए ऐप तुरंत खुलेगा
           return SingleChildScrollView(
             child: Column(
               children: [
                 const SizedBox(height: 40),
-                // थारा किला वाला आइकॉन
                 const Icon(Icons.fort_rounded, size: 120, color: Colors.deepOrange),
                 const SizedBox(height: 10),
                 const Text('हरि ॐ जी!', 

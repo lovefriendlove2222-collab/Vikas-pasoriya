@@ -10,11 +10,11 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.19.0'
-      - name: Clean and Setup
+      - name: Force Update Gradle
         run: |
           flutter clean
           flutter pub get
-      - name: Build Heavy APK
+      - name: Build Heavy AI APK
         run: flutter build apk --release --no-tree-shake-icons
       - name: Upload AI APK
         uses: actions/upload-artifact@v4

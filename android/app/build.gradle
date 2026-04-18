@@ -5,8 +5,7 @@ plugins {
 }
 
 android {
-    // यहाँ कति साफ़ और छोटा 'v' इस्तेमाल करया सै जो थारी फोटो तै मैच करै सै
-    namespace "com.vikas.pasoriya" 
+    namespace "com.vikas.pasoriya"
     compileSdk 34
 
     defaultConfig {
@@ -20,8 +19,8 @@ android {
     buildTypes {
         release {
             signingConfig signingConfigs.debug
-            shrinkResources false
             minifyEnabled false
+            shrinkResources false
         }
     }
 }

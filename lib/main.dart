@@ -29,7 +29,7 @@ class VikasApp extends StatelessWidget {
         centerTitle: true,
       ),
       body: StreamBuilder<QuerySnapshot>(
-        // इब यो 'settings' तै डेटा ठावैगा
+        // इब यो सीधा 'settings' तै डेटा ठावैगा
         stream: FirebaseFirestore.instance.collection('settings').snapshots(),
         builder: (context, snapshot) {
           
@@ -38,16 +38,14 @@ class VikasApp extends StatelessWidget {
           }
 
           if (snapshot.hasError) {
-            return Center(child: Text("गड़बड़: ${snapshot.error}"));
+            return Center(child: Text("नेटवर्क की दिक्कत सै भाई!"));
           }
 
-          // अगर settings में डेटा मिल गया
           if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
             var data = snapshot.data!.docs.first.data() as Map<String, dynamic>;
             
-            // डेटाबेस में 'title' और 'desc' नाम के फील्ड होणे जरूरी सैं
-            String title = data['title'] ?? "विकास पासोरिया";
-            String desc = data['desc'] ?? "राम राम भाईयो!";
+            // डेटाबेस तै 'youtube' लिंक ठा लिया
+            String youtubeUrl = data['youtube'] ?? "https://youtube.com/@VikasPasoriya";
 
             return Center(
               child: Column(
@@ -55,12 +53,9 @@ class VikasApp extends StatelessWidget {
                 children: [
                   const Icon(Icons.music_video, size: 100, color: Colors.deepOrange),
                   const SizedBox(height: 20),
-                  Text(title, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.brown)),
+                  const Text("विकास पासोरिया", style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.brown)),
                   const SizedBox(height: 10),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Text(desc, textAlign: TextAlign.center, style: const TextStyle(fontSize: 18)),
-                  ),
+                  const Text("हरियाणा की शान", style: TextStyle(fontSize: 18)),
                   const SizedBox(height: 40),
                   ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
@@ -69,21 +64,18 @@ class VikasApp extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                     ),
                     onPressed: () async {
-                      final url = Uri.parse('https://youtube.com/@VikasPasoriya');
+                      final url = Uri.parse(youtubeUrl);
                       await launchUrl(url, mode: LaunchMode.externalApplication);
                     },
                     icon: const Icon(Icons.play_circle_filled),
-                    label: const Text("यूट्यूब चैनल", style: TextStyle(fontSize: 18)),
+                    label: const Text("यूट्यूब चैनल देखें", style: TextStyle(fontSize: 18)),
                   ),
                 ],
               ),
             );
           }
 
-          // अगर settings कलेक्शन खाली सै
-          return const Center(
-            child: Text("भाई, 'settings' में डेटा डालणा पड़ेगा!"),
-          );
+          return const Center(child: Text("डेटाबेस में कुछ नी मिल्या!"));
         },
       ),
     );

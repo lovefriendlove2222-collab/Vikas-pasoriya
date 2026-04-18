@@ -1,32 +1,27 @@
-buildscript {
-    ext.kotlin_version = '1.9.22'
-    repositories {
-        google()
-        mavenCentral()
-    }
-    dependencies {
-        // यो सै लेटेस्ट इंजन जो 8.3 Gradle के साथ चालेगा
-        classpath 'com.android.tools.build:gradle:8.2.1'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath 'com.google.gms:google-services:4.4.0'
-    }
+plugins {
+    id "com.android.application"
+    id "kotlin-android"
+    id "dev.flutter.flutter-gradle-plugin"
 }
 
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
+android {
+    // यहाँ कति सही नाम लिख दिया सै जो थारी फोटो में था
+    namespace "com.vikas.pasoriya" 
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.vikas.pasoriya"
+        minSdk 21
+        targetSdk 34
+        versionCode 3
+        versionName "3.0.0"
     }
-}
 
-rootProject.buildDir = '../build'
-subprojects {
-    project.buildDir = "${rootProject.buildDir}/${project.name}"
-}
-subprojects {
-    project.evaluationDependsOn(':app')
-}
-
-tasks.register("clean", Delete) {
-    delete rootProject.buildDir
+    buildTypes {
+        release {
+            signingConfig signingConfigs.debug
+            shrinkResources false
+            minifyEnabled false
+        }
+    }
 }

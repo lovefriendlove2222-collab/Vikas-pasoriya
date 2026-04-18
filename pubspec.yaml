@@ -1,6 +1,6 @@
-name: vikas_pasoriya_ai_official
-description: AI Powered Official App for Vikas Pasoriya
-version: 2.0.0+1
+name: vikas_official_heavy
+description: High Performance Official App for Vikas Pasoriya
+version: 3.0.0+1
 
 environment:
   sdk: ">=3.3.0 <4.0.0"
@@ -12,9 +12,8 @@ dependencies:
   cloud_firestore: ^4.14.0
   firebase_auth: ^4.15.0
   url_launcher: ^6.2.2
-  google_generative_ai: ^0.2.0 # यो सै असली AI (Gemini)
-  animate_do: ^3.3.4 # भारी और चमकते डिजाइन खात्तर
-  cached_network_image: ^3.3.1
+  animate_do: ^3.3.4 # ऐप ने चमकता हुआ बणाण खात्तर
+  cached_network_image: ^3.3.1 # फोटो ने जल्दी लोड करण खात्तर
 
 flutter:
   uses-material-design: true

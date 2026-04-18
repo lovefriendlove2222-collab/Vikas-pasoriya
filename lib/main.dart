@@ -7,8 +7,8 @@ import 'package:url_launcher/url_launcher.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
-    // Firebase को सिर्फ 3 सेकंड दिए, वरना ऐप आगे बढ़ जाएगा
-    await Firebase.initializeApp().timeout(const Duration(seconds: 3));
+    // Firebase को सिर्फ 2 सेकंड दिए, कनेक्ट हुआ तो ठीक वरना ऐप खुल जाएगा
+    await Firebase.initializeApp().timeout(const Duration(seconds: 2));
   } catch (e) {
     print("Firebase Error: $e");
   }
@@ -36,6 +36,11 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // डिफ़ॉल्ट डेटा - जो हमेशा दिखेगा चाहे कुछ भी हो जाए
+    const String defaultYT = "https://youtube.com/@VikasPasoriya";
+    const String defaultUPI = "paytmqr123@paytm";
+    const String defaultAbout = "विकास पासोरिया ऑफिसियल जनसेवा हेतु समर्पित है।";
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('विकास पासोरिया ऑफिसियल'),
@@ -47,25 +52,26 @@ class HomeScreen extends StatelessWidget {
           )
         ],
       ),
-      // FutureBuilder का इस्तेमाल किया ताकि डेटा न मिलने पे भी ऐप चले
+      // StreamBuilder को Body के अंदर रखा ताकि Background हमेशा लोड रहे
       body: StreamBuilder(
         stream: FirebaseFirestore.instance.collection('settings').doc('app_config').snapshots(),
         builder: (context, AsyncSnapshot<DocumentSnapshot> snap) {
-          // कति डिफ़ॉल्ट डेटा - जो हमेशा दिखेगा
-          String yt = "https://youtube.com/@VikasPasoriya";
-          String upi = "paytmqr123@paytm"; // यहाँ अपनी असली ID डालना
-          String info = "विकास पासोरिया ऑफिसियल जनसेवा हेतु समर्पित है।";
+          String yt = defaultYT;
+          String upi = defaultUPI;
+          String info = defaultAbout;
 
+          // अगर डेटा मिल गया तो उसे अपडेट कर दो
           if (snap.hasData && snap.data!.exists) {
             var d = snap.data!;
-            yt = d['youtube'] ?? yt;
-            upi = d['upi'] ?? upi;
-            info = d['about'] ?? info;
+            yt = d['youtube'] ?? defaultYT;
+            upi = d['upi'] ?? defaultUPI;
+            info = d['about'] ?? defaultAbout;
           }
 
           return SingleChildScrollView(
             child: Column(children: [
               const SizedBox(height: 30),
+              // यहाँ थारा किला (Fort) वाला आइकॉन
               const Icon(Icons.fort_rounded, size: 100, color: Colors.deepOrange),
               const Text('हरि ॐ जी!', style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.deepOrange)),
               const SizedBox(height: 30),
@@ -93,7 +99,7 @@ class HomeScreen extends StatelessWidget {
                   _btn(Icons.account_balance, "संस्था जानकारी", () => _showPop(context, info)),
                   _btn(Icons.video_library, "यूट्यूब वीडियो", () => _launch(yt)),
                   _btn(Icons.music_note, "भजन संगीत", () => _launch("$yt/videos")),
-                  _btn(Icons.contact_support, "संपर्क करें", () => _launch("tel:+9198XXXXXXXX")),
+                  _btn(Icons.contact_support, "संपर्क करें", () => _launch("tel:+91XXXXXXXXXX")),
                 ],
               ),
             ]),
@@ -106,11 +112,11 @@ class HomeScreen extends StatelessWidget {
   Widget _btn(IconData i, String t, VoidCallback a) => InkWell(
     onTap: a,
     child: Container(
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(15), border: Border.all(color: Colors.deepOrange.withOpacity(0.2))),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(15), border: Border.all(color: Colors.deepOrange.withOpacity(0.1))),
       child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
         Icon(i, size: 45, color: Colors.deepOrange),
         const SizedBox(height: 8),
-        Text(t, style: const TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+        Text(t, style: const TextStyle(fontWeight: FontWeight.bold)),
       ]),
     ),
   );
@@ -119,7 +125,7 @@ class HomeScreen extends StatelessWidget {
   _showPop(context, txt) => showDialog(context: context, builder: (c) => AlertDialog(content: Text(txt), actions: [TextButton(onPressed: () => Navigator.pop(c), child: const Text("OK"))]));
 }
 
-// ---------------- 2. डोनेशन विवरण + यूपीआई पेमेंट ----------------
+// ---------------- 2. डोनेशन पेज (डेटा सेव + यूपीआई) ----------------
 class DonationPage extends StatefulWidget {
   final String upiID;
   const DonationPage({super.key, required this.upiID});
@@ -141,18 +147,13 @@ class _DonationPageState extends State<DonationPage> {
         padding: const EdgeInsets.all(20),
         child: Column(children: [
           TextField(controller: _n, decoration: const InputDecoration(labelText: 'आपका नाम *')),
-          const SizedBox(height: 10),
           TextField(controller: _m, decoration: const InputDecoration(labelText: 'मोबाइल नम्बर'), keyboardType: TextInputType.phone),
-          const SizedBox(height: 10),
           TextField(controller: _a, decoration: const InputDecoration(labelText: 'सहयोग राशि (₹) *'), keyboardType: TextInputType.number),
           const SizedBox(height: 30),
           ElevatedButton(
             style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 50), backgroundColor: Colors.green),
             onPressed: () async {
-              if (_n.text.isEmpty || _a.text.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("नाम और राशि भरें!")));
-                return;
-              }
+              if (_n.text.isEmpty || _a.text.isEmpty) return;
               setState(() => _load = true);
               try {
                 await FirebaseFirestore.instance.collection('donations').add({
@@ -161,7 +162,7 @@ class _DonationPageState extends State<DonationPage> {
                 final url = "upi://pay?pa=${widget.upiID}&pn=Vikas&am=${_a.text}&cu=INR";
                 await launchUrl(Uri.parse(url));
                 Navigator.pop(context);
-              } catch (e) { print(e); }
+              } catch (e) {}
               setState(() => _load = false);
             },
             child: const Text('डिटेल्स सेव करें और पेमेंट करें', style: TextStyle(color: Colors.white)),
@@ -172,7 +173,7 @@ class _DonationPageState extends State<DonationPage> {
   }
 }
 
-// ---------------- 3. एडमिन पैनल (Settings & List) ----------------
+// ---------------- 3. एडमिन पैनल ----------------
 class AdminLoginPage extends StatelessWidget {
   const AdminLoginPage({super.key});
   @override
@@ -205,7 +206,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        appBar: AppBar(title: const Text('एडमिन कंट्रोल'), bottom: const TabBar(tabs: [Tab(text: "डोनेशन लिस्ट"), Tab(text: "सेटिंग्स")])),
+        appBar: AppBar(title: const Text('एडमिन कंट्रोल'), bottom: const TabBar(tabs: [Tab(text: "लिस्ट"), Tab(text: "सेटिंग्स")])),
         body: TabBarView(children: [
           StreamBuilder(
             stream: FirebaseFirestore.instance.collection('donations').orderBy('time', descending: true).snapshots(),
@@ -213,7 +214,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
               if (!snap.hasData) return const Center(child: CircularProgressIndicator());
               return ListView.builder(itemCount: snap.data!.docs.length, itemBuilder: (context, i) {
                 var d = snap.data!.docs[i];
-                return Card(child: ListTile(title: Text("${d['name']} - ₹${d['amount']}"), subtitle: Text(d['mobile']), trailing: IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: () => d.reference.delete())));
+                return ListTile(title: Text("${d['name']} - ₹${d['amount']}"), subtitle: Text(d['mobile']), trailing: IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: () => d.reference.delete()));
               });
             },
           ),
@@ -224,8 +225,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
             const SizedBox(height: 20),
             ElevatedButton(onPressed: () async {
               await FirebaseFirestore.instance.collection('settings').doc('app_config').set({'youtube': _yt.text, 'upi': _up.text, 'about': _ab.text}, SetOptions(merge: true));
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Updated!')));
-            }, child: const Text('Update Settings'))
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('सिस्टम अपडेट हो गया!')));
+            }, child: const Text('Update Now'))
           ])),
         ]),
       ),

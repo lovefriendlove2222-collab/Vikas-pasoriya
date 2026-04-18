@@ -1,4 +1,4 @@
-name: Build Heavy App
+name: Build Heavy Final
 on:
   push:
     branches: [ main ]
@@ -13,12 +13,13 @@ jobs:
       
       - name: Build Heavy Release
         run: |
+          # सारा पुराना कचरा साफ़ करण खात्तर
           flutter clean
           flutter pub get
           flutter build apk --release --no-tree-shake-icons
           
-      - name: Upload Heavy APK
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: vikas-heavy-pro
+          name: vikas-official-final
           path: build/app/outputs/flutter-apk/app-release.apk

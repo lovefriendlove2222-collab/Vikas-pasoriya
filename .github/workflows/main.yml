@@ -1,4 +1,4 @@
-name: Build Vikas Official Final
+name: Build Official Final PRO
 on:
   push:
     branches: [ main ]
@@ -13,16 +13,17 @@ jobs:
         with:
           flutter-version: '3.19.0'
 
-      - name: Auto Fix and Build
+      - name: Master Build
         run: |
-          # यो खुद थारे फोल्डर के अंदर घुसकै काम करेगा
-          find . -name "pubspec.yaml" -execdir rm -f local.properties \;
-          find . -name "pubspec.yaml" -execdir flutter clean \;
-          find . -name "pubspec.yaml" -execdir flutter pub get \;
-          find . -name "pubspec.yaml" -execdir flutter build apk --release --no-tree-shake-icons \;
+          # थारे पुराने फोल्डर के अंदर घुसकै काम करणा
+          cd Vikas-pasoriya
+          rm -f local.properties
+          flutter clean
+          flutter pub get
+          flutter build apk --release --no-tree-shake-icons
           
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: Vikas_Official_App
-          path: "**/build/app/outputs/flutter-apk/*.apk"
+          path: "Vikas-pasoriya/build/app/outputs/flutter-apk/*.apk"

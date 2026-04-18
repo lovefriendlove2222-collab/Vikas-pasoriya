@@ -10,13 +10,14 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.19.0'
-      - name: Fix Directory Issue
+      
+      - name: Auto Setup and Build
         run: |
-          # यो कमांड फालतू फाइलों ने हटाकै कति फ्रेश सैटिंग कर देगा
+          # यो कमांड खुद प्रोजेक्ट की जड़ तक जावैगी
           flutter pub get
-      - name: Build APK
-        # यहाँ 'android' फोल्डर को सीधा टारगेट कर दिया सै
-        run: flutter build apk --release --no-tree-shake-icons
+          # सीधा APK बणाने का हुक्म
+          flutter build apk --release --no-tree-shake-icons
+          
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:

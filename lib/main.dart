@@ -55,7 +55,7 @@ class VikasApp extends StatelessWidget {
               ),
             );
           }
-          return const Center(child: Text("डेटाबेस चैक करो भाई!"));
+          return const Center(child: Text("Firebase Rule Publish करो भाई!"));
         },
       ),
     );

@@ -29,6 +29,7 @@ class VikasApp extends StatelessWidget {
         centerTitle: true,
       ),
       body: StreamBuilder<QuerySnapshot>(
+        // थारे डेटाबेस के 'settings' कलेक्शन तै सीधा लिंक
         stream: FirebaseFirestore.instance.collection('settings').snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -36,8 +37,9 @@ class VikasApp extends StatelessWidget {
           }
           if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
             var data = snapshot.data!.docs.first.data() as Map<String, dynamic>;
-            // थारे Firebase 'settings' कलेक्शन तै डेटा ठा रहा सै
+            // डेटाबेस तै 'youtube' फील्ड उठा रह्या सै
             String youtubeUrl = data['youtube'] ?? "https://youtube.com/@VikasPasoriya";
+
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -47,16 +49,23 @@ class VikasApp extends StatelessWidget {
                   const Text("विकास पासोरिया", style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 40),
                   ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
-                    onPressed: () => launchUrl(Uri.parse(youtubeUrl), mode: LaunchMode.externalApplication),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red, 
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15)
+                    ),
+                    onPressed: () async {
+                      final url = Uri.parse(youtubeUrl);
+                      await launchUrl(url, mode: LaunchMode.externalApplication);
+                    },
                     icon: const Icon(Icons.play_arrow),
-                    label: const Text("यूट्यूब चैनल"),
+                    label: const Text("यूट्यूब चैनल देखें", style: TextStyle(fontSize: 18)),
                   ),
                 ],
               ),
             );
           }
-          return const Center(child: Text("Firebase Rules Publish करो भाई!"));
+          return const Center(child: Text("Firebase में डेटा नी मिल्या भाई!"));
         },
       ),
     );

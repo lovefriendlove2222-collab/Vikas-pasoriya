@@ -1,4 +1,4 @@
-name: Build Heavy AI APK
+name: Build Heavy App
 on:
   push:
     branches: [ main ]
@@ -11,16 +11,14 @@ jobs:
         with:
           flutter-version: '3.19.0'
       
-      - name: Force Heavy Build
+      - name: Build Heavy Release
         run: |
-          # पुरानी गल्तियां साफ़ करण खात्तर
           flutter clean
           flutter pub get
-          # सीधा भारी APK बणाण का हुक्म
           flutter build apk --release --no-tree-shake-icons
           
-      - name: Upload AI APK
+      - name: Upload Heavy APK
         uses: actions/upload-artifact@v4
         with:
-          name: vikas-heavy-ai-pro
+          name: vikas-heavy-pro
           path: build/app/outputs/flutter-apk/app-release.apk

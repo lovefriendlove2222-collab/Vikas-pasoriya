@@ -1,4 +1,4 @@
-name: Build Heavy Final PRO
+name: Build Official Final
 on:
   push:
     branches: [ main ]
@@ -13,17 +13,17 @@ jobs:
         with:
           flutter-version: '3.19.0'
 
-      - name: Build Official APK
+      - name: Master Build
         run: |
-          # असली जादू: पहले फोल्डर के अंदर जाओ, फिर बिल्ड करो
-          cd Vikas-pasoriya 
+          # थारे फोल्डर के अंदर जाकै बिल्ड करणा
+          cd Vikas-pasoriya
           flutter clean
           flutter pub get
           flutter build apk --release --no-tree-shake-icons
           
-      - name: Upload Final APK
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: Vikas_Pasoriya_Official
-          # रास्ता कति पक्का कर दिया सै
+          # रास्ता कति पत्थर की लकीर सै
           path: "Vikas-pasoriya/build/app/outputs/flutter-apk/*.apk"

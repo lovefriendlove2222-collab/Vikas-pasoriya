@@ -1,28 +1,53 @@
 name: Build Heavy Final PRO
+
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
+
 jobs:
   build:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
 
-      - name: Set up Flutter
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.19.0'
+          flutter-version: 3.24.0
+          channel: stable
 
-      - name: Build Official Release
-        run: |
-          # पुरानी फाइलों की जड़ तै सफाई
-          find . -name "pubspec.yaml" -execdir flutter clean \;
-          find . -name "pubspec.yaml" -execdir flutter pub get \;
-          # भारी APK बणाण का हुक्म
-          find . -name "pubspec.yaml" -execdir flutter build apk --release --no-tree-shake-icons \;
-          
-      - name: Upload Official APK
+      - name: Flutter Version
+        run: flutter --version
+
+      - name: Get Packages
+        run: flutter pub get
+
+      - name: Clean Project
+        run: flutter clean
+
+      - name: Build Release APK
+        run: flutter build apk --release
+
+      - name: Build Release AAB
+        run: flutter build appbundle --release
+
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Vikas_Pasoriya_Official
-          path: "**/build/app/outputs/flutter-apk/*.apk"
+          name: official-release-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+
+      - name: Upload AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: official-release-aab
+          path: build/app/outputs/bundle/release/app-release.aab

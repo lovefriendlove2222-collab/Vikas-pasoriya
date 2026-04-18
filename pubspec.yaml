@@ -1,6 +1,6 @@
-name: vikas_pasoriya
-description: Official High Performance App
-version: 10.0.0+1
+name: vikas_pasoriya_official
+description: High Performance Official App
+version: 12.0.0+1
 
 environment:
   sdk: '>=3.3.0 <4.0.0'
@@ -8,18 +8,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  # ये वो वर्जन सैं जो थारे एरर ने खत्म करेंगे
+  # ये वर्जन कति लेटेस्ट सैं, कोई एरर कोनी देवें
   cupertino_icons: ^1.0.8
-  animate_do: ^3.3.9
+  animate_do: ^3.3.4
   firebase_core: ^2.32.0
   url_launcher: ^6.3.1
-  path_provider: ^2.1.4
-  sqflite: ^2.3.3+1
-
-dev_dependencies:
-  flutter_test:
-    sdk: flutter
-  flutter_lints: ^3.0.0
+  cached_network_image: ^3.3.1
 
 flutter:
   uses-material-design: true

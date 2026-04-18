@@ -1,6 +1,6 @@
 name: vikas_pasoriya
 description: Official High Performance App
-version: 7.0.0+1
+version: 10.0.0+1
 
 environment:
   sdk: '>=3.3.0 <4.0.0'
@@ -8,9 +8,18 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.6
-  animate_do: ^3.3.4
-  url_launcher: ^6.2.5
+  # ये वो वर्जन सैं जो थारे एरर ने खत्म करेंगे
+  cupertino_icons: ^1.0.8
+  animate_do: ^3.3.9
+  firebase_core: ^2.32.0
+  url_launcher: ^6.3.1
+  path_provider: ^2.1.4
+  sqflite: ^2.3.3+1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
 
 flutter:
   uses-material-design: true

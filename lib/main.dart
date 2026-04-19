@@ -7,69 +7,70 @@ import 'package:qr_flutter/qr_flutter.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
+    // फायरबेस शुरू करना
     await Firebase.initializeApp();
   } catch (e) {
-    debugPrint("फायरबेस लोड नहीं हुआ: $e");
+    debugPrint("फायरबेस लोड एरर: $e");
   }
-  runApp(const VikasApp());
+  runApp(const VikasPasoriyaApp());
 }
 
-class VikasApp extends StatelessWidget {
-  const VikasApp({super.key});
+class VikasPasoriyaApp extends StatelessWidget {
+  const VikasPasoriyaApp({super.key});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      title: 'Vikas Pasoriya Official',
       theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.orange),
-      home: const VikasMainScreen(),
+      home: const HomeScreen(),
     );
   }
 }
 
-class VikasMainScreen extends StatefulWidget {
-  const VikasMainScreen({super.key});
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
   @override
-  State<VikasMainScreen> createState() => _VikasMainScreenState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _VikasMainScreenState extends State<VikasMainScreen> {
-  // थारा रीयलटाइम डेटाबेस यूआरएल
-  final DatabaseReference _database = FirebaseDatabase.instanceFor(
+class _HomeScreenState extends State<HomeScreen> {
+  // थारा डेटाबेस यूआरएल
+  final DatabaseReference _dbRef = FirebaseDatabase.instanceFor(
     app: Firebase.app(),
     databaseURL: 'https://vikas-pasoriya-default-rtdb.firebaseio.com/',
   ).ref();
 
-  String purnimaText = "डेटाबेस तै जुड़न लग रहा हूँ..."; 
-  String upiId = "7206966924vivek@axl";
-  String vId = "4wrWluZisiw";
+  String infoText = "डेटा लोड हो रहा है...";
+  String upiAddress = "7206966924vivek@axl";
+  String currentVideoId = "4wrWluZisiw";
   YoutubePlayerController? _ytController;
 
   @override
   void initState() {
     super.initState();
-    _initYoutube();
-    _startSync();
-  }
-
-  void _initYoutube() {
+    // यूट्यूब प्लेयर सैट करना
     _ytController = YoutubePlayerController(
-      initialVideoId: vId,
+      initialVideoId: currentVideoId,
       flags: const YoutubePlayerFlags(autoPlay: false, mute: false),
     );
+    _listenToDatabase();
   }
 
-  void _startSync() {
-    _database.onValue.listen((event) {
+  void _listenToDatabase() {
+    // डेटाबेस तै डेटा पढ़ना
+    _dbRef.onValue.listen((event) {
       final data = event.snapshot.value as Map?;
       if (data != null) {
         setState(() {
-          // डेटाबेस तै "purnima" वाली लाइन उठा रहा सै
-          purnimaText = data["purnima"] ?? "कोई सूचना नहीं मिली";
-          upiId = data["upi"] ?? "7206966924vivek@axl";
-          String? extractedId = YoutubePlayer.convertUrlToId(data["videoId"] ?? "");
-          if (extractedId != null && extractedId != vId) {
-            vId = extractedId;
-            _ytController?.load(vId);
+          // डेटाबेस तै "purnima" उठाना
+          infoText = data["purnima"] ?? "कोई सूचना नहीं";
+          upiAddress = data["upi"] ?? "7206966924vivek@axl";
+          
+          String? newId = YoutubePlayer.convertUrlToId(data["videoId"] ?? "");
+          if (newId != null && newId != currentVideoId) {
+            currentVideoId = newId;
+            _ytController?.load(currentVideoId);
           }
         });
       }
@@ -81,31 +82,45 @@ class _VikasMainScreenState extends State<VikasMainScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("विकास पासोरिया ऑफिशियिल"),
-        backgroundColor: Colors.orange[800],
+        backgroundColor: Colors.orange[900],
         foregroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
         child: Column(children: [
-          if (_ytController != null)
-            YoutubePlayer(controller: _ytController!, showVideoProgressIndicator: true),
+          // वीडियो सेक्शन
+          YoutubePlayer(
+            controller: _ytController!,
+            showVideoProgressIndicator: true,
+          ),
           
           Padding(
             padding: const EdgeInsets.all(20),
             child: Column(children: [
+              // सूचना कार्ड
               Card(
                 elevation: 4,
-                child: ListTile(
-                  title: const Text("🌕 अगला प्रोग्राम", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.orange)),
-                  subtitle: Text(purnimaText, style: const TextStyle(fontSize: 16)),
+                child: Padding(
+                  padding: const EdgeInsets.all(15),
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    const Text("🌕 कार्यक्रम सूचना", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.orange, fontSize: 18)),
+                    const Divider(),
+                    Text(infoText, style: const TextStyle(fontSize: 16)),
+                  ]),
                 ),
               ),
+              
               const SizedBox(height: 30),
+              
+              // पेमेंट बटन
               ElevatedButton.icon(
-                onPressed: () => _showPayment(),
+                onPressed: () => _openQR(),
                 icon: const Icon(Icons.qr_code, color: Colors.white),
-                label: const Text("सहयोग करें", style: TextStyle(color: Colors.white, fontSize: 18)),
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.green[800], minimumSize: const Size(double.infinity, 60)),
-              )
+                label: const Text("सहयोग करें (QR)", style: TextStyle(color: Colors.white, fontSize: 18)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green[800],
+                  minimumSize: const Size(double.infinity, 60),
+                ),
+              ),
             ]),
           ),
         ]),
@@ -113,13 +128,13 @@ class _VikasMainScreenState extends State<VikasMainScreen> {
     );
   }
 
-  void _showPayment() {
+  void _openQR() {
     showModalBottomSheet(context: context, builder: (c) => Container(
       padding: const EdgeInsets.all(30),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
-        const Text("QR कोड स्कैन करें", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const Text("स्कैन करें और दान करें", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         const SizedBox(height: 20),
-        QrImageView(data: "upi://pay?pa=$upiId&pn=Vikas&cu=INR", size: 200),
+        QrImageView(data: "upi://pay?pa=$upiAddress&pn=Vikas&cu=INR", size: 220),
       ]),
     ));
   }

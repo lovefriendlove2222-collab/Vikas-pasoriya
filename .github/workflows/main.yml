@@ -15,7 +15,7 @@ jobs:
 
       - name: 🤖 The Universal Repair Machine
         run: |
-          # १. सबसे पहले प्रोजेक्ट ढूँढो
+          # १. सबसे पहले प्रोजेक्ट की असली जड़ ढूँढो
           PROJECT_ROOT=$(find . -name "pubspec.yaml" -exec dirname {} \; | head -n 1)
           
           # २. अगर pubspec नहीं मिली, तो जड़ में खुद बनाओ (Repair Mode)
@@ -23,27 +23,26 @@ jobs:
             echo "Repairing Missing Files..."
             PROJECT_ROOT="Vikas-pasoriya"
             mkdir -p $PROJECT_ROOT
-            cat <<EOF > $PROJECT_ROOT/pubspec.yaml
+          fi
+
+          cd $PROJECT_ROOT
+          
+          # ३. pubspec.yaml का कीड़ा कति जड़ तै खत्म करना (Auto-Writing)
+          cat <<EOF > pubspec.yaml
           name: vikas_official
-          description: Auto Fixed App
-          version: 24.0.0+1
+          description: Auto Fixed Official App
+          version: 25.0.0+1
           environment:
             sdk: '>=3.3.0 <4.0.0'
           dependencies:
             flutter:
               sdk: flutter
+            cupertino_icons: ^1.0.8
           flutter:
             uses-material-design: true
           EOF
-          fi
 
-          cd $PROJECT_ROOT
-          
-          # ३. नाम की गड़बड़ खुद ठीक करना
-          sed -i '/name:/d' pubspec.yaml
-          sed -i '1i name: vikas_official' pubspec.yaml
-          
-          # ४. गन्दी फाइलें साफ़ करना
+          # ४. गन्दी फाइलें (local.properties) की खुद सफ़ाई
           rm -f local.properties
           rm -f android/local.properties
           

@@ -1,6 +1,6 @@
 name: vikas_official
-description: Professional Official App
-version: 19.0.0+1
+description: Professional New Start Official App
+version: 20.0.0+1
 
 environment:
   sdk: '>=3.3.0 <4.0.0'
@@ -11,6 +11,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   animate_do: ^3.3.4
   url_launcher: ^6.3.1
+  firebase_core: ^2.32.0
 
 flutter:
   uses-material-design: true

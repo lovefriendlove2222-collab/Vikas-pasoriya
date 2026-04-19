@@ -12,12 +12,12 @@ class VikasSuperApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(primarySwatch: Colors.orange, scaffoldBackgroundColor: const Color(0xFFFFF3E0)),
-      home: const UserDashboard(),
+      home: const UserDashboard(), // एप सीधा यहाँ खुलेगा
     );
   }
 }
 
-// --- १. यूजर डैशबोर्ड (सीधा यही खुलेगा) ---
+// --- १. यूजर डैशबोर्ड (आम जनता के लिए) ---
 class UserDashboard extends StatefulWidget {
   const UserDashboard({super.key});
   @override
@@ -50,7 +50,7 @@ class _UserDashboardState extends State<UserDashboard> {
         title: const Text("विकास पासोरिया ऑफिशियल"),
         backgroundColor: Colors.orange[900],
         actions: [
-          // एडमिन बटन कोने में छुपा दिया सै
+          // एडमिन का गुप्त बटन कोने में (Security Icon)
           IconButton(icon: const Icon(Icons.security, color: Colors.white), 
           onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const AdminLogin())))
         ],
@@ -95,7 +95,7 @@ class _UserDashboardState extends State<UserDashboard> {
   }
 }
 
-// --- २. एडमिन लॉगिन ---
+// --- २. एडमिन लॉगिन (लॉगिन फिक्स) ---
 class AdminLogin extends StatefulWidget {
   const AdminLogin({super.key});
   @override
@@ -103,26 +103,35 @@ class AdminLogin extends StatefulWidget {
 }
 
 class _AdminLoginState extends State<AdminLogin> {
-  final _pass = TextEditingController();
+  final _passController = TextEditingController();
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Admin Access")),
       body: Padding(padding: const EdgeInsets.all(20), child: Column(children: [
-        TextField(controller: _pass, decoration: const InputDecoration(labelText: "पासवर्ड", border: OutlineInputBorder()), obscureText: true),
+        TextField(controller: _passController, decoration: const InputDecoration(labelText: "पासवर्ड दर्ज करें", border: OutlineInputBorder()), obscureText: true),
         const SizedBox(height: 20),
-        ElevatedButton(onPressed: () async {
-          final p = await SharedPreferences.getInstance();
-          if (_pass.text == (p.getString('admin_pass') ?? "Vikas1998")) {
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const AdminPanel()));
-          }
-        }, child: const Text("लॉगिन"))
+        ElevatedButton(
+          onPressed: () async {
+            final p = await SharedPreferences.getInstance();
+            String? savedPass = p.getString('admin_pass');
+            
+            // अगर कोई पासवर्ड सेव नहीं है, तो 'Vikas1998' चलेगा
+            if (_passController.text == (savedPass ?? "Vikas1998")) {
+              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const AdminPanel()));
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("गलत पासवर्ड! कृपया सही पासवर्ड डालें।")));
+            }
+          }, 
+          child: const Text("लॉगिन करें")
+        )
       ])),
     );
   }
 }
 
-// --- ३. एडमिन पैनल (सारे अपडेट यहीं से होंगे) ---
+// --- ३. एडमिन पैनल (कंट्रोल सेंटर) ---
 class AdminPanel extends StatelessWidget {
   const AdminPanel({super.key});
   @override
@@ -136,7 +145,7 @@ class AdminPanel extends StatelessWidget {
           _adminCard(context, "रेगुलर कार्यक्रम", Icons.event),
           _adminCard(context, "यूट्यूब चैनल", Icons.video_collection),
           _adminCard(context, "लोकेशन", Icons.pin_drop),
-          _adminCard(context, "पासवर्ड बदलें", Icons.vibration),
+          _adminCard(context, "पासवर्ड बदलें", Icons.lock_reset),
         ],
       ),
     );
@@ -145,12 +154,12 @@ class AdminPanel extends StatelessWidget {
   Widget _adminCard(BuildContext context, String t, IconData i) {
     return Card(child: InkWell(
       onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => EditPage(title: t))),
-      child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(i, size: 40, color: Colors.red[900]), Text(t)]),
+      child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(i, size: 40, color: Colors.red[900]), Text(t, textAlign: TextAlign.center)]),
     ));
   }
 }
 
-// --- ४. एडिटिंग पेज ---
+// --- ४. डेटा अपडेट पेज ---
 class EditPage extends StatefulWidget {
   final String title;
   const EditPage({super.key, required this.title});
@@ -159,21 +168,22 @@ class EditPage extends StatefulWidget {
 }
 
 class _EditPageState extends State<EditPage> {
-  final _tc = TextEditingController();
+  final _textController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(widget.title)),
       body: Padding(padding: const EdgeInsets.all(20), child: Column(children: [
-        TextField(controller: _tc, maxLines: 3, decoration: const InputDecoration(border: OutlineInputBorder(), hintText: "नयी जानकारी यहाँ लिखें...")),
+        TextField(controller: _textController, maxLines: 3, decoration: const InputDecoration(border: OutlineInputBorder(), hintText: "नयी जानकारी यहाँ लिखें...")),
         const SizedBox(height: 20),
         ElevatedButton(onPressed: () async {
           final p = await SharedPreferences.getInstance();
           if (widget.title == "पासवर्ड बदलें") {
-            await p.setString('admin_pass', _tc.text);
+            await p.setString('admin_pass', _textController.text);
           } else {
-            await p.setString(widget.title, _tc.text);
+            await p.setString(widget.title, _textController.text);
           }
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("डेटा अपडेट हो गया!")));
           Navigator.pop(context);
         }, child: const Text("सेव करें"))
       ])),

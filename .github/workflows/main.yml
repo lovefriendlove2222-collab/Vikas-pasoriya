@@ -1,4 +1,4 @@
-name: Vikas_Bhagwa_App_Build
+name: Vikas_Final_Success
 on:
   push:
     branches: [ main ]
@@ -7,24 +7,30 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      
+      # 🚩 सबसे जरूरी: Java 17 सैटअप (Gradle एरर फिक्स करने के लिए)
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.19.0'
 
-      - name: 🛠️ Repair and Build
+      - name: Master_Repair_And_Build
         run: |
-          # नाम को सही (छोटे अक्षर) करना
           APP_NAME="vikas_pasoriya"
           
-          # पुराना खराब Gradle हटाना (Error Fix)
+          # पुराना ढांचा साफ करके नया और फ्रेश ढांचा बनाना
           rm -rf android
           flutter create --project-name=$APP_NAME . --platforms android
           
-          # बिल्ड शुरू
+          # प्लगइन्स डाउनलोड और ऐप बिल्ड करना
           flutter pub get
           flutter build apk --release --no-tree-shake-icons
           
-      - name: 📦 Get Final APK
+      - name: Get_Final_APK
         uses: actions/upload-artifact@v4
         with:
           name: Vikas_Official_App

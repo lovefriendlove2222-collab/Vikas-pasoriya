@@ -28,10 +28,11 @@ jobs:
           cd $PROJECT_ROOT
           
           # ३. pubspec.yaml का कीड़ा कति जड़ तै खत्म करना (Auto-Writing)
+          # यो खुद फाइल को नए सिरे से लिखेगा ताकि नाम की गलती ना रहे
           cat <<EOF > pubspec.yaml
           name: vikas_official
           description: Auto Fixed Official App
-          version: 25.0.0+1
+          version: 26.0.0+1
           environment:
             sdk: '>=3.3.0 <4.0.0'
           dependencies:

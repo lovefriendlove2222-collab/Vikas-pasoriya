@@ -11,42 +11,36 @@ class VikasOfficialApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.orange, 
-        scaffoldBackgroundColor: Color(0xFFFFF3E0)
+        scaffoldBackgroundColor: const Color(0xFFFFF3E0)
       ),
-      home: RoleSelectionScreen(),
+      home: const RoleSelectionScreen(),
     );
   }
 }
 
-// --- १. ऐप खुलने पर पहला पेज (यूजर या एडमिन चुनें) ---
 class RoleSelectionScreen extends StatelessWidget {
+  const RoleSelectionScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("विकास पासोरिया ऑफिशियल"), backgroundColor: Colors.orange[900], centerTitle: true),
+      appBar: AppBar(title: const Text("Vikas Pasoriya Official"), backgroundColor: Colors.orange[900]),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text("🙏 हरि ॐ जी 🙏", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.orange[900])),
-            SizedBox(height: 40),
-            
-            // यूजर बटन
-            ElevatedButton.icon(
-              icon: Icon(Icons.people, size: 28),
-              label: Text("आम जनता (यूजर) यहाँ से जुड़ें", style: TextStyle(fontSize: 18)),
-              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => UserScreen())),
-              style: ElevatedButton.styleFrom(minimumSize: Size(300, 60), backgroundColor: Colors.orange),
+            const Text("HARI OM JI", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 40),
+            ElevatedButton(
+              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const UserScreen())),
+              style: ElevatedButton.styleFrom(minimumSize: const Size(280, 60), backgroundColor: Colors.orange),
+              child: const Text("USER LOGIN", style: TextStyle(fontSize: 18)),
             ),
-            
-            SizedBox(height: 20),
-            
-            // एडमिन बटन
-            ElevatedButton.icon(
-              icon: Icon(Icons.admin_panel_settings, size: 28),
-              label: Text("संस्था एडमिन लॉगिन", style: TextStyle(fontSize: 18)),
-              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => AdminLogin())),
-              style: ElevatedButton.styleFrom(minimumSize: Size(300, 60), backgroundColor: Colors.red[800], foregroundColor: Colors.white),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const AdminLogin())),
+              style: ElevatedButton.styleFrom(minimumSize: const Size(280, 60), backgroundColor: Colors.red[800], foregroundColor: Colors.white),
+              child: const Text("ADMIN LOGIN", style: TextStyle(fontSize: 18)),
             ),
           ],
         ),
@@ -55,15 +49,15 @@ class RoleSelectionScreen extends StatelessWidget {
   }
 }
 
-// --- २. आम जनता (यूजर) का पेज जहाँ जानकारी दिखेगी ---
 class UserScreen extends StatefulWidget {
+  const UserScreen({super.key});
   @override
   _UserScreenState createState() => _UserScreenState();
 }
 
 class _UserScreenState extends State<UserScreen> {
-  String orgInfo = "संस्था की जानकारी लोड हो रही है...";
-  String programInfo = "नए प्रोग्राम की जानकारी जल्द आएगी...";
+  String orgInfo = "Loading...";
+  String programInfo = "Loading...";
   String youtubeLink = "https://youtube.com";
 
   @override
@@ -72,12 +66,11 @@ class _UserScreenState extends State<UserScreen> {
     _loadData();
   }
 
-  // एडमिन द्वारा सेव किया डाटा यहाँ से दिखेगा
   _loadData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final prefs = await SharedPreferences.getInstance();
     setState(() {
-      orgInfo = prefs.getString('org_data') ?? "यहाँ संस्था की जानकारी दिखाई देगी।";
-      programInfo = prefs.getString('program_data') ?? "अभी कोई नया प्रोग्राम अपडेट नहीं है।";
+      orgInfo = prefs.getString('org_data') ?? "Vikas Pasoriya Foundation Info";
+      programInfo = prefs.getString('program_data') ?? "No Updates Yet";
       youtubeLink = prefs.getString('yt_data') ?? "https://youtube.com";
     });
   }
@@ -85,49 +78,18 @@ class _UserScreenState extends State<UserScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("स्वागत है जी")),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(20),
+      appBar: AppBar(title: const Text("Public Dashboard")),
+      body: Padding(
+        padding: const EdgeInsets.all(20),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Card(
-              color: Colors.white,
-              child: Padding(
-                padding: EdgeInsets.all(15),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("📢 संस्था की जानकारी:", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.orange[900])),
-                    SizedBox(height: 10),
-                    Text(orgInfo, style: TextStyle(fontSize: 16)),
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(height: 20),
-            Card(
-              color: Colors.white,
-              child: Padding(
-                padding: EdgeInsets.all(15),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("📅 प्रोग्राम अपडेट:", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.orange[900])),
-                    SizedBox(height: 10),
-                    Text(programInfo, style: TextStyle(fontSize: 16)),
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(height: 30),
-            Center(
-              child: ElevatedButton.icon(
-                icon: Icon(Icons.play_circle_fill),
-                label: Text("यूट्यूब पर लाइव स्टेज देखें"),
-                onPressed: () => launchUrl(Uri.parse(youtubeLink)),
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white, minimumSize: Size(double.infinity, 50)),
-              ),
+            Card(child: ListTile(title: const Text("Organization Info"), subtitle: Text(orgInfo))),
+            Card(child: ListTile(title: const Text("Program Update"), subtitle: Text(programInfo))),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () => launchUrl(Uri.parse(youtubeLink)),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+              child: const Text("Watch on YouTube"),
             )
           ],
         ),
@@ -136,36 +98,33 @@ class _UserScreenState extends State<UserScreen> {
   }
 }
 
-// --- ३. एडमिन लॉगिन ---
 class AdminLogin extends StatefulWidget {
+  const AdminLogin({super.key});
   @override
   _AdminLoginState createState() => _AdminLoginState();
 }
 
 class _AdminLoginState extends State<AdminLogin> {
-  final TextEditingController _passController = TextEditingController();
-
+  final TextEditingController _pass = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("एडमिन सुरक्षा")),
+      appBar: AppBar(title: const Text("Admin Access")),
       body: Padding(
-        padding: EdgeInsets.all(20),
+        padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            TextField(controller: _passController, decoration: InputDecoration(labelText: "एडमिन पासवर्ड दर्ज करें", border: OutlineInputBorder()), obscureText: true),
-            SizedBox(height: 20),
+            TextField(controller: _pass, decoration: const InputDecoration(labelText: "Enter Password"), obscureText: true),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
-                SharedPreferences prefs = await SharedPreferences.getInstance();
+                final prefs = await SharedPreferences.getInstance();
                 String savedPass = prefs.getString('admin_pass') ?? "Vikas1998";
-                if (_passController.text == savedPass) {
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => AdminDashboard()));
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("गलत पासवर्ड!")));
+                if (_pass.text == savedPass) {
+                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const AdminDashboard()));
                 }
               },
-              child: Text("लॉगिन करें"),
+              child: const Text("Login"),
             )
           ],
         ),
@@ -174,123 +133,19 @@ class _AdminLoginState extends State<AdminLogin> {
   }
 }
 
-// --- ४. एडमिन डैशबोर्ड (जहाँ से डाटा सेव होगा) ---
 class AdminDashboard extends StatelessWidget {
+  const AdminDashboard({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("कंट्रोल रूम"), backgroundColor: Colors.orange[900]),
+      appBar: AppBar(title: const Text("Admin Control")),
       body: ListView(
-        padding: EdgeInsets.all(15),
         children: [
-          _adminOption(context, Icons.business, "संस्था जानकारी अपडेट करें", 'org_data'),
-          _adminOption(context, Icons.event, "प्रोग्राम जानकारी अपडेट करें", 'program_data'),
-          _adminOption(context, Icons.ondemand_video, "यूट्यूब लिंक बदलें", 'yt_data'),
-          Divider(thickness: 2),
-          ListTile(
-            leading: Icon(Icons.key, color: Colors.red),
-            title: Text("पासवर्ड बदलें"),
-            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ChangePasswordScreen())),
-          )
+          ListTile(title: const Text("Update Org Info"), leading: const Icon(Icons.edit), onTap: () {}),
+          ListTile(title: const Text("Update YouTube Link"), leading: const Icon(Icons.link), onTap: () {}),
+          ListTile(title: const Text("Change Password"), leading: const Icon(Icons.key), onTap: () {}),
         ],
       ),
     );
   }
-
-  Widget _adminOption(BuildContext context, IconData icon, String title, String dataKey) {
-    return Card(
-      child: ListTile(
-        leading: Icon(icon, color: Colors.orange[900]),
-        title: Text(title, style: TextStyle(fontWeight: FontWeight.bold)),
-        trailing: Icon(Icons.edit),
-        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => EditDataScreen(title, dataKey))),
-      ),
-    );
-  }
 }
-
-// --- ५. डाटा लिखने और सेव करने का पेज ---
-class EditDataScreen extends StatefulWidget {
-  final String title;
-  final String dataKey;
-  EditDataScreen(this.title, this.dataKey);
-
-  @override
-  _EditDataScreenState createState() => _EditDataScreenState();
-}
-
-class _EditDataScreenState extends State<EditDataScreen> {
-  final TextEditingController _textController = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    _loadExistingData();
-  }
-
-  _loadExistingData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _textController.text = prefs.getString(widget.dataKey) ?? "";
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(widget.title)),
-      body: Padding(
-        padding: EdgeInsets.all(20),
-        child: Column(
-          children: [
-            TextField(
-              controller: _textController,
-              maxLines: 5,
-              decoration: InputDecoration(hintText: "यहाँ नई जानकारी लिखें...", border: OutlineInputBorder()),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () async {
-                SharedPreferences prefs = await SharedPreferences.getInstance();
-                await prefs.setString(widget.dataKey, _textController.text);
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("सफलतापूर्वक अपडेट हो गया!")));
-                Navigator.pop(context);
-              },
-              child: Text("पब्लिक को दिखाएं (Save)"),
-            )
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// --- ६. पासवर्ड बदलने का पेज ---
-class ChangePasswordScreen extends StatelessWidget {
-  final TextEditingController _newPass = TextEditingController();
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text("नया पासवर्ड सैट करें")),
-      body: Padding(
-        padding: EdgeInsets.all(20),
-        child: Column(
-          children: [
-            TextField(controller: _newPass, decoration: InputDecoration(labelText: "नया पासवर्ड लिखें", border: OutlineInputBorder())),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () async {
-                SharedPreferences prefs = await SharedPreferences.getInstance();
-                await prefs.setString('admin_pass', _newPass.text);
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("पासवर्ड बदल गया!")));
-                Navigator.pop(context);
-              },
-              child: Text("पासवर्ड सेव करें"),
-            )
-          ],
-        ),
-      ),
-    );
-  }
-}
-।

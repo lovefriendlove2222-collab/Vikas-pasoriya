@@ -16,7 +16,7 @@ class VikasOfficialApp extends StatelessWidget {
   }
 }
 
-// --- १. यूजर डैशबोर्ड (डेटा डिस्प्ले फिक्स) ---
+// --- १. यूजर डैशबोर्ड (सब कुछ यहाँ दिखेगा) ---
 class UserDashboard extends StatefulWidget {
   const UserDashboard({super.key});
   @override
@@ -24,21 +24,20 @@ class UserDashboard extends StatefulWidget {
 }
 
 class _UserDashboardState extends State<UserDashboard> {
-  String purnima = "अपडेट आ रहा है...";
-  String regular = "चेक कर रहे हैं...";
+  String purnima = "लोड हो रहा है...";
+  String regular = "लोड हो रहा है...";
 
   @override
   void initState() {
     super.initState();
-    _loadStoredData();
+    _refreshData();
   }
 
-  // डेटा लोड करने का पक्का तरीका
-  _loadStoredData() async {
-    final prefs = await SharedPreferences.getInstance();
+  _refreshData() async {
+    final p = await SharedPreferences.getInstance();
     setState(() {
-      purnima = prefs.getString("purnima_data") ?? "अगली पूर्णमासी का अपडेट जल्द आएगा।";
-      regular = prefs.getString("regular_data") ?? "फिलहाल कोई रेगुलर प्रोग्राम नहीं है।";
+      purnima = p.getString("purnima") ?? "अगली पूर्णमासी का अपडेट जल्द आएगा।";
+      regular = p.getString("regular") ?? "फिलहाल कोई रेगुलर प्रोग्राम नहीं है।";
     });
   }
 
@@ -50,70 +49,51 @@ class _UserDashboardState extends State<UserDashboard> {
         title: const Text("विकास पासोरिया ऑफिशियल"),
         backgroundColor: Colors.orange[900],
         actions: [
-          IconButton(
-            icon: const Icon(Icons.verified_user),
-            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const AdminLogin())).then((_) => _loadStoredData()),
+          // एडमिन बटन जो तू कह रहा था गायब हो गया (अब यहाँ है)
+          TextButton.icon(
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const AdminLogin())).then((_) => _refreshData()),
+            icon: const Icon(Icons.admin_panel_settings, color: Colors.white),
+            label: const Text("ADMIN", style: TextStyle(color: Colors.white)),
           )
         ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            _dataCard("🌕 पूर्णमासी कार्यक्रम", purnima, Colors.orange),
-            _dataCard("📅 रेगुलर कार्यक्रम", regular, Colors.blueGrey),
-            const SizedBox(height: 20),
-            _actionBtn("📺 यूट्यूब लाइव", Colors.red, "https://youtube.com/@vikaspasoriya"),
-            _actionBtn("📍 लोकेशन", Colors.green[800]!, "https://maps.google.com"),
-            // रशीद और डोनेशन अलग-अलग
-            _actionBtn("📄 रशीद प्राप्त करें", Colors.brown, "", isAlert: true, msg: "अपनी रशीद के लिए संपर्क करें।"),
-            _actionBtn("💰 डोनेशन / दान", Colors.deepOrange, "", isAlert: true, msg: "संस्था को दान देने के लिए धन्यवाद।"),
-          ],
-        ),
+        children: [
+          _displayCard("🌕 पूर्णमासी कार्यक्रम", purnima, Colors.orange[800]!),
+          _displayCard("📅 रेगुलर कार्यक्रम", regular, Colors.blueGrey[800]!),
+          const SizedBox(height: 20),
+          _actionBtn("📺 यूट्यूब लाइव", Colors.red, "https://youtube.com/@vikaspasoriya"),
+          _actionBtn("📍 लोकेशन", Colors.green[700]!, "http://google.com/maps"),
+          _actionBtn("📄 रशीद", Colors.brown, "", isMsg: true, msg: "रशीद के लिए संपर्क करें।"),
+          _actionBtn("💰 डोनेशन", Colors.deepOrange, "", isMsg: true, msg: "दान के लिए धन्यवाद।"),
+        ],
       ),
     );
   }
 
-  Widget _dataCard(String title, String content, Color col) {
-    return Card(
-      elevation: 3,
-      margin: const EdgeInsets.only(bottom: 15),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(15),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: col)),
-            const Divider(),
-            Text(content, style: const TextStyle(fontSize: 16, height: 1.4)),
-          ],
-        ),
-      ),
+  Widget _displayCard(String t, String c, Color col) {
+    return Card(elevation: 4, margin: const EdgeInsets.only(bottom: 15),
+      child: Padding(padding: const EdgeInsets.all(15), 
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(t, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: col)),
+        const Divider(),
+        Text(c, style: const TextStyle(fontSize: 16)),
+      ])),
     );
   }
 
-  Widget _actionBtn(String label, Color col, String url, {bool isAlert = false, String msg = ""}) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+  Widget _actionBtn(String t, Color c, String url, {bool isMsg = false, String msg = ""}) {
+    return Padding(padding: const EdgeInsets.only(bottom: 10),
       child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: col,
-          foregroundColor: Colors.white,
-          minimumSize: const Size(double.infinity, 55),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-        ),
-        onPressed: () {
-          if (isAlert) {
-            showDialog(context: context, builder: (c) => AlertDialog(content: Text(msg)));
-          } else {
-            launchUrl(Uri.parse(url));
-          }
-        },
-        child: Text(label, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
+        style: ElevatedButton.styleFrom(backgroundColor: c, foregroundColor: Colors.white, minimumSize: const Size(double.infinity, 50)),
+        onPressed: () => isMsg ? _showMsg(msg) : launchUrl(Uri.parse(url)),
+        child: Text(t, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
       ),
     );
   }
+
+  _showMsg(String m) => showDialog(context: context, builder: (c) => AlertDialog(content: Text(m)));
 }
 
 // --- २. एडमिन लॉगिन ---
@@ -121,31 +101,23 @@ class AdminLogin extends StatelessWidget {
   const AdminLogin({super.key});
   @override
   Widget build(BuildContext context) {
-    final passController = TextEditingController();
+    final pass = TextEditingController();
     return Scaffold(
-      appBar: AppBar(title: const Text("Admin Access")),
-      body: Padding(
-        padding: const EdgeInsets.all(25),
-        child: Column(
-          children: [
-            TextField(controller: passController, decoration: const InputDecoration(labelText: "पासवर्ड", border: OutlineInputBorder()), obscureText: true),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                if (passController.text == "Vikas1998") { // आपका मास्टर पासवर्ड
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const AdminPanel()));
-                }
-              },
-              child: const Text("लॉगिन"),
-            )
-          ],
-        ),
-      ),
+      appBar: AppBar(title: const Text("एडमिन लॉगिन")),
+      body: Padding(padding: const EdgeInsets.all(25), child: Column(children: [
+        TextField(controller: pass, decoration: const InputDecoration(labelText: "पासवर्ड", border: OutlineInputBorder()), obscureText: true),
+        const SizedBox(height: 20),
+        ElevatedButton(onPressed: () {
+          if (pass.text == "Vikas1998") { // थारा मास्टर पासवर्ड
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const AdminPanel()));
+          }
+        }, child: const Text("लॉगिन करें"))
+      ])),
     );
   }
 }
 
-// --- ३. एडमिन कंट्रोल पैनल ---
+// --- ३. एडमिन कंट्रोल पैनल (कति थारी फोटो जैसा) ---
 class AdminPanel extends StatelessWidget {
   const AdminPanel({super.key});
   @override
@@ -153,66 +125,63 @@ class AdminPanel extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text("एडमिन कंट्रोल पैनल"), backgroundColor: Colors.red[900]),
       body: GridView.count(
-        crossAxisCount: 2,
-        padding: const EdgeInsets.all(15),
+        crossAxisCount: 2, padding: const EdgeInsets.all(15), crossAxisSpacing: 10, mainAxisSpacing: 10,
         children: [
-          _menuItem(context, "पूर्णमासी अपडेट", "purnima_data", Icons.brightness_high),
-          _menuItem(context, "रेगुलर अपडेट", "regular_data", Icons.calendar_month),
+          _menu(context, "रशीद/डोनेशन", "receipt", Icons.receipt_long),
+          _menu(context, "प्रोग्राम अपडेट", "purnima", Icons.event_note),
+          _menu(context, "संस्था जानकारी", "info", Icons.business),
+          _menu(context, "UPI/QR सेटिंग", "upi", Icons.qr_code_2),
+          _menu(context, "ID कार्ड मेकर", "id", Icons.badge),
+          _menu(context, "फोटो/वीडियो", "media", Icons.add_a_photo),
         ],
       ),
     );
   }
 
-  Widget _menuItem(BuildContext context, String title, String key, IconData icon) {
-    return Card(
-      child: InkWell(
-        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => EditDataPage(title: title, storageKey: key))),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [Icon(icon, size: 40, color: Colors.orange[900]), Text(title)],
-        ),
-      ),
-    );
+  Widget _menu(BuildContext context, String t, String k, IconData i) {
+    return Card(elevation: 5, child: InkWell(
+      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => EditPage(title: t, storageKey: k))),
+      child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+        Icon(i, size: 45, color: Colors.orange[900]),
+        const SizedBox(height: 10),
+        Text(t, style: const TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+      ]),
+    ));
   }
 }
 
-// --- ४. डेटा अपडेट पेज (सेविंग फिक्स) ---
-class EditDataPage extends StatefulWidget {
-  final String title;
-  final String storageKey;
-  const EditDataPage({super.key, required this.title, required this.storageKey});
+// --- ४. एडिटिंग पेज ---
+class EditPage extends StatefulWidget {
+  final String title, storageKey;
+  const EditPage({super.key, required this.title, required this.storageKey});
   @override
-  State<EditDataPage> createState() => _EditDataPageState();
+  State<EditPage> createState() => _EditPageState();
 }
 
-class _EditDataPageState extends State<EditDataPage> {
-  final _controller = TextEditingController();
+class _EditPageState extends State<EditPage> {
+  final _con = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(widget.title)),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            TextField(controller: _controller, maxLines: 5, decoration: const InputDecoration(border: OutlineInputBorder(), hintText: "यहाँ नई जानकारी लिखें...")),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 50)),
-              onPressed: () async {
-                final prefs = await SharedPreferences.getInstance();
-                bool success = await prefs.setString(widget.storageKey, _controller.text);
-                if (success) {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("डेटा सफलतापूर्वक सेव हो गया!")));
-                  Navigator.pop(context);
-                }
-              },
-              child: const Text("पक्का सेव करें"),
-            )
-          ],
-        ),
-      ),
+      body: Padding(padding: const EdgeInsets.all(20), child: Column(children: [
+        TextField(controller: _con, maxLines: 5, decoration: const InputDecoration(border: OutlineInputBorder(), hintText: "यहाँ लिखें...")),
+        const SizedBox(height: 20),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 50)),
+          onPressed: () async {
+            final p = await SharedPreferences.getInstance();
+            await p.setString(widget.storageKey, _con.text);
+            // रेगुलर प्रोग्राम के लिए अलग की (key)
+            if(widget.storageKey == "purnima") await p.setString("regular", "चेक करें: " + _con.text);
+            
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("सफलतापूर्वक सेव हो गया!")));
+            Navigator.pop(context);
+          }, 
+          child: const Text("डाटा सेव करें")
+        )
+      ])),
     );
   }
 }

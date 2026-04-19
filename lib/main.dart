@@ -6,35 +6,31 @@ import 'package:qr_flutter/qr_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  try {
-    await Firebase.initializeApp();
-  } catch (e) {
-    debugPrint("Firebase Error: $e");
-  }
-  runApp(const VikasOfficialApp());
+  await Firebase.initializeApp();
+  runApp(const VikasPasoriyaApp());
 }
 
-class VikasOfficialApp extends StatelessWidget {
-  const VikasOfficialApp({super.key});
+class VikasPasoriyaApp extends StatelessWidget {
+  const VikasPasoriyaApp({super.key});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.orange),
-      home: const HomeScreen(),
+      home: const MainAppScreen(),
     );
   }
 }
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+class MainAppScreen extends StatefulWidget {
+  const MainAppScreen({super.key});
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<MainAppScreen> createState() => _MainAppScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
-  // थारा रीयलटाइम डेटाबेस लिंक
-  final DatabaseReference _dbRef = FirebaseDatabase.instanceFor(
+class _MainAppScreenState extends State<MainAppScreen> {
+  // थारा परमानेंट डेटाबेस लिंक
+  final DatabaseReference _db = FirebaseDatabase.instanceFor(
     app: Firebase.app(),
     databaseURL: 'https://vikas-pasoriya-default-rtdb.firebaseio.com/',
   ).ref();
@@ -42,50 +38,41 @@ class _HomeScreenState extends State<HomeScreen> {
   String upi = "7206966924vivek@axl";
   String vId = "4wrWluZisiw";
   YoutubePlayerController? _controller;
-  List<Map<String, String>> adminOptions = [];
+  List<Map<String, String>> liveOptions = [];
 
   @override
   void initState() {
     super.initState();
     _controller = YoutubePlayerController(
       initialVideoId: vId,
-      flags: const YoutubePlayerFlags(autoPlay: false),
+      flags: const YoutubePlayerFlags(autoPlay: false, mute: false, isLive: true),
     );
-    _listenData();
+    _setupOnlineSync();
   }
 
-  void _listenData() {
-    _dbRef.onValue.listen((event) {
-      // फोटो 1000338888.jpg वाला एरर यहाँ फिक्स करा है
-      final Object? dataValue = event.snapshot.value;
-      
-      if (dataValue != null && dataValue is Map) {
+  // यो सै वो परमानेंट ऑनलाइन सिंक का जादू
+  void _setupOnlineSync() {
+    _db.onValue.listen((event) {
+      final Object? data = event.snapshot.value;
+      if (data != null && data is Map) {
         setState(() {
-          upi = dataValue["upi"]?.toString() ?? upi;
+          upi = data["upi"]?.toString() ?? upi;
           
-          // यूट्यूब वीडियो अपडेट
-          String? newId = YoutubePlayer.convertUrlToId(dataValue["videoId"]?.toString() ?? "");
+          // वीडियो सिंक
+          String? newId = YoutubePlayer.convertUrlToId(data["videoId"]?.toString() ?? "");
           if (newId != null && newId != vId) {
             vId = newId;
             _controller?.load(vId);
           }
 
-          // एडमिन ऑप्शन लिस्ट (Map एरर फिक्स के साथ)
-          adminOptions.clear();
-          if (dataValue["options"] != null && dataValue["options"] is Map) {
-            final Map<dynamic, dynamic> optionsMap = dataValue["options"] as Map;
-            optionsMap.forEach((key, value) {
-              adminOptions.add({
-                "title": key.toString(),
-                "desc": value.toString()
-              });
+          // एडमिन ऑप्शन सिंक
+          liveOptions.clear();
+          if (data["options"] != null && data["options"] is Map) {
+            (data["options"] as Map).forEach((k, v) {
+              liveOptions.add({"title": k.toString(), "desc": v.toString()});
             });
-          } else if (dataValue["purnima"] != null) {
-            // अगर पुराना सिस्टम ही रखना हो
-            adminOptions.add({
-              "title": "अगला प्रोग्राम",
-              "desc": dataValue["purnima"].toString()
-            });
+          } else if (data["purnima"] != null) {
+            liveOptions.add({"title": "अगला प्रोग्राम", "desc": data["purnima"].toString()});
           }
         });
       }
@@ -96,9 +83,10 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("विकास पासोरिया ऑफिशियिल"),
+        title: const Text("विकास पासोरिया ऑफिशियिल", style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: Colors.orange[900],
         foregroundColor: Colors.white,
+        centerTitle: true,
       ),
       body: SingleChildScrollView(
         child: Column(children: [
@@ -106,25 +94,24 @@ class _HomeScreenState extends State<HomeScreen> {
           Padding(
             padding: const EdgeInsets.all(15),
             child: Column(children: [
-              // एडमिन पैनल तै आए नए ऑप्शन यहाँ दिखेंगे
-              ...adminOptions.map((opt) => Card(
-                elevation: 4,
-                margin: const EdgeInsets.only(bottom: 10),
+              ...liveOptions.map((item) => Card(
+                elevation: 3,
+                margin: const EdgeInsets.only(bottom: 12),
                 child: ListTile(
-                  leading: const Icon(Icons.info, color: Colors.orange),
-                  title: Text(opt["title"]!, style: const TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: Text(opt["desc"]!),
+                  leading: const Icon(Icons.info_outline, color: Colors.orange),
+                  title: Text(item["title"]!, style: const TextStyle(fontWeight: FontWeight.bold)),
+                  subtitle: Text(item["desc"]!),
                 ),
               )),
-
               const SizedBox(height: 20),
               ElevatedButton.icon(
-                onPressed: () => _showPayQR(),
-                icon: const Icon(Icons.qr_code, color: Colors.white),
+                onPressed: () => _showQR(),
+                icon: const Icon(Icons.qr_code_scanner, color: Colors.white),
                 label: const Text("सहयोग करें", style: TextStyle(color: Colors.white, fontSize: 18)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green[800],
-                  minimumSize: const Size(double.infinity, 60)
+                  minimumSize: const Size(double.infinity, 60),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))
                 ),
               )
             ]),
@@ -134,13 +121,15 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _showPayQR() {
+  void _showQR() {
     showModalBottomSheet(context: context, builder: (c) => Container(
       padding: const EdgeInsets.all(30),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
-        const Text("QR कोड स्कैन करें", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const Text("स्कैन करके दान करें", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         const SizedBox(height: 20),
-        QrImageView(data: "upi://pay?pa=$upi&pn=Vikas&cu=INR", size: 200),
+        QrImageView(data: "upi://pay?pa=$upi&pn=Vikas&cu=INR", size: 220),
+        const SizedBox(height: 10),
+        Text("UPI: $upi"),
       ]),
     ));
   }

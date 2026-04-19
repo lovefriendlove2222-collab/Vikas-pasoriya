@@ -1,4 +1,4 @@
-name: Vikas_Final_Build
+name: Vikas_Final_Success_Build
 on:
   push:
     branches: [ main ]
@@ -15,10 +15,10 @@ jobs:
 
       - name: Build Official APK
         run: |
-          # सिर्फ एक बार फोल्डर के अंदर जाना
+          # सिर्फ एक बार फोल्डर के अंदर जाना (जैसा थारी फोटो में सै)
           cd Vikas-pasoriya
           
-          # फालतू फाइल डिलीट मारना
+          # फालतू फाइलों की खुद सफाई
           rm -f local.properties
           
           flutter clean
@@ -28,6 +28,6 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Vikas_Official_App
-          # रास्ता कति साफ़—एक ही फोल्डर
+          name: Vikas_Official_App_Final
+          # रास्ता कति साफ़—एक ही फोल्डर के अंदर का बिल्ड
           path: "Vikas-pasoriya/build/app/outputs/flutter-apk/*.apk"

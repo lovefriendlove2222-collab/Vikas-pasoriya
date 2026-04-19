@@ -9,59 +9,61 @@ void main() async {
   try {
     await Firebase.initializeApp();
   } catch (e) {
-    debugPrint("फायरबेस लोड नहीं हुआ: $e");
+    debugPrint("Firebase Error: $e");
   }
-  runApp(const VikasAppV3());
+  runApp(const VikasAppFinal());
 }
 
-class VikasAppV3 extends StatelessWidget {
-  const VikasAppV3({super.key});
+class VikasAppFinal extends StatelessWidget {
+  const VikasAppFinal({super.key});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.orange),
-      home: const VikasDashboard(),
+      home: const MainDashboard(),
     );
   }
 }
 
-class VikasDashboard extends StatefulWidget {
-  const VikasDashboard({super.key});
+class MainDashboard extends StatefulWidget {
+  const MainDashboard({super.key});
   @override
-  State<VikasDashboard> createState() => _VikasDashboardState();
+  State<MainDashboard> createState() => _MainDashboardState();
 }
 
-class _VikasDashboardState extends State<VikasDashboard> {
-  // थारा डेटाबेस लिंक
-  final DatabaseReference _db = FirebaseDatabase.instanceFor(
+class _MainDashboardState extends State<MainDashboard> {
+  // डेटाबेस लिंक यहाँ फिक्स सै
+  final DatabaseReference _dbRef = FirebaseDatabase.instanceFor(
     app: Firebase.app(),
     databaseURL: 'https://vikas-pasoriya-default-rtdb.firebaseio.com/',
   ).ref();
 
-  String purnima = "लोड हो रहा है...", upi = "example@upi", vId = "";
+  String purnimaMsg = "अपडेट जल्द आएगा।";
+  String upiId = "example@upi";
+  String currentVId = "";
   YoutubePlayerController? _ytController;
 
   @override
   void initState() {
     super.initState();
-    _startLiveSync();
+    _listenToData();
   }
 
-  _startLiveSync() {
-    _db.onValue.listen((event) {
+  void _listenToData() {
+    _dbRef.onValue.listen((event) {
       final data = event.snapshot.value as Map?;
       if (data != null) {
         setState(() {
-          purnima = data["purnima"] ?? "अपडेट जल्द आएगा।";
-          upi = data["upi"] ?? "example@upi";
-          String rawUrl = data["videoId"] ?? "";
-          String? extractedId = YoutubePlayer.convertUrlToId(rawUrl);
+          purnimaMsg = data["purnima"] ?? "अपडेट जल्द आएगा।";
+          upiId = data["upi"] ?? "example@upi";
+          final String rawUrl = data["videoId"] ?? "";
+          final String? extracted = YoutubePlayer.convertUrlToId(rawUrl);
           
-          if (extractedId != null && extractedId != vId) {
-            vId = extractedId;
+          if (extracted != null && extracted != currentVId) {
+            currentVId = extracted;
             _ytController = YoutubePlayerController(
-              initialVideoId: vId,
+              initialVideoId: currentVId,
               flags: const YoutubePlayerFlags(autoPlay: true, mute: false),
             );
           }
@@ -77,25 +79,24 @@ class _VikasDashboardState extends State<VikasDashboard> {
         title: const Text("विकास पासोरिया ऑफिशियिल"),
         backgroundColor: Colors.orange[900],
         foregroundColor: Colors.white,
-        actions: [IconButton(icon: const Icon(Icons.admin_panel_settings), onPressed: () => _loginDialog())],
+        actions: [IconButton(icon: const Icon(Icons.settings), onPressed: () => _showLogin())],
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // १. लाइव वीडियो प्लेयर
             if (_ytController != null)
               YoutubePlayer(controller: _ytController!, showVideoProgressIndicator: true)
             else
-              Container(height: 220, color: Colors.black, child: const Center(child: Text("लाइव प्रोग्राम लोड हो रहा है...", style: TextStyle(color: Colors.white)))),
+              Container(height: 220, color: Colors.black, child: const Center(child: Text("वीडियो लोड हो रही है...", style: TextStyle(color: Colors.white)))),
 
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16.0),
               child: Column(children: [
-                _infoCard("🌕 पूर्णमासी कार्यक्रम", purnima),
+                _infoSection("🌕 पूर्णमासी कार्यक्रम", purnimaMsg),
                 const SizedBox(height: 20),
-                _bigBtn("💰 दान करें (रशीद पाएँ)", Colors.green[800]!, Icons.qr_code, () => _showQR()),
+                _actionButton("💰 डोनेशन (रशीद पाएँ)", Colors.green[800]!, Icons.qr_code, () => _openQR()),
                 const SizedBox(height: 10),
-                _bigBtn("📅 मंथली डोनर सदस्य", Colors.blue[900]!, Icons.star, () => _showQR()),
+                _actionButton("⭐ मंथली सदस्य बनें", Colors.blue[900]!, Icons.star, () => _openQR()),
               ]),
             ),
           ],
@@ -104,72 +105,78 @@ class _VikasDashboardState extends State<VikasDashboard> {
     );
   }
 
-  // यहाँ Container का एरर ठीक कर दिया है
-  Widget _infoCard(String t, String c) => Card(
+  Widget _infoSection(String title, String desc) => Card(
     elevation: 3,
     child: Container(
       width: double.infinity,
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.orange.withOpacity(0.3)), // Border यहाँ आएगा
+        border: Border.all(color: Colors.orange.withOpacity(0.2)),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(t, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.orange)),
+        Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.orange)),
         const Divider(),
-        Text(c, style: const TextStyle(fontSize: 16)),
+        Text(desc, style: const TextStyle(fontSize: 16)),
       ]),
     ),
   );
 
-  Widget _bigBtn(String t, Color c, IconData i, VoidCallback tap) => ElevatedButton.icon(
-    icon: Icon(i, color: Colors.white),
-    label: Text(t, style: const TextStyle(color: Colors.white, fontSize: 16)),
-    style: ElevatedButton.styleFrom(backgroundColor: c, minimumSize: const Size(double.infinity, 60), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+  Widget _actionButton(String txt, Color col, IconData ico, VoidCallback tap) => ElevatedButton.icon(
+    icon: Icon(ico, color: Colors.white),
+    label: Text(txt, style: const TextStyle(color: Colors.white, fontSize: 16)),
+    style: ElevatedButton.styleFrom(backgroundColor: col, minimumSize: const Size(double.infinity, 60), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
     onPressed: tap,
   );
 
-  _showQR() {
+  void _openQR() {
     showModalBottomSheet(context: context, builder: (c) => Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(25),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
-        const Text("QR कोड स्कैन करें", style: TextStyle(fontWeight: FontWeight.bold)),
+        const Text("QR कोड स्कैन करें", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 15),
+        QrImageView(data: "upi://pay?pa=$upiId&pn=Vikas&cu=INR", size: 180),
         const SizedBox(height: 10),
-        QrImageView(data: "upi://pay?pa=$upi&pn=Vikas&cu=INR", size: 180),
-        const SizedBox(height: 10),
-        const Text("पेमेंट के बाद रशीद भरना ना भूलें।"),
+        const Text("डिजिटल रशीद के लिए संपर्क करें।"),
       ]),
     ));
   }
 
-  _loginDialog() {
-    final pc = TextEditingController();
+  void _showLogin() {
+    final TextEditingController passCon = TextEditingController();
     showDialog(context: context, builder: (c) => AlertDialog(
       title: const Text("एडमिन लॉगिन"),
-      content: TextField(controller: pc, decoration: const InputDecoration(labelText: "पासवर्ड"), obscureText: true),
+      content: TextField(controller: passCon, decoration: const InputDecoration(labelText: "पासवर्ड"), obscureText: true),
       actions: [ElevatedButton(onPressed: () {
-        if(pc.text == "Vikas1998") { Navigator.pop(context); Navigator.push(context, MaterialPageRoute(builder: (c) => const AdminDash())); }
+        if(passCon.text == "Vikas1998") { 
+          Navigator.pop(context); 
+          Navigator.push(context, MaterialPageRoute(builder: (c) => const AdminScreen())); 
+        }
       }, child: const Text("लॉगिन"))],
     ));
   }
 }
 
-class AdminDash extends StatelessWidget {
-  const AdminDash({super.key});
+class AdminScreen extends StatelessWidget {
+  const AdminScreen({super.key});
   @override
   Widget build(BuildContext context) {
-    final ref = FirebaseDatabase.instanceFor(app: Firebase.app(), databaseURL: 'https://vikas-pasoriya-default-rtdb.firebaseio.com/').ref();
-    final v = TextEditingController(), p = TextEditingController();
+    final DatabaseReference adminRef = FirebaseDatabase.instanceFor(
+      app: Firebase.app(), 
+      databaseURL: 'https://vikas-pasoriya-default-rtdb.firebaseio.com/'
+    ).ref();
+    final TextEditingController vCon = TextEditingController();
+    final TextEditingController pCon = TextEditingController();
+
     return Scaffold(
-      appBar: AppBar(title: const Text("कंट्रोल पैनल")),
+      appBar: AppBar(title: const Text("फुल कंट्रोल पैनल")),
       body: Padding(padding: const EdgeInsets.all(20), child: Column(children: [
-        TextField(controller: v, decoration: const InputDecoration(labelText: "नया यूट्यूब वीडियो लिंक")),
-        ElevatedButton(onPressed: () => ref.update({"videoId": v.text}), child: const Text("वीडियो बदलें")),
-        const SizedBox(height: 20),
-        TextField(controller: p, decoration: const InputDecoration(labelText: "पूर्णमासी कार्यक्रम सूचना")),
-        ElevatedButton(onPressed: () => ref.update({"purnima": p.text}), child: const Text("सूचना अपडेट करें")),
+        TextField(controller: vCon, decoration: const InputDecoration(labelText: "नया यूट्यूब लिंक डालें")),
+        ElevatedButton(onPressed: () => adminRef.update({"videoId": vCon.text}), child: const Text("वीडियो अपडेट करें")),
+        const SizedBox(height: 25),
+        TextField(controller: pCon, decoration: const InputDecoration(labelText: "कार्यक्रम सूचना बदलें")),
+        ElevatedButton(onPressed: () => adminRef.update({"purnima": pCon.text}), child: const Text("सूचना सेव करें")),
       ])),
     );
   }
 }
-।

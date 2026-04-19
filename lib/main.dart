@@ -6,12 +6,16 @@ import 'package:qr_flutter/qr_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  runApp(const VikasPasoriyaOfficial());
+  try {
+    await Firebase.initializeApp();
+  } catch (e) {
+    debugPrint("Firebase Error: $e");
+  }
+  runApp(const VikasOfficialApp());
 }
 
-class VikasPasoriyaOfficial extends StatelessWidget {
-  const VikasPasoriyaOfficial({super.key});
+class VikasOfficialApp extends StatelessWidget {
+  const VikasOfficialApp({super.key});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -29,47 +33,58 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final DatabaseReference _db = FirebaseDatabase.instanceFor(
+  // थारा रीयलटाइम डेटाबेस लिंक
+  final DatabaseReference _dbRef = FirebaseDatabase.instanceFor(
     app: Firebase.app(),
     databaseURL: 'https://vikas-pasoriya-default-rtdb.firebaseio.com/',
   ).ref();
 
-  String upiId = "7206966924vivek@axl";
-  String videoId = "4wrWluZisiw";
-  YoutubePlayerController? _ytController;
-  
-  // नए ऑप्शन के लिए लिस्ट
-  List<Map<String, dynamic>> extraOptions = [];
+  String upi = "7206966924vivek@axl";
+  String vId = "4wrWluZisiw";
+  YoutubePlayerController? _controller;
+  List<Map<String, String>> adminOptions = [];
 
   @override
   void initState() {
     super.initState();
-    _ytController = YoutubePlayerController(
-      initialVideoId: videoId,
+    _controller = YoutubePlayerController(
+      initialVideoId: vId,
       flags: const YoutubePlayerFlags(autoPlay: false),
     );
-    _listenToData();
+    _listenData();
   }
 
-  void _listenToData() {
-    _db.onValue.listen((event) {
-      final dynamic data = event.snapshot.value;
-      if (data != null && data is Map) {
+  void _listenData() {
+    _dbRef.onValue.listen((event) {
+      // फोटो 1000338888.jpg वाला एरर यहाँ फिक्स करा है
+      final Object? dataValue = event.snapshot.value;
+      
+      if (dataValue != null && dataValue is Map) {
         setState(() {
-          upiId = data["upi"]?.toString() ?? upiId;
+          upi = dataValue["upi"]?.toString() ?? upi;
           
           // यूट्यूब वीडियो अपडेट
-          String? newId = YoutubePlayer.convertUrlToId(data["videoId"]?.toString() ?? "");
-          if (newId != null && newId != videoId) {
-            videoId = newId;
-            _ytController?.load(videoId);
+          String? newId = YoutubePlayer.convertUrlToId(dataValue["videoId"]?.toString() ?? "");
+          if (newId != null && newId != vId) {
+            vId = newId;
+            _controller?.load(vId);
           }
 
-          // एडमिन पैनल तै 'options' नाम की लिस्ट पढ़ना
-          if (data["options"] != null && data["options"] is Map) {
-            extraOptions.clear();
-            (data["options"] as Map).forEach((key, value) {
-              extraOptions.add({"title": key, "desc": value});
+          // एडमिन ऑप्शन लिस्ट (Map एरर फिक्स के साथ)
+          adminOptions.clear();
+          if (dataValue["options"] != null && dataValue["options"] is Map) {
+            final Map<dynamic, dynamic> optionsMap = dataValue["options"] as Map;
+            optionsMap.forEach((key, value) {
+              adminOptions.add({
+                "title": key.toString(),
+                "desc": value.toString()
+              });
+            });
+          } else if (dataValue["purnima"] != null) {
+            // अगर पुराना सिस्टम ही रखना हो
+            adminOptions.add({
+              "title": "अगला प्रोग्राम",
+              "desc": dataValue["purnima"].toString()
             });
           }
         });
@@ -87,28 +102,31 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: SingleChildScrollView(
         child: Column(children: [
-          YoutubePlayer(controller: _ytController!, showVideoProgressIndicator: true),
-          
+          YoutubePlayer(controller: _controller!, showVideoProgressIndicator: true),
           Padding(
             padding: const EdgeInsets.all(15),
             child: Column(children: [
-              // ये हैं वो नए ऑप्शन जो तू डेटाबेस तै जोड़ेगा
-              ...extraOptions.map((opt) => Card(
+              // एडमिन पैनल तै आए नए ऑप्शन यहाँ दिखेंगे
+              ...adminOptions.map((opt) => Card(
+                elevation: 4,
                 margin: const EdgeInsets.only(bottom: 10),
                 child: ListTile(
-                  leading: const Icon(Icons.star, color: Colors.orange),
-                  title: Text(opt["title"], style: const TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: Text(opt["desc"]),
+                  leading: const Icon(Icons.info, color: Colors.orange),
+                  title: Text(opt["title"]!, style: const TextStyle(fontWeight: FontWeight.bold)),
+                  subtitle: Text(opt["desc"]!),
                 ),
-              )).toList(),
+              )),
 
               const SizedBox(height: 20),
               ElevatedButton.icon(
-                onPressed: () => _showQR(),
-                icon: const Icon(Icons.payment, color: Colors.white),
-                label: const Text("सहयोग करें (QR)", style: TextStyle(color: Colors.white, fontSize: 18)),
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.green[800], minimumSize: const Size(double.infinity, 60)),
-              ),
+                onPressed: () => _showPayQR(),
+                icon: const Icon(Icons.qr_code, color: Colors.white),
+                label: const Text("सहयोग करें", style: TextStyle(color: Colors.white, fontSize: 18)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green[800],
+                  minimumSize: const Size(double.infinity, 60)
+                ),
+              )
             ]),
           ),
         ]),
@@ -116,13 +134,13 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _showQR() {
+  void _showPayQR() {
     showModalBottomSheet(context: context, builder: (c) => Container(
       padding: const EdgeInsets.all(30),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
         const Text("QR कोड स्कैन करें", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         const SizedBox(height: 20),
-        QrImageView(data: "upi://pay?pa=$upiId&pn=Vikas&cu=INR", size: 200),
+        QrImageView(data: "upi://pay?pa=$upi&pn=Vikas&cu=INR", size: 200),
       ]),
     ));
   }

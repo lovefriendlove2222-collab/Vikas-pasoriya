@@ -1,31 +1,19 @@
-name: Vikas_Master_Bhagwa_Build
-on:
-  push:
-    branches: [ main ]
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.19.0'
+name: vikas_pasoriya
+description: Professional Admin Management System
+version: 1.0.0+1
 
-      - name: 🛠️ Auto-Fix and Compile
-        run: |
-          # १. छोटे अक्षरों वाला नाम फिक्स करना
-          APP_NAME="vikas_pasoriya"
-          
-          # २. खराब फोल्डर की सफ़ाई
-          rm -rf android
-          flutter create --project-name=$APP_NAME . --platforms android
-          
-          # ३. बिल्ड प्रोसेस
-          flutter pub get
-          flutter build apk --release --no-tree-shake-icons
-          
-      - name: 📦 Delivery APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: Vikas_Bhagwa_Official
-          path: "**/build/app/outputs/flutter-apk/*.apk"
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  image_picker: ^1.0.7
+  qr_flutter: ^4.1.0
+  pdf: ^3.10.8
+  printing: ^5.11.1
+  shared_preferences: ^2.2.2
+
+flutter:
+  uses-material-design: true

@@ -9,7 +9,7 @@ void main() async {
   try {
     await Firebase.initializeApp();
   } catch (e) {
-    debugPrint("Firebase Initialize Error: $e");
+    debugPrint("Firebase Error: $e");
   }
   runApp(const MyApp());
 }
@@ -33,13 +33,12 @@ class VikasHome extends StatefulWidget {
 }
 
 class _VikasHomeState extends State<VikasHome> {
-  // थारा डेटाबेस लिंक
   final DatabaseReference _db = FirebaseDatabase.instanceFor(
     app: Firebase.app(),
     databaseURL: 'https://vikas-pasoriya-default-rtdb.firebaseio.com/',
   ).ref();
 
-  String info = "सूचना लोड हो रही है...";
+  String info = "लोड हो रहा है...";
   String upi = "7206966924vivek@axl"; // थारा डेटाबेस वाला UPI
   String vId = "4wrWluZisiw";
   YoutubePlayerController? _controller;
@@ -51,18 +50,17 @@ class _VikasHomeState extends State<VikasHome> {
       initialVideoId: vId,
       flags: const YoutubePlayerFlags(autoPlay: false, mute: false),
     );
-    _listenData();
+    _listen();
   }
 
-  void _listenData() {
+  void _listen() {
     _db.onValue.listen((event) {
-      final data = event.snapshot.value as Map?;
+      final Map? data = event.snapshot.value as Map?;
       if (data != null) {
         setState(() {
-          info = data["purnima"] ?? "सूचना उपलब्ध नहीं है";
+          info = data["purnima"] ?? "सूचना नहीं है";
           upi = data["upi"] ?? "7206966924vivek@axl";
-          String link = data["videoId"] ?? "";
-          String? id = YoutubePlayer.convertUrlToId(link);
+          String? id = YoutubePlayer.convertUrlToId(data["videoId"] ?? "");
           if (id != null && id != vId) {
             vId = id;
             _controller?.load(vId);
@@ -75,28 +73,16 @@ class _VikasHomeState extends State<VikasHome> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("विकास पासोरिया", style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.orange[900],
-        foregroundColor: Colors.white,
-      ),
+      appBar: AppBar(title: const Text("Vikas Pasoriya"), backgroundColor: Colors.orange),
       body: SingleChildScrollView(
         child: Column(children: [
-          YoutubePlayer(controller: _controller!, showVideoProgressIndicator: true),
+          YoutubePlayer(controller: _controller!),
           Padding(
             padding: const EdgeInsets.all(20),
             child: Column(children: [
-              _infoCard("🌕 कार्यक्रम सूचना", info),
-              const SizedBox(height: 25),
-              ElevatedButton.icon(
-                onPressed: () => _showPayQR(),
-                icon: const Icon(Icons.qr_code, color: Colors.white),
-                label: const Text("सहयोग करें (QR कोड)", style: TextStyle(color: Colors.white, fontSize: 18)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green[800],
-                  minimumSize: const Size(double.infinity, 60),
-                ),
-              )
+              _card("🌕 प्रोग्राम", info),
+              const SizedBox(height: 20),
+              _btn("💰 सहयोग", () => _showQR()),
             ]),
           )
         ]),
@@ -104,24 +90,17 @@ class _VikasHomeState extends State<VikasHome> {
     );
   }
 
-  Widget _infoCard(String t, String c) => Card(
-    elevation: 5,
-    child: Padding(
-      padding: const EdgeInsets.all(15),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(t, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.orange)),
-        const Divider(),
-        Text(c, style: const TextStyle(fontSize: 16)),
-      ]),
-    ),
+  Widget _card(String t, String c) => Card(child: ListTile(title: Text(t), subtitle: Text(c)));
+
+  Widget _btn(String t, VoidCallback tap) => ElevatedButton(
+    style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 50)),
+    onPressed: tap, child: Text(t),
   );
 
-  void _showPayQR() {
+  void _showQR() {
     showModalBottomSheet(context: context, builder: (c) => Container(
-      padding: const EdgeInsets.all(30),
+      padding: const EdgeInsets.all(20),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
-        const Text("स्कैन करके दान करें", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 20),
         QrImageView(data: "upi://pay?pa=$upi&pn=Vikas&cu=INR", size: 200),
       ]),
     ));

@@ -1,10 +1,10 @@
 name: vikas_pasoriya_app
-description: "Vikas Pasoriya Official"
+description: "Vikas Pasoriya Official App"
 publish_to: 'none'
-version: 3.0.0+1
+version: 1.0.0+1
 
 environment:
-  sdk: '>=3.0.0 <4.0.0'
+  sdk: '>=3.3.0 <4.0.0' # थारे करंट SDK के हिसाब तै सैट कर दिया सै
 
 dependencies:
   flutter:
@@ -13,7 +13,11 @@ dependencies:
   firebase_database: ^10.4.0
   youtube_player_flutter: ^8.1.2
   qr_flutter: ^4.1.0
-  url_launcher: ^6.2.4
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
 
 flutter:
   uses-material-design: true

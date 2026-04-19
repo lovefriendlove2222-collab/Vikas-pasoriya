@@ -1,4 +1,4 @@
-name: Vikas_Final_Master_Success
+name: Vikas_Auto_Fix_Machine
 on:
   push:
     branches: [ main ]
@@ -13,14 +13,18 @@ jobs:
         with:
           flutter-version: '3.19.0'
 
-      - name: 🤖 Auto-Pilot Build
+      - name: 🤖 Smart Auto-Repair and Build
         run: |
-          # यो खुद ढूँढेगा कि pubspec.yaml कित छिपी बैठी सै
+          # मशीन खुद फोल्डर और फाइल ढूँढेगी
           PROJECT_ROOT=$(find . -name "pubspec.yaml" -exec dirname {} \; | head -n 1)
           cd $PROJECT_ROOT
           
-          # फालतू फाइल हटाना
+          # 🛠️ जादुई लाइन: अगर pubspec में नाम की दिक्कत सै, तो यो उसे खुद 'vikas_official' कर देगा
+          sed -i '1i name: vikas_official' pubspec.yaml || true
+          
+          # फालतू फाइलों की सफाई
           rm -f local.properties
+          rm -f android/local.properties
           
           flutter clean
           flutter pub get

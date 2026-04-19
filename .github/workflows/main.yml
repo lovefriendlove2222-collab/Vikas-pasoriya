@@ -1,4 +1,4 @@
-name: Vikas_Final_Professional_Build
+name: Vikas_Bhagwa_App_Build
 on:
   push:
     branches: [ main ]
@@ -11,15 +11,21 @@ jobs:
         with:
           flutter-version: '3.19.0'
 
-      - name: Master Build
+      - name: 🛠️ Repair and Build
         run: |
-          rm -f local.properties
-          flutter clean
+          # नाम को सही (छोटे अक्षर) करना
+          APP_NAME="vikas_pasoriya"
+          
+          # पुराना खराब Gradle हटाना (Error Fix)
+          rm -rf android
+          flutter create --project-name=$APP_NAME . --platforms android
+          
+          # बिल्ड शुरू
           flutter pub get
           flutter build apk --release --no-tree-shake-icons
           
-      - name: Get APK
+      - name: 📦 Get Final APK
         uses: actions/upload-artifact@v4
         with:
-          name: Vikas_Professional_App
+          name: Vikas_Official_App
           path: "**/build/app/outputs/flutter-apk/*.apk"

@@ -3,25 +3,20 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(); // फायरबेस चालू
-  runApp(const VikasAppV2());
+  await Firebase.initializeApp();
+  runApp(const VikasAppFinal());
 }
 
-class VikasAppV2 extends StatelessWidget {
-  const VikasAppV2({super.key});
+class VikasAppFinal extends StatelessWidget {
+  const VikasAppFinal({super.key});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        primarySwatch: Colors.orange,
-        scaffoldBackgroundColor: const Color(0xFFFFFBF2),
-      ),
+      theme: ThemeData(useMaterial3: true, primarySwatch: Colors.orange),
       home: const MainDashboard(),
     );
   }
@@ -34,42 +29,37 @@ class MainDashboard extends StatefulWidget {
 }
 
 class _MainDashboardState extends State<MainDashboard> {
-  // तेरा रियलटाइम लिंक यहाँ सैट है भाई
+  // थारा रीयलटाइम डेटाबेस लिंक यहाँ फिक्स सै
   final DatabaseReference _db = FirebaseDatabase.instanceFor(
     app: Firebase.app(),
     databaseURL: 'https://vikas-pasoriya-default-rtdb.firebaseio.com/',
   ).ref();
 
   String purnima = "लोड हो रहा है...", upi = "example@upi", vId = "";
-  List donors = [];
   YoutubePlayerController? _ytController;
 
   @override
   void initState() {
     super.initState();
-    _connectCloud();
+    _startSync();
   }
 
-  // क्लाउड से डेटा अपने आप अपडेट होगा
-  _connectCloud() {
+  _startSync() {
     _db.onValue.listen((event) {
       final data = event.snapshot.value as Map?;
       if (data != null) {
         setState(() {
-          purnima = data["purnima"] ?? "जल्द अपडेट होगा";
+          purnima = data["purnima"] ?? "अपडेट जल्द आएगा";
           upi = data["upi"] ?? "example@upi";
-          String newVId = YoutubePlayer.convertUrlToId(data["videoId"] ?? "") ?? "";
+          String rawId = data["videoId"] ?? "";
+          String? newVId = YoutubePlayer.convertUrlToId(rawId);
           
-          if (newVId != vId && newVId.isNotEmpty) {
+          if (newVId != null && newVId != vId) {
             vId = newVId;
             _ytController = YoutubePlayerController(
               initialVideoId: vId,
               flags: const YoutubePlayerFlags(autoPlay: true, mute: false, loop: true),
             );
-          }
-
-          if (data["donors"] != null) {
-            donors = Map.from(data["donors"]).values.toList();
           }
         });
       }
@@ -80,54 +70,29 @@ class _MainDashboardState extends State<MainDashboard> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("विकास पासोरिया (LIVE)"),
+        title: const Text("विकास पासोरिया संस्था"),
         backgroundColor: Colors.orange[900],
         foregroundColor: Colors.white,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.admin_panel_settings),
-            onPressed: () => _showLogin(),
-          )
-        ],
+        actions: [IconButton(icon: const Icon(Icons.lock_person), onPressed: () => _adminAuth())],
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // १. लाइव यूट्यूब वीडियो (ऑटो-प्ले)
-            if (vId.isNotEmpty && _ytController != null)
+            // वीडियो प्लेयर सेक्शन
+            if (_ytController != null)
               YoutubePlayer(controller: _ytController!, showVideoProgressIndicator: true)
             else
-              Container(height: 220, color: Colors.black, child: const Center(child: Text("लाइव प्रोग्राम लोड हो रहा है...", style: TextStyle(color: Colors.white)))),
-
-            // २. डोनर पट्टी (चलती हुई)
-            if (donors.isNotEmpty)
-              Container(
-                height: 35, 
-                color: Colors.orange[100],
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: donors.length,
-                  itemBuilder: (c, i) => Center(child: Text(" ✨ ${donors[i]['name']} (${donors[i]['village']}) | ", style: const TextStyle(fontWeight: FontWeight.bold))),
-                ),
-              ),
+              Container(height: 220, color: Colors.black, child: const Center(child: Text("लाइव वीडियो लोड हो रही है...", style: TextStyle(color: Colors.white)))),
 
             Padding(
-              padding: const EdgeInsets.all(15),
-              child: Column(
-                children: [
-                  _infoBox("🌕 आगामी पूर्णमासी कार्यक्रम", purnima),
-                  const SizedBox(height: 20),
-                  _largeBtn("💰 दान करें और रशीद पाएँ", Colors.green[800]!, Icons.qr_code, () => _paymentUI()),
-                  const SizedBox(height: 25),
-                  const Text("🏆 हमारे मुख्य दानदाता", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  const Divider(),
-                  ...donors.reversed.take(5).map((d) => ListTile(
-                    leading: const Icon(Icons.stars, color: Colors.amber),
-                    title: Text(d['name']),
-                    subtitle: Text(d['village']),
-                  )),
-                ],
-              ),
+              padding: const EdgeInsets.all(16),
+              child: Column(children: [
+                _buildCard("🌕 पूर्णमासी कार्यक्रम", purnima),
+                const SizedBox(height: 20),
+                _bigButton("💰 दान करें (रशीद पाएँ)", Colors.green[800]!, Icons.qr_code, () => _showPay()),
+                const SizedBox(height: 10),
+                _bigButton("🗓️ मंथली डोनर बनें", Colors.blue[900]!, Icons.calendar_month, () => _showPay()),
+              ]),
             ),
           ],
         ),
@@ -135,65 +100,43 @@ class _MainDashboardState extends State<MainDashboard> {
     );
   }
 
-  Widget _infoBox(String t, String c) => Card(
+  Widget _buildCard(String title, String content) => Card(
     elevation: 4,
-    child: Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
+    child: Padding(
+      padding: const EdgeInsets.all(15),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(t, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.orange)),
+        Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.orange)),
         const Divider(),
-        Text(c, style: const TextStyle(fontSize: 16)),
+        Text(content, style: const TextStyle(fontSize: 16)),
       ]),
     ),
   );
 
-  Widget _largeBtn(String t, Color c, IconData i, VoidCallback tap) => ElevatedButton.icon(
-    icon: Icon(i),
-    label: Text(t, style: const TextStyle(fontSize: 16, color: Colors.white)),
+  Widget _bigButton(String t, Color c, IconData i, VoidCallback tap) => ElevatedButton.icon(
+    icon: Icon(i, color: Colors.white),
+    label: Text(t, style: const TextStyle(color: Colors.white, fontSize: 16)),
     style: ElevatedButton.styleFrom(backgroundColor: c, minimumSize: const Size(double.infinity, 60), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
     onPressed: tap,
   );
 
-  _paymentUI() {
+  _showPay() {
     showModalBottomSheet(context: context, builder: (c) => Container(
       padding: const EdgeInsets.all(20),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
-        const Text("स्कैन करें और पे करें", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 15),
         QrImageView(data: "upi://pay?pa=$upi&pn=Vikas&cu=INR", size: 180),
-        const SizedBox(height: 15),
-        ElevatedButton(onPressed: () { Navigator.pop(context); _getReceiptData(); }, child: const Text("पेमेंट हो गया, रशीद भरें"))
+        const Text("स्कैन करें और पेमेंट करें"),
+        ElevatedButton(onPressed: () => Navigator.pop(context), child: const Text("बंद करें"))
       ]),
     ));
   }
 
-  _getReceiptData() {
-    final n = TextEditingController(), v = TextEditingController();
-    showDialog(context: context, builder: (c) => AlertDialog(
-      title: const Text("रशीद के लिए जानकारी"),
-      content: Column(mainAxisSize: MainAxisSize.min, children: [
-        TextField(controller: n, decoration: const InputDecoration(labelText: "आपका नाम")),
-        TextField(controller: v, decoration: const InputDecoration(labelText: "गाँव का नाम")),
-      ]),
-      actions: [ElevatedButton(onPressed: () {
-        _db.child("donors").push().set({"name": n.text, "village": v.text, "date": DateTime.now().toString()});
-        Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("रशीद सेव हो गई! धन्यवाद।")));
-      }, child: const Text("सेव करें"))],
-    ));
-  }
-
-  _showLogin() {
+  _adminAuth() {
     final pass = TextEditingController();
     showDialog(context: context, builder: (c) => AlertDialog(
       title: const Text("एडमिन लॉगिन"),
       content: TextField(controller: pass, decoration: const InputDecoration(labelText: "पासवर्ड"), obscureText: true),
       actions: [ElevatedButton(onPressed: () {
-        if(pass.text == "Vikas1998") { 
-          Navigator.pop(context);
-          Navigator.push(context, MaterialPageRoute(builder: (c) => const AdminPanel()));
-        }
+        if(pass.text == "Vikas1998") { Navigator.pop(context); Navigator.push(context, MaterialPageRoute(builder: (c) => const AdminPanel())); }
       }, child: const Text("लॉगिन"))],
     ));
   }
@@ -204,23 +147,16 @@ class AdminPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ref = FirebaseDatabase.instanceFor(app: Firebase.app(), databaseURL: 'https://vikas-pasoriya-default-rtdb.firebaseio.com/').ref();
-    final vid = TextEditingController(), pur = TextEditingController(), upiC = TextEditingController();
-
+    final v = TextEditingController(), p = TextEditingController();
     return Scaffold(
-      appBar: AppBar(title: const Text("संस्था कंट्रोल पैनल"), backgroundColor: Colors.red[900], foregroundColor: Colors.white),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(children: [
-          TextField(controller: vid, decoration: const InputDecoration(labelText: "यूट्यूब वीडियो लिंक (Live/New)")),
-          ElevatedButton(onPressed: () => ref.update({"videoId": vid.text}), child: const Text("वीडियो बदलें")),
-          const SizedBox(height: 20),
-          TextField(controller: pur, decoration: const InputDecoration(labelText: "पूर्णमासी कार्यक्रम अपडेट")),
-          ElevatedButton(onPressed: () => ref.update({"purnima": pur.text}), child: const Text("सूचना अपडेट करें")),
-          const SizedBox(height: 20),
-          TextField(controller: upiC, decoration: const InputDecoration(labelText: "नया UPI ID (e.g. name@upi)")),
-          ElevatedButton(onPressed: () => ref.update({"upi": upiC.text}), child: const Text("UPI सैट करें")),
-        ]),
-      ),
+      appBar: AppBar(title: const Text("कंट्रोल पैनल")),
+      body: Padding(padding: const EdgeInsets.all(20), child: Column(children: [
+        TextField(controller: v, decoration: const InputDecoration(labelText: "नया यूट्यूब लिंक")),
+        ElevatedButton(onPressed: () => ref.update({"videoId": v.text}), child: const Text("वीडियो अपडेट करें")),
+        const SizedBox(height: 20),
+        TextField(controller: p, decoration: const InputDecoration(labelText: "सूचना अपडेट")),
+        ElevatedButton(onPressed: () => ref.update({"purnima": p.text}), child: const Text("सूचना बदलें")),
+      ])),
     );
   }
 }

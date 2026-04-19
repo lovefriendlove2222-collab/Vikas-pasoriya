@@ -4,7 +4,7 @@ publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.3.0 <4.0.0' # थारे GitHub के 3.3.0 वर्जन के हिसाब से
+  sdk: '>=3.3.0 <4.0.0' # थारे GitHub के हिसाब से सेट कर दिया
 
 dependencies:
   flutter:
@@ -13,11 +13,6 @@ dependencies:
   firebase_database: ^10.4.0
   youtube_player_flutter: ^8.1.2
   qr_flutter: ^4.1.0
-
-dev_dependencies:
-  flutter_test:
-    sdk: flutter
-  flutter_lints: ^3.0.0
 
 flutter:
   uses-material-design: true

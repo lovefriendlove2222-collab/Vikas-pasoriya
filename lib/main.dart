@@ -9,61 +9,67 @@ void main() async {
   try {
     await Firebase.initializeApp();
   } catch (e) {
-    debugPrint("Firebase Error: $e");
+    debugPrint("Firebase Initialisation Error: $e");
   }
-  runApp(const VikasAppFinal());
+  runApp(const VikasUltimateApp());
 }
 
-class VikasAppFinal extends StatelessWidget {
-  const VikasAppFinal({super.key});
+class VikasUltimateApp extends StatelessWidget {
+  const VikasUltimateApp({super.key});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.orange),
-      home: const MainDashboard(),
+      title: 'Vikas Pasoriya',
+      theme: ThemeData(
+        useMaterial3: true,
+        colorSchemeSeed: Colors.orange,
+        appBarTheme: const AppBarTheme(centerTitle: true),
+      ),
+      home: const AppDashboard(),
     );
   }
 }
 
-class MainDashboard extends StatefulWidget {
-  const MainDashboard({super.key});
+class AppDashboard extends StatefulWidget {
+  const AppDashboard({super.key});
   @override
-  State<MainDashboard> createState() => _MainDashboardState();
+  State<AppDashboard> createState() => _AppDashboardState();
 }
 
-class _MainDashboardState extends State<MainDashboard> {
-  // डेटाबेस लिंक यहाँ फिक्स सै
+class _AppDashboardState extends State<AppDashboard> {
+  // थारा डेटाबेस लिंक यहाँ फिक्स है
   final DatabaseReference _dbRef = FirebaseDatabase.instanceFor(
     app: Firebase.app(),
     databaseURL: 'https://vikas-pasoriya-default-rtdb.firebaseio.com/',
   ).ref();
 
-  String purnimaMsg = "अपडेट जल्द आएगा।";
-  String upiId = "example@upi";
-  String currentVId = "";
+  // डिफ़ॉल्ट डेटा (अगर डेटाबेस खाली हो तो भी ये दिखेगा)
+  String liveInfo = "सूचना लोड हो रही है...";
+  String upiAddress = "example@upi";
+  String videoId = "4wrWluZisiw"; // डिफ़ॉल्ट वीडियो
   YoutubePlayerController? _ytController;
 
   @override
   void initState() {
     super.initState();
-    _listenToData();
+    _startSyncing();
   }
 
-  void _listenToData() {
+  void _startSyncing() {
     _dbRef.onValue.listen((event) {
       final data = event.snapshot.value as Map?;
       if (data != null) {
         setState(() {
-          purnimaMsg = data["purnima"] ?? "अपडेट जल्द आएगा।";
-          upiId = data["upi"] ?? "example@upi";
-          final String rawUrl = data["videoId"] ?? "";
-          final String? extracted = YoutubePlayer.convertUrlToId(rawUrl);
+          liveInfo = data["purnima"] ?? "आगामी कार्यक्रम की सूचना जल्द आएगी।";
+          upiAddress = data["upi"] ?? "example@upi";
+          final String rawVideo = data["videoId"] ?? "";
+          final String? extractedId = YoutubePlayer.convertUrlToId(rawVideo);
           
-          if (extracted != null && extracted != currentVId) {
-            currentVId = extracted;
+          if (extractedId != null && extractedId != videoId) {
+            videoId = extractedId;
             _ytController = YoutubePlayerController(
-              initialVideoId: currentVId,
+              initialVideoId: videoId,
               flags: const YoutubePlayerFlags(autoPlay: true, mute: false),
             );
           }
@@ -76,27 +82,33 @@ class _MainDashboardState extends State<MainDashboard> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("विकास पासोरिया ऑफिशियिल"),
+        title: const Text("विकास पासोरिया ऑफिशियिल", style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: Colors.orange[900],
         foregroundColor: Colors.white,
-        actions: [IconButton(icon: const Icon(Icons.settings), onPressed: () => _showLogin())],
+        actions: [IconButton(icon: const Icon(Icons.settings), onPressed: () => _adminLogin())],
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
+            // १. वीडियो सेक्शन
             if (_ytController != null)
               YoutubePlayer(controller: _ytController!, showVideoProgressIndicator: true)
             else
-              Container(height: 220, color: Colors.black, child: const Center(child: Text("वीडियो लोड हो रही है...", style: TextStyle(color: Colors.white)))),
+              Container(
+                height: 220, 
+                width: double.infinity,
+                color: Colors.black, 
+                child: const Center(child: Text("लाइव लोड हो रहा है...", style: TextStyle(color: Colors.white)))
+              ),
 
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(children: [
-                _infoSection("🌕 पूर्णमासी कार्यक्रम", purnimaMsg),
+                _buildInfoCard("🌕 पूर्णमासी कार्यक्रम सूचना", liveInfo),
                 const SizedBox(height: 20),
-                _actionButton("💰 डोनेशन (रशीद पाएँ)", Colors.green[800]!, Icons.qr_code, () => _openQR()),
+                _buildActionBtn("💰 डोनेशन (रशीद पाएँ)", Colors.green[800]!, Icons.qr_code, () => _showPayment()),
                 const SizedBox(height: 10),
-                _actionButton("⭐ मंथली सदस्य बनें", Colors.blue[900]!, Icons.star, () => _openQR()),
+                _buildActionBtn("⭐ मंथली सदस्य बनें", Colors.blue[900]!, Icons.star_border, () => _showPayment()),
               ]),
             ),
           ],
@@ -105,77 +117,88 @@ class _MainDashboardState extends State<MainDashboard> {
     );
   }
 
-  Widget _infoSection(String title, String desc) => Card(
-    elevation: 3,
+  Widget _buildInfoCard(String title, String content) => Card(
+    elevation: 4,
     child: Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(15),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.orange.withOpacity(0.2)),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.orange.withOpacity(0.3)),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.orange)),
         const Divider(),
-        Text(desc, style: const TextStyle(fontSize: 16)),
+        Text(content, style: const TextStyle(fontSize: 16)),
       ]),
     ),
   );
 
-  Widget _actionButton(String txt, Color col, IconData ico, VoidCallback tap) => ElevatedButton.icon(
+  Widget _buildActionBtn(String txt, Color col, IconData ico, VoidCallback tap) => ElevatedButton.icon(
     icon: Icon(ico, color: Colors.white),
-    label: Text(txt, style: const TextStyle(color: Colors.white, fontSize: 16)),
-    style: ElevatedButton.styleFrom(backgroundColor: col, minimumSize: const Size(double.infinity, 60), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+    label: Text(txt, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+    style: ElevatedButton.styleFrom(
+      backgroundColor: col, 
+      minimumSize: const Size(double.infinity, 60),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))
+    ),
     onPressed: tap,
   );
 
-  void _openQR() {
-    showModalBottomSheet(context: context, builder: (c) => Container(
+  void _showPayment() {
+    showModalBottomSheet(context: context, shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))), builder: (c) => Container(
       padding: const EdgeInsets.all(25),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
-        const Text("QR कोड स्कैन करें", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const Text("QR कोड स्कैन करके दान करें", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         const SizedBox(height: 15),
-        QrImageView(data: "upi://pay?pa=$upiId&pn=Vikas&cu=INR", size: 180),
+        QrImageView(data: "upi://pay?pa=$upiAddress&pn=Vikas&cu=INR", size: 200),
         const SizedBox(height: 10),
-        const Text("डिजिटल रशीद के लिए संपर्क करें।"),
+        const Text("सहयोग के लिए आपका बहुत-बहुत धन्यवाद।"),
       ]),
     ));
   }
 
-  void _showLogin() {
-    final TextEditingController passCon = TextEditingController();
+  void _adminLogin() {
+    final TextEditingController _passCon = TextEditingController();
     showDialog(context: context, builder: (c) => AlertDialog(
       title: const Text("एडमिन लॉगिन"),
-      content: TextField(controller: passCon, decoration: const InputDecoration(labelText: "पासवर्ड"), obscureText: true),
+      content: TextField(controller: _passCon, decoration: const InputDecoration(labelText: "पासवर्ड"), obscureText: true),
       actions: [ElevatedButton(onPressed: () {
-        if(passCon.text == "Vikas1998") { 
+        if(_passCon.text == "Vikas1998") { 
           Navigator.pop(context); 
-          Navigator.push(context, MaterialPageRoute(builder: (c) => const AdminScreen())); 
+          Navigator.push(context, MaterialPageRoute(builder: (c) => const AdminDashboard())); 
         }
       }, child: const Text("लॉगिन"))],
     ));
   }
 }
 
-class AdminScreen extends StatelessWidget {
-  const AdminScreen({super.key});
+class AdminDashboard extends StatelessWidget {
+  const AdminDashboard({super.key});
   @override
   Widget build(BuildContext context) {
-    final DatabaseReference adminRef = FirebaseDatabase.instanceFor(
+    final DatabaseReference _adminRef = FirebaseDatabase.instanceFor(
       app: Firebase.app(), 
       databaseURL: 'https://vikas-pasoriya-default-rtdb.firebaseio.com/'
     ).ref();
-    final TextEditingController vCon = TextEditingController();
-    final TextEditingController pCon = TextEditingController();
+    final TextEditingController _vCon = TextEditingController();
+    final TextEditingController _pCon = TextEditingController();
+    final TextEditingController _uCon = TextEditingController();
 
     return Scaffold(
-      appBar: AppBar(title: const Text("फुल कंट्रोल पैनल")),
+      appBar: AppBar(title: const Text("ऐप कंट्रोल पैनल")),
       body: Padding(padding: const EdgeInsets.all(20), child: Column(children: [
-        TextField(controller: vCon, decoration: const InputDecoration(labelText: "नया यूट्यूब लिंक डालें")),
-        ElevatedButton(onPressed: () => adminRef.update({"videoId": vCon.text}), child: const Text("वीडियो अपडेट करें")),
-        const SizedBox(height: 25),
-        TextField(controller: pCon, decoration: const InputDecoration(labelText: "कार्यक्रम सूचना बदलें")),
-        ElevatedButton(onPressed: () => adminRef.update({"purnima": pCon.text}), child: const Text("सूचना सेव करें")),
+        TextField(controller: _vCon, decoration: const InputDecoration(labelText: "नया यूट्यूब लिंक (Live)")),
+        const SizedBox(height: 10),
+        ElevatedButton(onPressed: () => _adminRef.update({"videoId": _vCon.text}), child: const Text("वीडियो लाइव करें")),
+        const Divider(height: 40),
+        TextField(controller: _pCon, decoration: const InputDecoration(labelText: "कार्यक्रम सूचना")),
+        const SizedBox(height: 10),
+        ElevatedButton(onPressed: () => _adminRef.update({"purnima": _pCon.text}), child: const Text("सूचना अपडेट करें")),
+        const Divider(height: 40),
+        TextField(controller: _uCon, decoration: const InputDecoration(labelText: "नया UPI ID सैट करें")),
+        const SizedBox(height: 10),
+        ElevatedButton(onPressed: () => _adminRef.update({"upi": _uCon.text}), child: const Text("UPI सेव करें")),
       ])),
     );
   }

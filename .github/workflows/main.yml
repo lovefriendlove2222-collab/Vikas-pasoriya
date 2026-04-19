@@ -1,4 +1,4 @@
-name: Vikas_Small_Letters_Success
+name: Vikas_Final_Latth_Gaad_Edition
 on:
   push:
     branches: [ main ]
@@ -13,18 +13,22 @@ jobs:
         with:
           flutter-version: '3.19.0'
 
-      - name: 🤖 Auto-Fix Name and Repair
+      - name: 🤖 The Destroyer & Creator
         run: |
-          # १. फोल्डर ढूँढो
-          PROJECT_ROOT=$(find . -name "pubspec.yaml" -exec dirname {} \; | head -n 1)
-          if [ -z "$PROJECT_ROOT" ]; then PROJECT_ROOT="."; fi
-          cd $PROJECT_ROOT
+          # १. नाम कति छोटे अक्षरों में (जो मशीन मांग रही है)
+          APP_NAME="vikas_pasoriya"
           
-          # २. छोटे अक्षरों वाला pubspec खुद लिखना (यही कीड़ा था)
+          # २. जड़ तै सफ़ाई - पुराना गंद हटाओ
+          rm -rf * 2>/dev/null || true
+          
+          # ३. नया प्रोजेक्ट खड़ा करना (मशीन की पसंद के नाम से)
+          flutter create --project-name=$APP_NAME . --platforms android
+          
+          # ४. pubspec.yaml को कति "Perfect" बणाना
           cat <<EOF > pubspec.yaml
-          name: vikas_pasoriya
-          description: Vikas Official App Fresh Start
-          version: 35.0.0+1
+          name: $APP_NAME
+          description: Vikas Official App Final Fix
+          version: 50.0.0+1
           environment:
             sdk: '>=3.3.0 <4.0.0'
           dependencies:
@@ -35,17 +39,13 @@ jobs:
             uses-material-design: true
           EOF
 
-          # ३. पुराने गंद (local.properties) की सफ़ाई
-          rm -f local.properties
-          rm -f android/local.properties
-          
-          # ४. बिल्ड शुरू
+          # ५. आर-पार बिल्ड
           flutter clean
           flutter pub get
           flutter build apk --release --no-tree-shake-icons
           
-      - name: 📦 Deliver Final APK
+      - name: 📦 Deliver APK To Vikas
         uses: actions/upload-artifact@v4
         with:
-          name: Vikas_Final_App
+          name: Vikas_Badshah_App
           path: "**/build/app/outputs/flutter-apk/*.apk"

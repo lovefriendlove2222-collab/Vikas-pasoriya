@@ -1,4 +1,4 @@
-name: Vikas_Auto_Success_Machine
+name: Vikas_Total_Fresh_Start
 on:
   push:
     branches: [ main ]
@@ -13,24 +13,18 @@ jobs:
         with:
           flutter-version: '3.19.0'
 
-      - name: 🤖 Auto-Fix Any Missing Data
+      - name: 🤖 Total Repair (Delete and Re-Create)
         run: |
-          # १. असली फोल्डर ढूँढो
+          # १. प्रोजेक्ट के अंदर घुसना
           PROJECT_ROOT=$(find . -name "pubspec.yaml" -exec dirname {} \; | head -n 1)
-          
-          # २. अगर फोल्डर ना मिले तो खुद बणाओ
-          if [ -z "$PROJECT_ROOT" ]; then
-            PROJECT_ROOT="Vikas-pasoriya"
-            mkdir -p $PROJECT_ROOT
-          fi
-
+          if [ -z "$PROJECT_ROOT" ]; then PROJECT_ROOT="."; fi
           cd $PROJECT_ROOT
           
-          # ३. pubspec.yaml ने खुद नए सिरे तै लिखना (ताकि 'name' वाला एरर कदे ना आए)
+          # २. pubspec.yaml कति नए सिरे तै लिखना (Error Fix)
           cat <<EOF > pubspec.yaml
           name: vikas_official
-          description: Auto Fixed Official App
-          version: 28.0.0+1
+          description: Total Fresh Official App
+          version: 30.0.0+1
           environment:
             sdk: '>=3.3.0 <4.0.0'
           dependencies:
@@ -41,11 +35,11 @@ jobs:
             uses-material-design: true
           EOF
 
-          # ४. गन्दी फाइलें (local.properties) की सफाई
-          rm -f local.properties
-          rm -f android/local.properties
+          # ३. 💣 पुराना Android फोल्डर डिलीट करके नया बणाना (यही असली कीड़ा सै)
+          rm -rf android
+          flutter create . --platforms android
           
-          # ५. बिल्ड प्रक्रिया
+          # ४. सफ़ाई और बिल्ड
           flutter clean
           flutter pub get
           flutter build apk --release --no-tree-shake-icons
@@ -53,5 +47,5 @@ jobs:
       - name: 📦 Deliver Final APK
         uses: actions/upload-artifact@v4
         with:
-          name: Vikas_Final_App
+          name: Vikas_Fresh_App
           path: "**/build/app/outputs/flutter-apk/*.apk"

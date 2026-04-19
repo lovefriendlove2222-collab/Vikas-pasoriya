@@ -11,11 +11,11 @@ void main() async {
   } catch (e) {
     debugPrint("Firebase Error: $e");
   }
-  runApp(const VikasPasoriyaApp());
+  runApp(const VikasApp());
 }
 
-class VikasPasoriyaApp extends StatelessWidget {
-  const VikasPasoriyaApp({super.key});
+class VikasApp extends StatelessWidget {
+  const VikasApp({super.key});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -33,13 +33,13 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  // थारा डेटाबेस यूआरएल
+  // थारा रीयलटाइम डेटाबेस लिंक
   final DatabaseReference _dbRef = FirebaseDatabase.instanceFor(
     app: Firebase.app(),
     databaseURL: 'https://vikas-pasoriya-default-rtdb.firebaseio.com/',
   ).ref();
 
-  String info = "लोड हो रहा है...";
+  String info = "डेटा लोड हो रहा है...";
   String upi = "7206966924vivek@axl";
   String vId = "4wrWluZisiw";
   YoutubePlayerController? _controller;
@@ -51,13 +51,14 @@ class _HomeScreenState extends State<HomeScreen> {
       initialVideoId: vId,
       flags: const YoutubePlayerFlags(autoPlay: false),
     );
-    _listenData();
+    _listenToData();
   }
 
-  void _listenData() {
+  void _listenToData() {
     _dbRef.onValue.listen((event) {
-      // यहाँ एरर फिक्स करा है: Map को सही ढाल पढ़ना
-      final dynamic dataValue = event.snapshot.value;
+      // फोटो 1000338888.jpg वाला एरर यहाँ फिक्स करा है
+      final Object? dataValue = event.snapshot.value;
+      
       if (dataValue != null && dataValue is Map) {
         setState(() {
           info = dataValue["purnima"]?.toString() ?? "कोई सूचना नहीं";
@@ -76,7 +77,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Vikas Pasoriya Official"),
+        title: const Text("विकास पासोरिया ऑफिशियिल"),
         backgroundColor: Colors.orange[900],
         foregroundColor: Colors.white,
       ),
@@ -95,7 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               const SizedBox(height: 30),
               ElevatedButton.icon(
-                onPressed: () => _showQR(),
+                onPressed: () => _showPayQR(),
                 icon: const Icon(Icons.qr_code, color: Colors.white),
                 label: const Text("सहयोग करें", style: TextStyle(color: Colors.white, fontSize: 18)),
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.green[800], minimumSize: const Size(double.infinity, 60)),
@@ -107,7 +108,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _showQR() {
+  void _showPayQR() {
     showModalBottomSheet(context: context, builder: (c) => Container(
       padding: const EdgeInsets.all(30),
       child: Column(mainAxisSize: MainAxisSize.min, children: [

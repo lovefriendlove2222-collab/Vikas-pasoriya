@@ -1,4 +1,4 @@
-name: Vikas_Success_Machine_Final
+name: Vikas_Auto_Success_Machine
 on:
   push:
     branches: [ main ]
@@ -13,12 +13,12 @@ jobs:
         with:
           flutter-version: '3.19.0'
 
-      - name: 🤖 The Auto-Repair Master
+      - name: 🤖 Auto-Fix Any Missing Data
         run: |
-          # १. असली जड़ ढूँढो
+          # १. असली फोल्डर ढूँढो
           PROJECT_ROOT=$(find . -name "pubspec.yaml" -exec dirname {} \; | head -n 1)
           
-          # २. अगर जड़ ना मिले, तो खुद फोल्डर बनाओ
+          # २. अगर फोल्डर ना मिले तो खुद बणाओ
           if [ -z "$PROJECT_ROOT" ]; then
             PROJECT_ROOT="Vikas-pasoriya"
             mkdir -p $PROJECT_ROOT
@@ -26,11 +26,11 @@ jobs:
 
           cd $PROJECT_ROOT
           
-          # ३. pubspec.yaml का कीड़ा कति खत्म (Fresh Write)
+          # ३. pubspec.yaml ने खुद नए सिरे तै लिखना (ताकि 'name' वाला एरर कदे ना आए)
           cat <<EOF > pubspec.yaml
           name: vikas_official
           description: Auto Fixed Official App
-          version: 27.0.0+1
+          version: 28.0.0+1
           environment:
             sdk: '>=3.3.0 <4.0.0'
           dependencies:

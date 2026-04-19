@@ -1,19 +1,12 @@
 name: vikas_pasoriya
-description: Professional Admin Management System
+description: Professional Admin App
 version: 1.0.0+1
-
 environment:
   sdk: '>=3.3.0 <4.0.0'
-
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.8
-  image_picker: ^1.0.7
-  qr_flutter: ^4.1.0
-  pdf: ^3.10.8
-  printing: ^5.11.1
-  shared_preferences: ^2.2.2
-
+  shared_preferences: ^2.2.2 # पासवर्ड याद रखने के लिए
+  url_launcher: ^6.3.1
 flutter:
   uses-material-design: true

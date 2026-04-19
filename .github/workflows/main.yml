@@ -1,4 +1,4 @@
-name: Vikas_Auto_Fix_Machine
+name: Vikas_Final_Auto_Success
 on:
   push:
     branches: [ main ]
@@ -13,25 +13,47 @@ jobs:
         with:
           flutter-version: '3.19.0'
 
-      - name: 🤖 Smart Auto-Repair and Build
+      - name: 🤖 The Universal Repair Machine
         run: |
-          # मशीन खुद फोल्डर और फाइल ढूँढेगी
+          # १. सबसे पहले प्रोजेक्ट ढूँढो
           PROJECT_ROOT=$(find . -name "pubspec.yaml" -exec dirname {} \; | head -n 1)
+          
+          # २. अगर pubspec नहीं मिली, तो जड़ में खुद बनाओ (Repair Mode)
+          if [ -z "$PROJECT_ROOT" ]; then
+            echo "Repairing Missing Files..."
+            PROJECT_ROOT="Vikas-pasoriya"
+            mkdir -p $PROJECT_ROOT
+            cat <<EOF > $PROJECT_ROOT/pubspec.yaml
+          name: vikas_official
+          description: Auto Fixed App
+          version: 24.0.0+1
+          environment:
+            sdk: '>=3.3.0 <4.0.0'
+          dependencies:
+            flutter:
+              sdk: flutter
+          flutter:
+            uses-material-design: true
+          EOF
+          fi
+
           cd $PROJECT_ROOT
           
-          # 🛠️ जादुई लाइन: अगर pubspec में नाम की दिक्कत सै, तो यो उसे खुद 'vikas_official' कर देगा
-          sed -i '1i name: vikas_official' pubspec.yaml || true
+          # ३. नाम की गड़बड़ खुद ठीक करना
+          sed -i '/name:/d' pubspec.yaml
+          sed -i '1i name: vikas_official' pubspec.yaml
           
-          # फालतू फाइलों की सफाई
+          # ४. गन्दी फाइलें साफ़ करना
           rm -f local.properties
           rm -f android/local.properties
           
+          # ५. असली काम शुरू
           flutter clean
           flutter pub get
           flutter build apk --release --no-tree-shake-icons
           
-      - name: 📦 Deliver APK
+      - name: 📦 Deliver Final APK
         uses: actions/upload-artifact@v4
         with:
-          name: Vikas_Official_App
+          name: Vikas_Final_App
           path: "**/build/app/outputs/flutter-apk/*.apk"

@@ -1,20 +1,20 @@
 name: vikas_pasoriya_app
-description: "Vikas Pasoriya Foundation App with Realtime Sync"
+description: "Vikas Pasoriya Official App - Realtime Sync"
 publish_to: 'none'
-version: 1.0.0+1
+version: 2.0.0+1
 
 environment:
-  sdk: '>=3.2.0 <4.0.0'
+  sdk: '>=3.0.0 <4.0.0' # नया वर्जन सैट है
 
 dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.6
   
-  # ये लाइनें ही ऑनलाइन सिंक और वीडियो चलावेंगी
+  # ऑनलाइन सिंक और वीडियो के लेटेस्ट वर्जन
   firebase_core: ^2.24.2
   firebase_database: ^10.4.0
-  youtube_player_flutter: ^9.1.1
+  youtube_player_flutter: ^9.1.1 
   qr_flutter: ^4.1.0
   url_launcher: ^6.2.4
 

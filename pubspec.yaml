@@ -1,6 +1,6 @@
-name: vikas_official
-description: Professional Official App
-version: 23.0.0+1
+name: vikas_pasoriya
+description: Professional Admin Management System
+version: 1.0.0+1
 
 environment:
   sdk: '>=3.3.0 <4.0.0'
@@ -9,8 +9,13 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.8
-  animate_do: ^3.3.4
   url_launcher: ^6.3.1
+  image_picker: ^1.0.7
+  firebase_core: ^2.27.0
+  cloud_firestore: ^4.15.8 # डेटा सेव करने के लिए
+  qr_flutter: ^4.1.0 # UPI QR के लिए
+  pdf: ^3.10.8 # रशीद बणाण के लिए
+  printing: ^5.11.1 # रशीद प्रिंट करने के लिए
 
 flutter:
   uses-material-design: true

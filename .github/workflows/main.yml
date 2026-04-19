@@ -1,4 +1,4 @@
-name: Vikas_Final_Latth_Gaad_Edition
+name: Vikas_Final_Professional_Build
 on:
   push:
     branches: [ main ]
@@ -7,45 +7,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.19.0'
 
-      - name: 🤖 The Destroyer & Creator
+      - name: Master Build
         run: |
-          # १. नाम कति छोटे अक्षरों में (जो मशीन मांग रही है)
-          APP_NAME="vikas_pasoriya"
-          
-          # २. जड़ तै सफ़ाई - पुराना गंद हटाओ
-          rm -rf * 2>/dev/null || true
-          
-          # ३. नया प्रोजेक्ट खड़ा करना (मशीन की पसंद के नाम से)
-          flutter create --project-name=$APP_NAME . --platforms android
-          
-          # ४. pubspec.yaml को कति "Perfect" बणाना
-          cat <<EOF > pubspec.yaml
-          name: $APP_NAME
-          description: Vikas Official App Final Fix
-          version: 50.0.0+1
-          environment:
-            sdk: '>=3.3.0 <4.0.0'
-          dependencies:
-            flutter:
-              sdk: flutter
-            cupertino_icons: ^1.0.8
-          flutter:
-            uses-material-design: true
-          EOF
-
-          # ५. आर-पार बिल्ड
+          rm -f local.properties
           flutter clean
           flutter pub get
           flutter build apk --release --no-tree-shake-icons
           
-      - name: 📦 Deliver APK To Vikas
+      - name: Get APK
         uses: actions/upload-artifact@v4
         with:
-          name: Vikas_Badshah_App
+          name: Vikas_Professional_App
           path: "**/build/app/outputs/flutter-apk/*.apk"

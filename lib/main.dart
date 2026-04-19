@@ -7,29 +7,28 @@ import 'package:qr_flutter/qr_flutter.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(const VikasPasoriyaApp());
+  runApp(const VikasApp());
 }
 
-class VikasPasoriyaApp extends StatelessWidget {
-  const VikasPasoriyaApp({super.key});
+class VikasApp extends StatelessWidget {
+  const VikasApp({super.key});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.orange),
-      home: const MainAppScreen(),
+      home: const MainScreen(),
     );
   }
 }
 
-class MainAppScreen extends StatefulWidget {
-  const MainAppScreen({super.key});
+class MainScreen extends StatefulWidget {
+  const MainScreen({super.key});
   @override
-  State<MainAppScreen> createState() => _MainAppScreenState();
+  State<MainScreen> createState() => _MainScreenState();
 }
 
-class _MainAppScreenState extends State<MainAppScreen> {
-  // थारा परमानेंट डेटाबेस लिंक
+class _MainScreenState extends State<MainScreen> {
   final DatabaseReference _db = FirebaseDatabase.instanceFor(
     app: Firebase.app(),
     databaseURL: 'https://vikas-pasoriya-default-rtdb.firebaseio.com/',
@@ -38,41 +37,36 @@ class _MainAppScreenState extends State<MainAppScreen> {
   String upi = "7206966924vivek@axl";
   String vId = "4wrWluZisiw";
   YoutubePlayerController? _controller;
-  List<Map<String, String>> liveOptions = [];
+  List<Map<String, String>> liveData = [];
 
   @override
   void initState() {
     super.initState();
     _controller = YoutubePlayerController(
       initialVideoId: vId,
-      flags: const YoutubePlayerFlags(autoPlay: false, mute: false, isLive: true),
+      flags: const YoutubePlayerFlags(autoPlay: false),
     );
-    _setupOnlineSync();
+    _syncNow();
   }
 
-  // यो सै वो परमानेंट ऑनलाइन सिंक का जादू
-  void _setupOnlineSync() {
+  void _syncNow() {
     _db.onValue.listen((event) {
-      final Object? data = event.snapshot.value;
-      if (data != null && data is Map) {
+      final dynamic rawData = event.snapshot.value;
+      if (rawData != null && rawData is Map) {
         setState(() {
-          upi = data["upi"]?.toString() ?? upi;
-          
-          // वीडियो सिंक
-          String? newId = YoutubePlayer.convertUrlToId(data["videoId"]?.toString() ?? "");
+          upi = rawData["upi"]?.toString() ?? upi;
+          String? newId = YoutubePlayer.convertUrlToId(rawData["videoId"]?.toString() ?? "");
           if (newId != null && newId != vId) {
             vId = newId;
             _controller?.load(vId);
           }
-
-          // एडमिन ऑप्शन सिंक
-          liveOptions.clear();
-          if (data["options"] != null && data["options"] is Map) {
-            (data["options"] as Map).forEach((k, v) {
-              liveOptions.add({"title": k.toString(), "desc": v.toString()});
+          liveData.clear();
+          if (rawData["options"] is Map) {
+            (rawData["options"] as Map).forEach((k, v) {
+              liveData.add({"t": k.toString(), "d": v.toString()});
             });
-          } else if (data["purnima"] != null) {
-            liveOptions.add({"title": "अगला प्रोग्राम", "desc": data["purnima"].toString()});
+          } else if (rawData["purnima"] != null) {
+            liveData.add({"t": "प्रोग्राम", "d": rawData["purnima"].toString()});
           }
         });
       }
@@ -82,38 +76,16 @@ class _MainAppScreenState extends State<MainAppScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("विकास पासोरिया ऑफिशियिल", style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.orange[900],
-        foregroundColor: Colors.white,
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text("विकास पासोरिया ऑफिशियिल"), backgroundColor: Colors.orange[900], foregroundColor: Colors.white),
       body: SingleChildScrollView(
         child: Column(children: [
-          YoutubePlayer(controller: _controller!, showVideoProgressIndicator: true),
+          YoutubePlayer(controller: _controller!),
           Padding(
             padding: const EdgeInsets.all(15),
             child: Column(children: [
-              ...liveOptions.map((item) => Card(
-                elevation: 3,
-                margin: const EdgeInsets.only(bottom: 12),
-                child: ListTile(
-                  leading: const Icon(Icons.info_outline, color: Colors.orange),
-                  title: Text(item["title"]!, style: const TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: Text(item["desc"]!),
-                ),
-              )),
+              ...liveData.map((item) => Card(child: ListTile(title: Text(item["t"]!), subtitle: Text(item["d"]!)))),
               const SizedBox(height: 20),
-              ElevatedButton.icon(
-                onPressed: () => _showQR(),
-                icon: const Icon(Icons.qr_code_scanner, color: Colors.white),
-                label: const Text("सहयोग करें", style: TextStyle(color: Colors.white, fontSize: 18)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green[800],
-                  minimumSize: const Size(double.infinity, 60),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))
-                ),
-              )
+              ElevatedButton(onPressed: () => _showQR(), child: const Text("सहयोग करें")),
             ]),
           ),
         ]),
@@ -122,15 +94,6 @@ class _MainAppScreenState extends State<MainAppScreen> {
   }
 
   void _showQR() {
-    showModalBottomSheet(context: context, builder: (c) => Container(
-      padding: const EdgeInsets.all(30),
-      child: Column(mainAxisSize: MainAxisSize.min, children: [
-        const Text("स्कैन करके दान करें", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 20),
-        QrImageView(data: "upi://pay?pa=$upi&pn=Vikas&cu=INR", size: 220),
-        const SizedBox(height: 10),
-        Text("UPI: $upi"),
-      ]),
-    ));
+    showModalBottomSheet(context: context, builder: (c) => Center(child: QrImageView(data: "upi://pay?pa=$upi&pn=Vikas", size: 250)));
   }
 }

@@ -1,4 +1,4 @@
-name: Vikas_Final_Success_Build
+name: Vikas_Official_New_Start
 on:
   push:
     branches: [ main ]
@@ -13,21 +13,21 @@ jobs:
         with:
           flutter-version: '3.19.0'
 
-      - name: Build Official APK
+      - name: Master Build
         run: |
-          # सिर्फ एक बार फोल्डर के अंदर जाना (जैसा थारी फोटो में सै)
+          # सीधा फोल्डर में घुसना
           cd Vikas-pasoriya
           
-          # फालतू फाइलों की खुद सफाई
+          # पुरानी गन्दगी साफ़ करना
           rm -f local.properties
-          
           flutter clean
           flutter pub get
+          
+          # हैवी APK बणाना
           flutter build apk --release --no-tree-shake-icons
           
-      - name: Upload APK
+      - name: Deliver APK
         uses: actions/upload-artifact@v4
         with:
-          name: Vikas_Official_App_Final
-          # रास्ता कति साफ़—एक ही फोल्डर के अंदर का बिल्ड
+          name: Vikas_New_App
           path: "Vikas-pasoriya/build/app/outputs/flutter-apk/*.apk"

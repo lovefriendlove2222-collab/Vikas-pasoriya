@@ -11,62 +11,61 @@ void main() async {
   } catch (e) {
     debugPrint("Firebase Error: $e");
   }
-  runApp(const VikasApp());
+  runApp(const VikasPasoriyaApp());
 }
 
-class VikasApp extends StatelessWidget {
-  const VikasApp({super.key});
+class VikasPasoriyaApp extends StatelessWidget {
+  const VikasPasoriyaApp({super.key});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.orange),
-      home: const HomeScreen(),
+      home: const MainScreen(),
     );
   }
 }
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+class MainScreen extends StatefulWidget {
+  const MainScreen({super.key});
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<MainScreen> createState() => _MainScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
-  // थारा रीयलटाइम डेटाबेस लिंक
-  final DatabaseReference _dbRef = FirebaseDatabase.instanceFor(
+class _MainScreenState extends State<MainScreen> {
+  // थारा डेटाबेस यूआरएल
+  final DatabaseReference _db = FirebaseDatabase.instanceFor(
     app: Firebase.app(),
     databaseURL: 'https://vikas-pasoriya-default-rtdb.firebaseio.com/',
   ).ref();
 
-  String info = "डेटा लोड हो रहा है...";
-  String upi = "7206966924vivek@axl";
-  String vId = "4wrWluZisiw";
-  YoutubePlayerController? _controller;
+  String purnimaMsg = "सूचना लोड हो रही है...";
+  String upiId = "7206966924vivek@axl";
+  String videoId = "4wrWluZisiw";
+  YoutubePlayerController? _ytController;
 
   @override
   void initState() {
     super.initState();
-    _controller = YoutubePlayerController(
-      initialVideoId: vId,
+    _ytController = YoutubePlayerController(
+      initialVideoId: videoId,
       flags: const YoutubePlayerFlags(autoPlay: false),
     );
-    _listenToData();
+    _syncWithDatabase();
   }
 
-  void _listenToData() {
-    _dbRef.onValue.listen((event) {
-      // फोटो 1000338888.jpg वाला एरर यहाँ फिक्स करा है
-      final Object? dataValue = event.snapshot.value;
-      
-      if (dataValue != null && dataValue is Map) {
+  void _syncWithDatabase() {
+    _db.onValue.listen((event) {
+      // फोटो 1000338888.jpg वाला Map एरर यहाँ फिक्स करा है
+      final dynamic rawData = event.snapshot.value;
+      if (rawData != null && rawData is Map) {
         setState(() {
-          info = dataValue["purnima"]?.toString() ?? "कोई सूचना नहीं";
-          upi = dataValue["upi"]?.toString() ?? "7206966924vivek@axl";
-          String? newId = YoutubePlayer.convertUrlToId(dataValue["videoId"]?.toString() ?? "");
-          if (newId != null && newId != vId) {
-            vId = newId;
-            _controller?.load(vId);
+          purnimaMsg = rawData["purnima"]?.toString() ?? "कोई सूचना नहीं";
+          upiId = rawData["upi"]?.toString() ?? "7206966924vivek@axl";
+          String? newId = YoutubePlayer.convertUrlToId(rawData["videoId"]?.toString() ?? "");
+          if (newId != null && newId != videoId) {
+            videoId = newId;
+            _ytController?.load(videoId);
           }
         });
       }
@@ -78,25 +77,25 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("विकास पासोरिया ऑफिशियिल"),
-        backgroundColor: Colors.orange[900],
+        backgroundColor: Colors.orange[800],
         foregroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
         child: Column(children: [
-          YoutubePlayer(controller: _controller!, showVideoProgressIndicator: true),
+          YoutubePlayer(controller: _ytController!, showVideoProgressIndicator: true),
           Padding(
             padding: const EdgeInsets.all(20),
             child: Column(children: [
               Card(
-                elevation: 5,
+                elevation: 4,
                 child: ListTile(
                   title: const Text("🌕 अगला प्रोग्राम", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.orange)),
-                  subtitle: Text(info, style: const TextStyle(fontSize: 16)),
+                  subtitle: Text(purnimaMsg, style: const TextStyle(fontSize: 16)),
                 ),
               ),
               const SizedBox(height: 30),
               ElevatedButton.icon(
-                onPressed: () => _showPayQR(),
+                onPressed: () => _payNow(),
                 icon: const Icon(Icons.qr_code, color: Colors.white),
                 label: const Text("सहयोग करें", style: TextStyle(color: Colors.white, fontSize: 18)),
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.green[800], minimumSize: const Size(double.infinity, 60)),
@@ -108,13 +107,12 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _showPayQR() {
-    showModalBottomSheet(context: context, builder: (c) => Container(
-      padding: const EdgeInsets.all(30),
+  void _payNow() {
+    showModalBottomSheet(context: context, builder: (c) => Center(
       child: Column(mainAxisSize: MainAxisSize.min, children: [
         const Text("QR कोड स्कैन करें", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         const SizedBox(height: 20),
-        QrImageView(data: "upi://pay?pa=$upi&pn=Vikas&cu=INR", size: 200),
+        QrImageView(data: "upi://pay?pa=$upiId&pn=Vikas&cu=INR", size: 250),
       ]),
     ));
   }

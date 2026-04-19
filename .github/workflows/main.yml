@@ -1,4 +1,4 @@
-name: Vikas_Total_Fresh_Start
+name: Vikas_Small_Letters_Success
 on:
   push:
     branches: [ main ]
@@ -13,18 +13,18 @@ jobs:
         with:
           flutter-version: '3.19.0'
 
-      - name: 🤖 Total Repair (Delete and Re-Create)
+      - name: 🤖 Auto-Fix Name and Repair
         run: |
-          # १. प्रोजेक्ट के अंदर घुसना
+          # १. फोल्डर ढूँढो
           PROJECT_ROOT=$(find . -name "pubspec.yaml" -exec dirname {} \; | head -n 1)
           if [ -z "$PROJECT_ROOT" ]; then PROJECT_ROOT="."; fi
           cd $PROJECT_ROOT
           
-          # २. pubspec.yaml कति नए सिरे तै लिखना (Error Fix)
+          # २. छोटे अक्षरों वाला pubspec खुद लिखना (यही कीड़ा था)
           cat <<EOF > pubspec.yaml
-          name: vikas_official
-          description: Total Fresh Official App
-          version: 30.0.0+1
+          name: vikas_pasoriya
+          description: Vikas Official App Fresh Start
+          version: 35.0.0+1
           environment:
             sdk: '>=3.3.0 <4.0.0'
           dependencies:
@@ -35,11 +35,11 @@ jobs:
             uses-material-design: true
           EOF
 
-          # ३. 💣 पुराना Android फोल्डर डिलीट करके नया बणाना (यही असली कीड़ा सै)
-          rm -rf android
-          flutter create . --platforms android
+          # ३. पुराने गंद (local.properties) की सफ़ाई
+          rm -f local.properties
+          rm -f android/local.properties
           
-          # ४. सफ़ाई और बिल्ड
+          # ४. बिल्ड शुरू
           flutter clean
           flutter pub get
           flutter build apk --release --no-tree-shake-icons
@@ -47,5 +47,5 @@ jobs:
       - name: 📦 Deliver Final APK
         uses: actions/upload-artifact@v4
         with:
-          name: Vikas_Fresh_App
+          name: Vikas_Final_App
           path: "**/build/app/outputs/flutter-apk/*.apk"

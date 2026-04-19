@@ -6,30 +6,34 @@ import 'package:qr_flutter/qr_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  runApp(const VikasAppFinal());
+  try {
+    await Firebase.initializeApp();
+  } catch (e) {
+    debugPrint("फायरबेस लोड नहीं हुआ: $e");
+  }
+  runApp(const VikasAppV3());
 }
 
-class VikasAppFinal extends StatelessWidget {
-  const VikasAppFinal({super.key});
+class VikasAppV3 extends StatelessWidget {
+  const VikasAppV3({super.key});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(useMaterial3: true, primarySwatch: Colors.orange),
-      home: const MainDashboard(),
+      theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.orange),
+      home: const VikasDashboard(),
     );
   }
 }
 
-class MainDashboard extends StatefulWidget {
-  const MainDashboard({super.key});
+class VikasDashboard extends StatefulWidget {
+  const VikasDashboard({super.key});
   @override
-  State<MainDashboard> createState() => _MainDashboardState();
+  State<VikasDashboard> createState() => _VikasDashboardState();
 }
 
-class _MainDashboardState extends State<MainDashboard> {
-  // थारा रीयलटाइम डेटाबेस लिंक यहाँ फिक्स सै
+class _VikasDashboardState extends State<VikasDashboard> {
+  // थारा डेटाबेस लिंक
   final DatabaseReference _db = FirebaseDatabase.instanceFor(
     app: Firebase.app(),
     databaseURL: 'https://vikas-pasoriya-default-rtdb.firebaseio.com/',
@@ -41,24 +45,24 @@ class _MainDashboardState extends State<MainDashboard> {
   @override
   void initState() {
     super.initState();
-    _startSync();
+    _startLiveSync();
   }
 
-  _startSync() {
+  _startLiveSync() {
     _db.onValue.listen((event) {
       final data = event.snapshot.value as Map?;
       if (data != null) {
         setState(() {
-          purnima = data["purnima"] ?? "अपडेट जल्द आएगा";
+          purnima = data["purnima"] ?? "अपडेट जल्द आएगा।";
           upi = data["upi"] ?? "example@upi";
-          String rawId = data["videoId"] ?? "";
-          String? newVId = YoutubePlayer.convertUrlToId(rawId);
+          String rawUrl = data["videoId"] ?? "";
+          String? extractedId = YoutubePlayer.convertUrlToId(rawUrl);
           
-          if (newVId != null && newVId != vId) {
-            vId = newVId;
+          if (extractedId != null && extractedId != vId) {
+            vId = extractedId;
             _ytController = YoutubePlayerController(
               initialVideoId: vId,
-              flags: const YoutubePlayerFlags(autoPlay: true, mute: false, loop: true),
+              flags: const YoutubePlayerFlags(autoPlay: true, mute: false),
             );
           }
         });
@@ -70,28 +74,28 @@ class _MainDashboardState extends State<MainDashboard> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("विकास पासोरिया संस्था"),
+        title: const Text("विकास पासोरिया ऑफिशियिल"),
         backgroundColor: Colors.orange[900],
         foregroundColor: Colors.white,
-        actions: [IconButton(icon: const Icon(Icons.lock_person), onPressed: () => _adminAuth())],
+        actions: [IconButton(icon: const Icon(Icons.admin_panel_settings), onPressed: () => _loginDialog())],
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // वीडियो प्लेयर सेक्शन
+            // १. लाइव वीडियो प्लेयर
             if (_ytController != null)
               YoutubePlayer(controller: _ytController!, showVideoProgressIndicator: true)
             else
-              Container(height: 220, color: Colors.black, child: const Center(child: Text("लाइव वीडियो लोड हो रही है...", style: TextStyle(color: Colors.white)))),
+              Container(height: 220, color: Colors.black, child: const Center(child: Text("लाइव प्रोग्राम लोड हो रहा है...", style: TextStyle(color: Colors.white)))),
 
             Padding(
               padding: const EdgeInsets.all(16),
               child: Column(children: [
-                _buildCard("🌕 पूर्णमासी कार्यक्रम", purnima),
+                _infoCard("🌕 पूर्णमासी कार्यक्रम", purnima),
                 const SizedBox(height: 20),
-                _bigButton("💰 दान करें (रशीद पाएँ)", Colors.green[800]!, Icons.qr_code, () => _showPay()),
+                _bigBtn("💰 दान करें (रशीद पाएँ)", Colors.green[800]!, Icons.qr_code, () => _showQR()),
                 const SizedBox(height: 10),
-                _bigButton("🗓️ मंथली डोनर बनें", Colors.blue[900]!, Icons.calendar_month, () => _showPay()),
+                _bigBtn("📅 मंथली डोनर सदस्य", Colors.blue[900]!, Icons.star, () => _showQR()),
               ]),
             ),
           ],
@@ -100,50 +104,58 @@ class _MainDashboardState extends State<MainDashboard> {
     );
   }
 
-  Widget _buildCard(String title, String content) => Card(
-    elevation: 4,
-    child: Padding(
+  // यहाँ Container का एरर ठीक कर दिया है
+  Widget _infoCard(String t, String c) => Card(
+    elevation: 3,
+    child: Container(
+      width: double.infinity,
       padding: const EdgeInsets.all(15),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.orange.withOpacity(0.3)), // Border यहाँ आएगा
+      ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.orange)),
+        Text(t, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.orange)),
         const Divider(),
-        Text(content, style: const TextStyle(fontSize: 16)),
+        Text(c, style: const TextStyle(fontSize: 16)),
       ]),
     ),
   );
 
-  Widget _bigButton(String t, Color c, IconData i, VoidCallback tap) => ElevatedButton.icon(
+  Widget _bigBtn(String t, Color c, IconData i, VoidCallback tap) => ElevatedButton.icon(
     icon: Icon(i, color: Colors.white),
     label: Text(t, style: const TextStyle(color: Colors.white, fontSize: 16)),
     style: ElevatedButton.styleFrom(backgroundColor: c, minimumSize: const Size(double.infinity, 60), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
     onPressed: tap,
   );
 
-  _showPay() {
+  _showQR() {
     showModalBottomSheet(context: context, builder: (c) => Container(
       padding: const EdgeInsets.all(20),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
+        const Text("QR कोड स्कैन करें", style: TextStyle(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 10),
         QrImageView(data: "upi://pay?pa=$upi&pn=Vikas&cu=INR", size: 180),
-        const Text("स्कैन करें और पेमेंट करें"),
-        ElevatedButton(onPressed: () => Navigator.pop(context), child: const Text("बंद करें"))
+        const SizedBox(height: 10),
+        const Text("पेमेंट के बाद रशीद भरना ना भूलें।"),
       ]),
     ));
   }
 
-  _adminAuth() {
-    final pass = TextEditingController();
+  _loginDialog() {
+    final pc = TextEditingController();
     showDialog(context: context, builder: (c) => AlertDialog(
       title: const Text("एडमिन लॉगिन"),
-      content: TextField(controller: pass, decoration: const InputDecoration(labelText: "पासवर्ड"), obscureText: true),
+      content: TextField(controller: pc, decoration: const InputDecoration(labelText: "पासवर्ड"), obscureText: true),
       actions: [ElevatedButton(onPressed: () {
-        if(pass.text == "Vikas1998") { Navigator.pop(context); Navigator.push(context, MaterialPageRoute(builder: (c) => const AdminPanel())); }
+        if(pc.text == "Vikas1998") { Navigator.pop(context); Navigator.push(context, MaterialPageRoute(builder: (c) => const AdminDash())); }
       }, child: const Text("लॉगिन"))],
     ));
   }
 }
 
-class AdminPanel extends StatelessWidget {
-  const AdminPanel({super.key});
+class AdminDash extends StatelessWidget {
+  const AdminDash({super.key});
   @override
   Widget build(BuildContext context) {
     final ref = FirebaseDatabase.instanceFor(app: Firebase.app(), databaseURL: 'https://vikas-pasoriya-default-rtdb.firebaseio.com/').ref();
@@ -151,12 +163,13 @@ class AdminPanel extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text("कंट्रोल पैनल")),
       body: Padding(padding: const EdgeInsets.all(20), child: Column(children: [
-        TextField(controller: v, decoration: const InputDecoration(labelText: "नया यूट्यूब लिंक")),
-        ElevatedButton(onPressed: () => ref.update({"videoId": v.text}), child: const Text("वीडियो अपडेट करें")),
+        TextField(controller: v, decoration: const InputDecoration(labelText: "नया यूट्यूब वीडियो लिंक")),
+        ElevatedButton(onPressed: () => ref.update({"videoId": v.text}), child: const Text("वीडियो बदलें")),
         const SizedBox(height: 20),
-        TextField(controller: p, decoration: const InputDecoration(labelText: "सूचना अपडेट")),
-        ElevatedButton(onPressed: () => ref.update({"purnima": p.text}), child: const Text("सूचना बदलें")),
+        TextField(controller: p, decoration: const InputDecoration(labelText: "पूर्णमासी कार्यक्रम सूचना")),
+        ElevatedButton(onPressed: () => ref.update({"purnima": p.text}), child: const Text("सूचना अपडेट करें")),
       ])),
     );
   }
 }
+।

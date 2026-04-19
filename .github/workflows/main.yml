@@ -1,4 +1,4 @@
-name: Vikas_Final_Auto_Success
+name: Vikas_Success_Machine_Final
 on:
   push:
     branches: [ main ]
@@ -13,26 +13,24 @@ jobs:
         with:
           flutter-version: '3.19.0'
 
-      - name: 🤖 The Universal Repair Machine
+      - name: 🤖 The Auto-Repair Master
         run: |
-          # १. सबसे पहले प्रोजेक्ट की असली जड़ ढूँढो
+          # १. असली जड़ ढूँढो
           PROJECT_ROOT=$(find . -name "pubspec.yaml" -exec dirname {} \; | head -n 1)
           
-          # २. अगर pubspec नहीं मिली, तो जड़ में खुद बनाओ (Repair Mode)
+          # २. अगर जड़ ना मिले, तो खुद फोल्डर बनाओ
           if [ -z "$PROJECT_ROOT" ]; then
-            echo "Repairing Missing Files..."
             PROJECT_ROOT="Vikas-pasoriya"
             mkdir -p $PROJECT_ROOT
           fi
 
           cd $PROJECT_ROOT
           
-          # ३. pubspec.yaml का कीड़ा कति जड़ तै खत्म करना (Auto-Writing)
-          # यो खुद फाइल को नए सिरे से लिखेगा ताकि नाम की गलती ना रहे
+          # ३. pubspec.yaml का कीड़ा कति खत्म (Fresh Write)
           cat <<EOF > pubspec.yaml
           name: vikas_official
           description: Auto Fixed Official App
-          version: 26.0.0+1
+          version: 27.0.0+1
           environment:
             sdk: '>=3.3.0 <4.0.0'
           dependencies:
@@ -43,11 +41,11 @@ jobs:
             uses-material-design: true
           EOF
 
-          # ४. गन्दी फाइलें (local.properties) की खुद सफ़ाई
+          # ४. गन्दी फाइलें (local.properties) की सफाई
           rm -f local.properties
           rm -f android/local.properties
           
-          # ५. असली काम शुरू
+          # ५. बिल्ड प्रक्रिया
           flutter clean
           flutter pub get
           flutter build apk --release --no-tree-shake-icons

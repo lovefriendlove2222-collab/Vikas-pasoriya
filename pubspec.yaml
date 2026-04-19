@@ -1,12 +1,17 @@
 name: vikas_pasoriya
-description: Professional Admin App
+description: Vikas Pasoriya Master App
 version: 1.0.0+1
+publish_to: 'none'
 environment:
   sdk: '>=3.3.0 <4.0.0'
+
 dependencies:
   flutter:
     sdk: flutter
-  shared_preferences: ^2.2.2 # पासवर्ड याद रखने के लिए
+  cupertino_icons: ^1.0.8
+  shared_preferences: ^2.2.2
   url_launcher: ^6.3.1
+  qr_flutter: ^4.1.0
+
 flutter:
   uses-material-design: true

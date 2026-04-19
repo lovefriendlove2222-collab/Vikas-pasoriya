@@ -1,0 +1,16 @@
+name: vikas_official
+description: Professional Official App for Vikas Pasoriya
+version: 22.0.0+1
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  animate_do: ^3.3.4
+  url_launcher: ^6.3.1
+
+flutter:
+  uses-material-design: true

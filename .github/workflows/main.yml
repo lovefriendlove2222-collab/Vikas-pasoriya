@@ -1,4 +1,4 @@
-name: Vikas_Success_Build
+name: Vikas_Final_Success_Build
 on:
   push:
     branches: [ main ]
@@ -7,20 +7,31 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-java@v3
+      
+      - name: Setup_Java
+        uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '17'
-      - uses: subosito/flutter-action@v2
+          
+      - name: Setup_Flutter
+        uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.19.0'
 
-      - name: Build_Release
+      - name: Repair_And_Build
         run: |
+          # १. पुराना खराब एंड्राइड फोल्डर हटाना
+          rm -rf android
+          
+          # २. नया और सही एंड्राइड ढांचा खड़ा करना (vikas_pasoriya नाम से)
+          flutter create --project-name=vikas_pasoriya . --platforms android
+          
+          # ३. एरर फ्री बिल्ड शुरू करना
           flutter pub get
           flutter build apk --release --no-tree-shake-icons
           
-      - name: Upload_APK
+      - name: Delivery_APK
         uses: actions/upload-artifact@v4
         with:
           name: Vikas_Official_App

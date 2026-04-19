@@ -4,7 +4,7 @@ version: 1.0.0+1
 publish_to: 'none'
 
 environment:
-  sdk: '>=3.3.0 <4.0.0'
+  sdk: '>=3.3.0 <4.0.0' # यहाँ हमने वर्जन थारे सिस्टम के हिसाब तै सैट कर दिया
 
 dependencies:
   flutter:

@@ -1,4 +1,4 @@
-name: Vikas_Official_New_Start
+name: Vikas_Final_Master_Success
 on:
   push:
     branches: [ main ]
@@ -13,21 +13,21 @@ jobs:
         with:
           flutter-version: '3.19.0'
 
-      - name: Master Build
+      - name: 🤖 Auto-Pilot Build
         run: |
-          # सीधा फोल्डर में घुसना
-          cd Vikas-pasoriya
+          # यो खुद ढूँढेगा कि pubspec.yaml कित छिपी बैठी सै
+          PROJECT_ROOT=$(find . -name "pubspec.yaml" -exec dirname {} \; | head -n 1)
+          cd $PROJECT_ROOT
           
-          # पुरानी गन्दगी साफ़ करना
+          # फालतू फाइल हटाना
           rm -f local.properties
+          
           flutter clean
           flutter pub get
-          
-          # हैवी APK बणाना
           flutter build apk --release --no-tree-shake-icons
           
-      - name: Deliver APK
+      - name: 📦 Deliver APK
         uses: actions/upload-artifact@v4
         with:
-          name: Vikas_New_App
-          path: "Vikas-pasoriya/build/app/outputs/flutter-apk/*.apk"
+          name: Vikas_Official_App
+          path: "**/build/app/outputs/flutter-apk/*.apk"

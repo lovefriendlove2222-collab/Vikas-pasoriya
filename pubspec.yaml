@@ -1,7 +1,7 @@
 name: vikas_pasoriya_app
-description: "Official App for Vikas Pasoriya"
+description: "Vikas Pasoriya Official"
 publish_to: 'none'
-version: 2.5.0+1
+version: 3.0.0+1
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -9,17 +9,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.6
   firebase_core: ^2.24.2
   firebase_database: ^10.4.0
   youtube_player_flutter: ^8.1.2
   qr_flutter: ^4.1.0
   url_launcher: ^6.2.4
-
-dev_dependencies:
-  flutter_test:
-    sdk: flutter
-  flutter_lints: ^3.0.0
 
 flutter:
   uses-material-design: true

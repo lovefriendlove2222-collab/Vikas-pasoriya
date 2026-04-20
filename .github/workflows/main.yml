@@ -11,22 +11,22 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
-          java-version: '17' # पुराने प्रोजेक्ट खात्तर जरूरी सै
+          distribution: 'temurin'
+          java-version: '17'
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
+          flutter-version: '3.19.0' # थारे कोड के हिसाब तै बेस्ट वर्जन
           channel: 'stable'
 
-      - name: Force Build APK
-        # यो कमांड पुराने 'Unsupported Gradle' प्रोजेक्ट को बाईपास करैगी
+      - name: Install and Build
         run: |
           flutter pub get
-          flutter build apk --debug --no-tree-shake-icons --suppress-analytics
+          flutter build apk --debug --no-tree-shake-icons
 
-      - name: Final Success Upload
+      - name: Upload Final APK
         uses: actions/upload-artifact@v4
         with:
           name: Vikas-Official-App
-          path: "**/build/app/outputs/flutter-apk/*.apk"
+          path: build/app/outputs/flutter-apk/*.apk

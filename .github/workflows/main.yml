@@ -5,14 +5,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: subosito/flutter-action@v2
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-          flutter-version: '3.19.0' # स्टेबल वर्जन
-      - run: flutter pub get
-      - run: flutter build apk --debug --no-tree-shake-icons
+          
+      - name: Install Dependencies
+        run: flutter pub get
+        
+      - name: Build Debug APK
+        run: flutter build apk --debug --no-tree-shake-icons
+        
       - name: Upload Final APK
         uses: actions/upload-artifact@v4
         with:
           name: Vikas-Official-App
-          path: "**/build/app/outputs/flutter-apk/*.apk" # यो एरर खत्म कर देगा
+          # यो रास्ता अब प्रोजेक्ट के हर कोने में APK ढूँढेगा
+          path: "**/build/app/outputs/flutter-apk/*.apk" 

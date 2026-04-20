@@ -1,6 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET"/>
     <application android:label="Vikas Pasoriya Official">
+        <meta-data android:name="flutterEmbedding" android:value="2" />
         <activity android:name=".MainActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -9,3 +10,4 @@
         </activity>
     </application>
 </manifest>
+ 

@@ -7,16 +7,16 @@ import 'package:qr_flutter/qr_flutter.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(const MaterialApp(home: VikasFinalApp(), debugShowCheckedModeBanner: false));
+  runApp(const MaterialApp(home: VikasRealApp(), debugShowCheckedModeBanner: false));
 }
 
-class VikasFinalApp extends StatefulWidget {
-  const VikasFinalApp({super.key});
+class VikasRealApp extends StatefulWidget {
+  const VikasRealApp({super.key});
   @override
-  State<VikasFinalApp> createState() => _VikasFinalAppState();
+  State<VikasRealApp> createState() => _VikasRealAppState();
 }
 
-class _VikasFinalAppState extends State<VikasFinalApp> {
+class _VikasRealAppState extends State<VikasRealApp> {
   final _db = FirebaseDatabase.instanceFor(
     app: Firebase.app(),
     databaseURL: 'https://vikas-pasoriya-default-rtdb.firebaseio.com/',
@@ -24,30 +24,25 @@ class _VikasFinalAppState extends State<VikasFinalApp> {
 
   String upi = "7206966924vivek@axl";
   String vId = "4wrWluZisiw";
-  YoutubePlayerController? _ytCont;
-  List<Map<String, String>> uiOptions = [];
+  YoutubePlayerController? _cont;
+  List<Map<String, String>> dataList = [];
 
   @override
   void initState() {
     super.initState();
-    _ytCont = YoutubePlayerController(initialVideoId: vId, flags: const YoutubePlayerFlags(autoPlay: false));
-    
-    // लाइव ऑनलाइन सिंक - परमानेंट
+    _cont = YoutubePlayerController(initialVideoId: vId, flags: const YoutubePlayerFlags(autoPlay: false));
     _db.onValue.listen((event) {
-      final data = event.snapshot.value as Map?;
-      if (data != null) {
+      final snap = event.snapshot.value as Map?;
+      if (snap != null) {
         setState(() {
-          upi = data["upi"]?.toString() ?? upi;
-          String? extractedId = YoutubePlayer.convertUrlToId(data["videoId"]?.toString() ?? "");
-          if (extractedId != null && extractedId != vId) {
-            vId = extractedId;
-            _ytCont?.load(vId);
-          }
-          uiOptions.clear();
-          if (data["options"] is Map) {
-            (data["options"] as Map).forEach((k, v) => uiOptions.add({"t": k.toString(), "d": v.toString()}));
+          upi = snap["upi"]?.toString() ?? upi;
+          String? nId = YoutubePlayer.convertUrlToId(snap["videoId"]?.toString() ?? "");
+          if (nId != null && nId != vId) { vId = nId; _cont?.load(vId); }
+          dataList.clear();
+          if (snap["options"] is Map) {
+            (snap["options"] as Map).forEach((k, v) => dataList.add({"t": k.toString(), "d": v.toString()}));
           } else {
-            uiOptions.add({"t": "सूचना", "d": data["purnima"]?.toString() ?? "राम राम भाई!"});
+            dataList.add({"t": "सूचना", "d": snap["purnima"]?.toString() ?? "राम राम!"});
           }
         });
       }
@@ -57,31 +52,16 @@ class _VikasFinalAppState extends State<VikasFinalApp> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("विकास पासोरिया ऑफिशियिल"), backgroundColor: Colors.orange[800]),
-      body: SingleChildScrollView(
-        child: Column(children: [
-          YoutubePlayer(controller: _ytCont!, showVideoProgressIndicator: true),
-          Padding(
-            padding: const EdgeInsets.all(15),
-            child: Column(children: [
-              ...uiOptions.map((e) => Card(child: ListTile(title: Text(e["t"]!), subtitle: Text(e["d"]!)))),
-              const SizedBox(height: 20),
-              ElevatedButton.icon(
-                onPressed: () => _payNow(),
-                icon: const Icon(Icons.qr_code),
-                label: const Text("सहयोग करें", style: TextStyle(fontSize: 18)),
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.green[800], foregroundColor: Colors.white, minimumSize: const Size(double.infinity, 60)),
-              )
-            ]),
-          ),
-        ]),
-      ),
+      appBar: AppBar(title: const Text("Vikas Pasoriya Official"), backgroundColor: Colors.orange),
+      body: SingleChildScrollView(child: Column(children: [
+        YoutubePlayer(controller: _cont!, showVideoProgressIndicator: true),
+        ...dataList.map((e) => Card(child: ListTile(title: Text(e["t"]!), subtitle: Text(e["d"]!)))),
+        const SizedBox(height: 20),
+        ElevatedButton(
+          onPressed: () => showModalBottomSheet(context: context, builder: (c) => Center(child: QrImageView(data: "upi://pay?pa=$upi&pn=Vikas", size: 250))),
+          child: const Text("सहयोग करें"),
+        )
+      ])),
     );
-  }
-
-  void _payNow() {
-    showModalBottomSheet(context: context, builder: (c) => Center(
-      child: QrImageView(data: "upi://pay?pa=$upi&pn=Vikas", size: 250),
-    ));
   }
 }

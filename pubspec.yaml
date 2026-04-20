@@ -1,6 +1,5 @@
 name: vikas_pasoriya_app
-version: 1.0.3+4 # वर्जन बढ़ा दिया, ईब बिना डिलीट करे अपडेट होगा
-publish_to: 'none'
+version: 1.0.4+5 # वर्जन बढ़ाया ताकि बिना डिलीट करे अपडेट हो
 environment:
   sdk: '>=3.0.0 <4.0.0'
 dependencies:

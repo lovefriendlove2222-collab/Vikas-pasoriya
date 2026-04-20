@@ -1,6 +1,6 @@
 name: vikas_pasoriya_app
-description: "Vikas Pasoriya Official App"
-version: 1.1.4+14
+description: "Vikas Pasoriya Official App - Heavy Build"
+version: 1.1.5+15
 publish_to: 'none'
 
 environment:
@@ -11,8 +11,12 @@ dependencies:
     sdk: flutter
   firebase_core: ^2.24.2
   firebase_database: ^10.4.0 # ऑनलाइन सिंक खात्तर
-  youtube_player_flutter: ^8.1.2 # वीडियो खात्तर
-  qr_flutter: 4.1.0 # पेमेंट खात्तर
+  youtube_player_flutter: ^8.1.2
+  qr_flutter: 4.1.0 # पेमेंट और सहयोग राशि खात्तर
 
 flutter:
   uses-material-design: true
+  # हैवी फाइलों खात्तर (50MB - 10GB)
+  assets:
+    - assets/videos/
+    - assets/audio/

@@ -25,7 +25,7 @@ class _VikasRealAppState extends State<VikasRealApp> {
   String upi = "7206966924vivek@axl";
   String vId = "4wrWluZisiw";
   YoutubePlayerController? _cont;
-  List<Map<String, String>> liveList = [];
+  List<Map<String, String>> dataList = [];
 
   @override
   void initState() {
@@ -38,11 +38,11 @@ class _VikasRealAppState extends State<VikasRealApp> {
           upi = snap["upi"]?.toString() ?? upi;
           String? nId = YoutubePlayer.convertUrlToId(snap["videoId"]?.toString() ?? "");
           if (nId != null && nId != vId) { vId = nId; _cont?.load(vId); }
-          liveList.clear();
+          dataList.clear();
           if (snap["options"] is Map) {
-            (snap["options"] as Map).forEach((k, v) => liveList.add({"t": k.toString(), "d": v.toString()}));
+            (snap["options"] as Map).forEach((k, v) => dataList.add({"t": k.toString(), "d": v.toString()}));
           } else {
-            liveList.add({"t": "सूचना", "d": snap["purnima"]?.toString() ?? "राम राम!"});
+            dataList.add({"t": "सूचना", "d": snap["purnima"]?.toString() ?? "स्वागत है!"});
           }
         });
       }
@@ -52,10 +52,10 @@ class _VikasRealAppState extends State<VikasRealApp> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("विकास पासोरिया ऑफिशियिल"), backgroundColor: Colors.orange),
+      appBar: AppBar(title: const Text("Vikas Pasoriya Official"), backgroundColor: Colors.orange),
       body: SingleChildScrollView(child: Column(children: [
         YoutubePlayer(controller: _cont!, showVideoProgressIndicator: true),
-        ...liveList.map((e) => Card(child: ListTile(title: Text(e["t"]!), subtitle: Text(e["d"]!)))),
+        ...dataList.map((e) => Card(child: ListTile(title: Text(e["t"]!), subtitle: Text(e["d"]!)))),
         const SizedBox(height: 20),
         ElevatedButton(
           onPressed: () => showModalBottomSheet(context: context, builder: (c) => Center(child: QrImageView(data: "upi://pay?pa=$upi&pn=Vikas", size: 250))),

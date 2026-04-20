@@ -1,6 +1,6 @@
-name: vikas_pasoriya  # इब यो नाम जमा सही सै
-description: "Vikas Pasoriya Official App"
-version: 1.1.5+15
+name: vikas_pasoriya
+description: "Vikas Pasoriya Official App - Heavy Build"
+version: 1.1.6+16
 publish_to: 'none'
 
 environment:
@@ -10,9 +10,10 @@ dependencies:
   flutter:
     sdk: flutter
   firebase_core: ^2.24.2
-  firebase_database: ^10.4.0 # ऑनलाइन सिंक खात्तर
-  youtube_player_flutter: ^8.1.2
-  qr_flutter: 4.1.0 # पेमेंट खात्तर
+  url_launcher: ^6.2.4 # ऑनलाइन लिंक खोलण खात्तर
 
 flutter:
   uses-material-design: true
+  # थारी 10GB तक की हैवी फाइलों खात्तर जगह
+  assets:
+    - assets/

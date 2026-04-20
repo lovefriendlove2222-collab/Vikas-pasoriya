@@ -20,10 +20,10 @@ jobs:
         # --debug तै फाइल पक्की बणैगी और साइनिंग का रोड़ा कोनी होवै
         run: flutter build apk --debug --no-tree-shake-icons
 
-      - name: Auto-Fix Artifact Upload
+      - name: Final Auto-Fix Upload
         uses: actions/upload-artifact@v4
         with:
           name: Vikas-Official-App
           # यो '**/ ' जादुई कोडिंग सै, यो फाइल को कहीं तै भी ढूँढ लेगा
           path: "**/build/app/outputs/flutter-apk/*.apk"
-          if-no-files-found: error # अगर इब भी ना मिले तो मशीन चिल्ला के बतावेगी
+          if-no-files-found: error

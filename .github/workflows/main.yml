@@ -7,8 +7,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.19.0' # स्टेबल वर्जन जो कदे फेल कोनी होवै
-          channel: 'stable'
+          channel: 'stable' # अपने आप सबसे नया स्टेबल वर्जन उठा लेगा
       - run: flutter pub get
       - run: flutter build apk --release
       - name: Upload APK

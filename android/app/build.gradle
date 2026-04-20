@@ -5,15 +5,15 @@ plugins {
 }
 
 android {
-    namespace "com.example.vikas_pasoriya"
+    namespace "com.example.vikas_pasoriya" 
     compileSdk 34
 
     defaultConfig {
         applicationId "com.example.vikas_pasoriya"
         minSdkVersion 21
         targetSdkVersion 34
-        versionCode 10
-        versionName "1.1.0"
+        versionCode 12
+        versionName "1.1.2"
     }
 
     buildTypes {

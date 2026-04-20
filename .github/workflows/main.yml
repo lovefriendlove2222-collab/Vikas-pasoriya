@@ -1,4 +1,4 @@
-name: Build Heavy Final APK
+name: Build Heavy APK Final
 on: [push]
 
 jobs:
@@ -20,20 +20,22 @@ jobs:
           channel: 'stable'
           flutter-version: '3.19.0'
 
-      - name: Fix Permissions & Environment
-        # यो स्टेप 'Permission Denied' को जड़ तै खत्म करैगा
+      - name: Auto-Fix Permissions & Environment
+        # यो स्टेप 'Permission Denied' और Gradle एरर को जड़ तै खत्म करैगा
         run: |
           chmod +x android/gradlew
           flutter config --no-analytics
           flutter pub get
 
-      - name: Build Heavy APK
-        # 10GB तक की सपोर्ट और ऑनलाइन सिंक खात्तर
+      - name: Build Heavy APK (Online Sync Ready)
+        # हैवी साइज और ऑनलाइन सिंक (Firebase) के साथ बिल्ड
         run: |
           flutter build apk --debug --no-tree-shake-icons --suppress-analytics
 
-      - name: Deliver Final APK to Vivek
+      - name: Deliver Heavy APK to Vivek
         uses: actions/upload-artifact@v4
         with:
           name: Vikas-Official-Heavy-App
+          # बड़े साइज की फाइलों को 10GB तक सपोर्ट करने का रास्ता
           path: "**/build/app/outputs/flutter-apk/*.apk"
+          retention-days: 7

@@ -1,4 +1,4 @@
-name: Super-Auto Heavy Build
+name: Final Auto-Fix Heavy Build
 on: [push]
 
 jobs:
@@ -20,17 +20,17 @@ jobs:
           channel: 'stable'
           flutter-version: '3.19.0'
 
-      - name: Extreme Auto-Fix
-        # यो स्टेप 'Unsupported Gradle' को जड़ तै खत्म करकै नया प्रोजेक्ट ढांचा बणावेगा
+      - name: Extreme Auto-Fix Permissions
+        # यो 'Permission Denied' और नाम के एरर को बाईपास करैगा
         run: |
           chmod +x android/gradlew
           flutter config --no-analytics
-          # पुराने कचरे को साफ करके ऑनलाइन सिंक के लिए फ्रेश परमिशन
-          flutter create . --overwrite --platforms=android
+          # मशीन को नया ढांचा बणाने का आर्डर
+          flutter create . --overwrite --org com.vikas.pasoriya --project-name vikas_pasoriya
           flutter pub get
 
       - name: Build Latest Heavy APK
-        # ऑनलाइन सिंक और 50MB-10GB हैवी सपोर्ट के साथ
+        # 50MB तै 10GB हैवी साइज सपोर्ट
         run: |
           flutter build apk --debug --no-tree-shake-icons --suppress-analytics
 

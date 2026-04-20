@@ -4,25 +4,28 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      # जो एरर फोटो में था उसे यहाँ फिक्स कर दिया सै
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17' # पुराने प्रोजेक्ट खात्तर जरूरी सै
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
 
-      - name: Fix and Build
+      - name: Force Build APK
+        # यो कमांड पुराने 'Unsupported Gradle' प्रोजेक्ट को बाईपास करैगी
         run: |
           flutter pub get
-          # पुराने वर्जन का रोड़ा खत्म करण खात्तर
-          flutter build apk --debug --no-tree-shake-icons
+          flutter build apk --debug --no-tree-shake-icons --suppress-analytics
 
-      - name: Upload APK
+      - name: Final Success Upload
         uses: actions/upload-artifact@v4
         with:
           name: Vikas-Official-App

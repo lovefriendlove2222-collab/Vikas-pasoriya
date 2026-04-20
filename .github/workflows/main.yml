@@ -8,10 +8,11 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
+          flutter-version: '3.19.0' # स्टेबल वर्जन
       - run: flutter pub get
       - run: flutter build apk --debug --no-tree-shake-icons
       - name: Upload Final APK
         uses: actions/upload-artifact@v4
         with:
           name: Vikas-Official-App
-          path: "**/build/app/outputs/flutter-apk/*.apk" # यो कती पक्का रास्ता सै
+          path: "**/build/app/outputs/flutter-apk/*.apk" # यो एरर खत्म कर देगा

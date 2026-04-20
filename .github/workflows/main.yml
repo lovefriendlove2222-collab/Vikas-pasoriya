@@ -21,5 +21,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Vikas-Official-App
-          # यो रास्ता अब प्रोजेक्ट के हर कोने में APK ढूँढेगा
-          path: "**/build/app/outputs/flutter-apk/*.apk" 
+          # यो पक्का रास्ता सै जो फाइल को कित्तै तै भी ढूँढ लेगा
+          path: build/app/outputs/flutter-apk/*.apk
+          if-no-files-found: warn # एरर की जगह वार्निंग देगा ताकि हमें सच पता चले

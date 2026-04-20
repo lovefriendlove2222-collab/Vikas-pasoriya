@@ -1,9 +1,7 @@
-android {
-    defaultConfig {
-        applicationId "com.vikas.pasoriya"
-        minSdkVersion 21
-        targetSdkVersion 34
-        versionCode 1 // अगली बार इसे 2 कर देना
-        versionName "1.0.1" // अगली बार इसे 1.0.2 कर देना
-    }
+defaultConfig {
+    applicationId "com.vikas.pasoriya"
+    minSdkVersion 21
+    targetSdkVersion 34
+    versionCode 2 
+    versionName "1.0.2"
 }

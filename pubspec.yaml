@@ -1,35 +1,18 @@
-name: Build APK
-on: [push]
+name: vikas_pasoriya_app
+description: "Vikas Pasoriya Official App"
+version: 1.1.4+14
+publish_to: 'none'
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+environment:
+  sdk: '>=3.3.0 <4.0.0' # मशीन यही मांग रही सै
 
-      - name: Setup Java 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
+dependencies:
+  flutter:
+    sdk: flutter
+  firebase_core: ^2.24.2
+  firebase_database: ^10.4.0
+  youtube_player_flutter: ^8.1.2
+  qr_flutter: 4.1.0
 
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: 'stable'
-          # कल वाला सक्सेसफुल वर्जन
-          flutter-version: '3.19.0'
-
-      - name: Force Build APK
-        # यो वो जादुई कमांड सै जो 'Unsupported Gradle' को बाईपास करैगी
-        run: |
-          flutter pub get
-          flutter build apk --debug --no-tree-shake-icons --suppress-analytics
-
-      - name: Deliver APK to Vivek
-        uses: actions/upload-artifact@v4
-        with:
-          name: Vikas-Official-App
-          # प्रोजेक्ट में कित्तै भी APK बण्या हो, यो उसे ढूंढ लावेगा
-          path: "**/build/app/outputs/flutter-apk/*.apk"
+flutter:
+  uses-material-design: true

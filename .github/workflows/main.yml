@@ -1,18 +1,28 @@
 name: Flutter Build APK
 on: [push]
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: subosito/flutter-action@v2
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-          flutter-version: '3.19.0' # फिक्स वर्जन ताकि मशीन कन्फ्यूज ना हो
-      - run: flutter pub get
-      - run: flutter build apk --release --no-tree-shake-icons
+          # किसी खास वर्जन के चक्कर में नहीं पड़ेंगे, मशीन अपने आप सबसे नया स्टेबल उठाएगी
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Build APK
+        # --no-tree-shake-icons इसलिए ताकि आइकॉन की वजह तै बिल्ड ना रुके
+        run: flutter build apk --release --no-tree-shake-icons
+
       - name: Upload APK
-        uses: actions/upload-artifact@v4 # वर्जन 4 कर दिया जो फेल कोनी होवे
+        uses: actions/upload-artifact@v4
         with:
-          name: Vikas-Pasoriya-Official-APK
+          name: Vikas-Pasoriya-App
           path: build/app/outputs/flutter-apk/app-release.apk

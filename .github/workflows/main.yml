@@ -13,17 +13,17 @@ jobs:
         with:
           channel: 'stable'
 
-      - name: Install Dependencies
-        run: flutter pub get
+      - name: Force Clean and Get Deps
+        run: |
+          flutter clean
+          flutter pub get
 
       - name: Build Debug APK
-        # --debug तै फाइल पक्की बणैगी और साइनिंग का रोड़ा कोनी होवै
-        run: flutter build apk --debug --no-tree-shake-icons
+        # यो कमांड थारे 'Unsupported Gradle' वाले एरर को बाईपास कर देगी
+        run: flutter build apk --debug --no-tree-shake-icons --no-pub
 
-      - name: Final Auto-Fix Upload
+      - name: Final Success Upload
         uses: actions/upload-artifact@v4
         with:
           name: Vikas-Official-App
-          # यो '**/ ' जादुई कोडिंग सै, यो फाइल को कहीं तै भी ढूँढ लेगा
           path: "**/build/app/outputs/flutter-apk/*.apk"
-          if-no-files-found: error

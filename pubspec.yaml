@@ -1,18 +1,13 @@
 name: vikas_pasoriya_app
-description: "Vikas Pasoriya Official"
-version: 1.0.5+6
-publish_to: 'none'
-
+version: 1.0.6+7
 environment:
   sdk: '>=3.0.0 <4.0.0'
-
 dependencies:
   flutter:
     sdk: flutter
   firebase_core: ^2.24.2
   firebase_database: ^10.4.0
   youtube_player_flutter: ^8.1.2
-  qr_flutter: 4.1.0 # फिक्स वर्जन ताकि दोबारा एरर ना आए
-
+  qr_flutter: 4.1.0 # फिक्स वर्जन ताकि एरर ना आए
 flutter:
   uses-material-design: true

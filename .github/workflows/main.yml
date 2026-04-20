@@ -1,4 +1,4 @@
-name: Final Build APK
+name: Build APK
 on: [push]
 
 jobs:
@@ -8,7 +8,8 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Java
+      - name: Setup Java 17
+        # मशीन Java 17 मांग रही सै ताकि Gradle एरर ना दे
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
@@ -17,18 +18,19 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
+          # स्टेबल वर्जन जो वर्जन 1.1.3+ के साथ सिंक हो सके
           channel: 'stable'
-          flutter-version: '3.19.0'
+          flutter-version: '3.19.0' 
 
-      - name: Master Fix and Build
+      - name: Master Fix Build
         run: |
           flutter pub get
-          # पुराने एरर को धक्के तै बाहर निकालण खात्तर यो पक्का इलाज सै
-          flutter build apk --debug --no-tree-shake-icons --suppress-analytics
+          # पुराने प्रोजेक्ट को नई मशीन पै धक्के तै चलाने की कमांड
+          flutter build apk --debug --no-tree-shake-icons
 
       - name: Deliver APK to Vivek
         uses: actions/upload-artifact@v4
         with:
           name: Vikas-Official-App
-          # प्रोजेक्ट में कित्तै भी APK बण्या हो, यो उसे घसीट लावेगा
+          # यो रास्ता अब प्रोजेक्ट के हर कोने में APK ढूँढेगा
           path: "**/build/app/outputs/flutter-apk/*.apk"

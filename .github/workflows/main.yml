@@ -1,4 +1,4 @@
-name: Flutter Build APK
+name: Build APK
 on: [push]
 jobs:
   build:
@@ -10,7 +10,7 @@ jobs:
           channel: 'stable'
       - run: flutter pub get
       - run: flutter build apk --debug --no-tree-shake-icons
-      - name: Upload Final APK
+      - name: Upload
         uses: actions/upload-artifact@v4
         with:
           name: Vikas-Official-App

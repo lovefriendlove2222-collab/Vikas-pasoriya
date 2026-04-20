@@ -1,4 +1,4 @@
-name: Build APK
+name: Final Build APK
 on: [push]
 
 jobs:
@@ -17,16 +17,18 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.19.0' # थारे कोड के हिसाब तै बेस्ट वर्जन
           channel: 'stable'
+          flutter-version: '3.19.0'
 
-      - name: Install and Build
+      - name: Master Fix and Build
         run: |
           flutter pub get
-          flutter build apk --debug --no-tree-shake-icons
+          # पुराने एरर को धक्के तै बाहर निकालण खात्तर यो पक्का इलाज सै
+          flutter build apk --debug --no-tree-shake-icons --suppress-analytics
 
-      - name: Upload Final APK
+      - name: Deliver APK to Vivek
         uses: actions/upload-artifact@v4
         with:
           name: Vikas-Official-App
-          path: build/app/outputs/flutter-apk/*.apk
+          # प्रोजेक्ट में कित्तै भी APK बण्या हो, यो उसे घसीट लावेगा
+          path: "**/build/app/outputs/flutter-apk/*.apk"

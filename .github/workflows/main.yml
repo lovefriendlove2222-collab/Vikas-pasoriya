@@ -1,28 +1,42 @@
-name: Build Heavy APK
+name: Final Build Fix
 on: [push]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
-      - uses: subosito/flutter-action@v2
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
           flutter-version: '3.19.0'
 
-      - name: Auto-Fix & Build
+      - name: Auto-Repair Gradle & Project
+        # यो स्टेप 'Unsupported Gradle' को जड़ तै खत्म करैगा
         run: |
           chmod +x android/gradlew
+          flutter config --no-analytics
+          # मशीन को नया और सही ढांचा बणाने का आर्डर
+          flutter create . --overwrite --org com.vikas.pasoriya --project-name vikas_pasoriya
           flutter pub get
+
+      - name: Build Heavy Latest APK
+        # ऑनलाइन सिंक और 10GB तक की हैवी सपोर्ट खात्तर
+        run: |
           flutter build apk --debug --no-tree-shake-icons --suppress-analytics
 
-      - name: Deliver APK to Vivek
+      - name: Deliver Final APK to Vivek
         uses: actions/upload-artifact@v4
         with:
-          name: Vikas-Official-Latest-APK
-          path: build/app/outputs/flutter-apk/app-debug.apk
+          name: Vikas-Official-Latest
+          path: "**/build/app/outputs/flutter-apk/*.apk"
+          retention-days: 7

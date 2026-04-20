@@ -17,12 +17,13 @@ jobs:
         run: flutter pub get
 
       - name: Build APK
-        # --debug इसलिए ताकि साइनिंग का कोई रोड़ा ना आए और फाइल पक्की बने
+        # --debug इसलिए ताकि बिना किसी सर्टिफिकेट के पक्का बिल्ड हो जावे
         run: flutter build apk --debug --no-tree-shake-icons
 
       - name: Upload Final APK
         uses: actions/upload-artifact@v4
         with:
           name: Vikas-Official-App
-          # यो पक्का रास्ता सै जो फाइल को ढूँढ लेगा
+          # हमने रास्ता कतई खुला छोड़ दिया सै ताकि मशीन फाइल को पकड़ ले
           path: build/app/outputs/flutter-apk/*.apk
+          if-no-files-found: error # अगर फाइल ना मिले तो एरर दे (ताकि हमें पता चले)

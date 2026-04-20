@@ -7,62 +7,61 @@ import 'package:qr_flutter/qr_flutter.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(const VikasOfficial());
+  runApp(const MyApp());
 }
 
-class VikasOfficial extends StatelessWidget {
-  const VikasOfficial({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.orange),
-      home: const LiveScreen(),
+      home: const VikasLiveScreen(),
     );
   }
 }
 
-class LiveScreen extends StatefulWidget {
-  const LiveScreen({super.key});
+class VikasLiveScreen extends StatefulWidget {
+  const VikasLiveScreen({super.key});
   @override
-  State<LiveScreen> createState() => _LiveScreenState();
+  State<VikasLiveScreen> createState() => _VikasLiveScreenState();
 }
 
-class _LiveScreenState extends State<LiveScreen> {
+class _VikasLiveScreenState extends State<VikasLiveScreen> {
   final DatabaseReference _db = FirebaseDatabase.instanceFor(
     app: Firebase.app(),
     databaseURL: 'https://vikas-pasoriya-default-rtdb.firebaseio.com/',
   ).ref();
 
   String upi = "7206966924vivek@axl";
-  String videoId = "4wrWluZisiw";
-  YoutubePlayerController? _ytController;
-  List<Map<String, String>> dynamicData = [];
+  String vId = "4wrWluZisiw";
+  YoutubePlayerController? _controller;
+  List<Map<String, String>> liveList = [];
 
   @override
   void initState() {
     super.initState();
-    _ytController = YoutubePlayerController(initialVideoId: videoId, flags: const YoutubePlayerFlags(autoPlay: false));
-    _listenLive();
+    _controller = YoutubePlayerController(initialVideoId: vId, flags: const YoutubePlayerFlags(autoPlay: false));
+    _startSync();
   }
 
-  void _listenLive() {
-    // यो परमानेंट सिंक सै—फायरबेस बदलैगा तो ऐप अपने आप बदल जावेगा
+  void _startSync() {
     _db.onValue.listen((event) {
-      final dynamic raw = event.snapshot.value;
-      if (raw != null && raw is Map) {
+      final dynamic data = event.snapshot.value;
+      if (data != null && data is Map) {
         setState(() {
-          upi = raw["upi"]?.toString() ?? upi;
-          String? nId = YoutubePlayer.convertUrlToId(raw["videoId"]?.toString() ?? "");
-          if (nId != null && nId != videoId) {
-            videoId = nId;
-            _ytController?.load(videoId);
+          upi = data["upi"]?.toString() ?? upi;
+          String? newId = YoutubePlayer.convertUrlToId(data["videoId"]?.toString() ?? "");
+          if (newId != null && newId != vId) {
+            vId = newId;
+            _controller?.load(vId);
           }
-          dynamicData.clear();
-          if (raw["options"] is Map) {
-            (raw["options"] as Map).forEach((k, v) => dynamicData.add({"t": k.toString(), "d": v.toString()}));
-          } else if (raw["purnima"] != null) {
-            dynamicData.add({"t": "अगला प्रोग्राम", "d": raw["purnima"].toString()});
+          liveList.clear();
+          if (data["options"] is Map) {
+            (data["options"] as Map).forEach((k, v) => liveList.add({"t": k.toString(), "d": v.toString()}));
+          } else {
+            liveList.add({"t": "सूचना", "d": data["purnima"]?.toString() ?? "स्वागत है"});
           }
         });
       }
@@ -72,23 +71,13 @@ class _LiveScreenState extends State<LiveScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("विकास पासोरिया ऑफिशियिल"), backgroundColor: Colors.orange[900], foregroundColor: Colors.white),
+      appBar: AppBar(title: const Text("विकास पासोरिया ऑफिशियिल"), backgroundColor: Colors.orange),
       body: SingleChildScrollView(
         child: Column(children: [
-          YoutubePlayer(controller: _ytController!),
-          Padding(
-            padding: const EdgeInsets.all(15),
-            child: Column(children: [
-              ...dynamicData.map((e) => Card(child: ListTile(title: Text(e["t"]!), subtitle: Text(e["d"]!)))),
-              const SizedBox(height: 20),
-              ElevatedButton.icon(
-                onPressed: () => _pay(),
-                icon: const Icon(Icons.qr_code),
-                label: const Text("सहयोग करें", style: TextStyle(fontSize: 18)),
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.green[800], foregroundColor: Colors.white, minimumSize: const Size(double.infinity, 60)),
-              )
-            ]),
-          ),
+          YoutubePlayer(controller: _controller!),
+          ...liveList.map((e) => Card(child: ListTile(title: Text(e["t"]!), subtitle: Text(e["d"]!)))),
+          const SizedBox(height: 20),
+          ElevatedButton(onPressed: () => _pay(), child: const Text("सहयोग करें")),
         ]),
       ),
     );

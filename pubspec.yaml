@@ -4,7 +4,7 @@ version: 1.1.4+14
 publish_to: 'none'
 
 environment:
-  sdk: '>=3.3.0 <4.0.0' # मशीन यही मांग रही सै
+  sdk: '>=3.3.0 <4.0.0' # मशीन यही वर्जन मांग रही सै
 
 dependencies:
   flutter:

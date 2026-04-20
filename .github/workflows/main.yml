@@ -20,8 +20,7 @@ jobs:
           channel: 'stable'
           flutter-version: '3.19.0'
 
-      - name: Master Build with Online Sync
-        # कल वाली वो कमांड जो 'Unsupported Gradle' को बाईपास करती सै
+      - name: Force Build APK
         run: |
           flutter pub get
           flutter build apk --debug --no-tree-shake-icons --suppress-analytics
@@ -31,3 +30,4 @@ jobs:
         with:
           name: Vikas-Official-App
           path: "**/build/app/outputs/flutter-apk/*.apk"
+ 

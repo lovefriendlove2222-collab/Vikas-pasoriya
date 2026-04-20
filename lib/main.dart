@@ -7,16 +7,16 @@ import 'package:qr_flutter/qr_flutter.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(const MaterialApp(home: VikasRealApp(), debugShowCheckedModeBanner: false));
+  runApp(const MaterialApp(home: VikasOfficialApp(), debugShowCheckedModeBanner: false));
 }
 
-class VikasRealApp extends StatefulWidget {
-  const VikasRealApp({super.key});
+class VikasOfficialApp extends StatefulWidget {
+  const VikasOfficialApp({super.key});
   @override
-  State<VikasRealApp> createState() => _VikasRealAppState();
+  State<VikasOfficialApp> createState() => _VikasOfficialAppState();
 }
 
-class _VikasRealAppState extends State<VikasRealApp> {
+class _VikasOfficialAppState extends State<VikasOfficialApp> {
   final _db = FirebaseDatabase.instanceFor(
     app: Firebase.app(),
     databaseURL: 'https://vikas-pasoriya-default-rtdb.firebaseio.com/',
@@ -24,25 +24,25 @@ class _VikasRealAppState extends State<VikasRealApp> {
 
   String upi = "7206966924vivek@axl";
   String vId = "4wrWluZisiw";
-  YoutubePlayerController? _cont;
-  List<Map<String, String>> dataList = [];
+  YoutubePlayerController? _yt;
+  List<Map<String, String>> uiData = [];
 
   @override
   void initState() {
     super.initState();
-    _cont = YoutubePlayerController(initialVideoId: vId, flags: const YoutubePlayerFlags(autoPlay: false));
+    _yt = YoutubePlayerController(initialVideoId: vId, flags: const YoutubePlayerFlags(autoPlay: false));
     _db.onValue.listen((event) {
       final snap = event.snapshot.value as Map?;
       if (snap != null) {
         setState(() {
           upi = snap["upi"]?.toString() ?? upi;
           String? nId = YoutubePlayer.convertUrlToId(snap["videoId"]?.toString() ?? "");
-          if (nId != null && nId != vId) { vId = nId; _cont?.load(vId); }
-          dataList.clear();
+          if (nId != null && nId != vId) { vId = nId; _yt?.load(vId); }
+          uiData.clear();
           if (snap["options"] is Map) {
-            (snap["options"] as Map).forEach((k, v) => dataList.add({"t": k.toString(), "d": v.toString()}));
+            (snap["options"] as Map).forEach((k, v) => uiData.add({"t": k.toString(), "d": v.toString()}));
           } else {
-            dataList.add({"t": "सूचना", "d": snap["purnima"]?.toString() ?? "स्वागत है!"});
+            uiData.add({"t": "सूचना", "d": snap["purnima"]?.toString() ?? "राम राम!"});
           }
         });
       }
@@ -54,8 +54,8 @@ class _VikasRealAppState extends State<VikasRealApp> {
     return Scaffold(
       appBar: AppBar(title: const Text("Vikas Pasoriya Official"), backgroundColor: Colors.orange),
       body: SingleChildScrollView(child: Column(children: [
-        YoutubePlayer(controller: _cont!, showVideoProgressIndicator: true),
-        ...dataList.map((e) => Card(child: ListTile(title: Text(e["t"]!), subtitle: Text(e["d"]!)))),
+        YoutubePlayer(controller: _yt!),
+        ...uiData.map((e) => Card(child: ListTile(title: Text(e["t"]!), subtitle: Text(e["d"]!)))),
         const SizedBox(height: 20),
         ElevatedButton(
           onPressed: () => showModalBottomSheet(context: context, builder: (c) => Center(child: QrImageView(data: "upi://pay?pa=$upi&pn=Vikas", size: 250))),

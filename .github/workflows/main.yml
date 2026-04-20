@@ -1,5 +1,26 @@
-      - name: Upload APK
+name: Flutter Build APK
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Build APK
+        run: flutter build apk --release --no-tree-shake-icons
+
+      - name: Final APK Upload
         uses: actions/upload-artifact@v4
         with:
-          name: Vikas-Official-App
-          path: build/app/outputs/flutter-apk/*.apk # यो सारी APK फाइल ढूंढ लेगा
+          name: Vikas-Official-App # इस नाम तै फाइल दिखेगी
+          path: build/app/outputs/flutter-apk/app-release.apk

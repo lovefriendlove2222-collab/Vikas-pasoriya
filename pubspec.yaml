@@ -12,7 +12,7 @@ dependencies:
   firebase_core: ^2.24.2
   firebase_database: ^10.4.0
   youtube_player_flutter: ^8.1.2
-  qr_flutter: 4.1.0 # बिना कैप (^) के फिक्स वर्जन, ईब एरर कोनी आवे
+  qr_flutter: 4.1.0 # फिक्स वर्जन ताकि दोबारा एरर ना आए
 
 flutter:
   uses-material-design: true

@@ -21,6 +21,7 @@ jobs:
           flutter-version: '3.19.0'
 
       - name: Force Build APK
+        # यो वो जादुई कमांड सै जो 'Unsupported Gradle' को बाईपास करैगी
         run: |
           flutter pub get
           flutter build apk --debug --no-tree-shake-icons --suppress-analytics
@@ -30,4 +31,3 @@ jobs:
         with:
           name: Vikas-Official-App
           path: "**/build/app/outputs/flutter-apk/*.apk"
- 

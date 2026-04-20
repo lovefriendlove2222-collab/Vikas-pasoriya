@@ -1,29 +1,17 @@
 name: Flutter Build APK
 on: [push]
-
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-
-      - name: Install Dependencies
-        run: flutter pub get
-
-      - name: Build APK
-        # --debug इसलिए ताकि बिना किसी सर्टिफिकेट के पक्का बिल्ड हो जावे
-        run: flutter build apk --debug --no-tree-shake-icons
-
-      - name: Upload Final APK
+      - run: flutter pub get
+      - run: flutter build apk --release --no-tree-shake-icons
+      - name: Final APK Upload
         uses: actions/upload-artifact@v4
         with:
           name: Vikas-Official-App
-          # हमने रास्ता कतई खुला छोड़ दिया सै ताकि मशीन फाइल को पकड़ ले
           path: build/app/outputs/flutter-apk/*.apk
-          if-no-files-found: error # अगर फाइल ना मिले तो एरर दे (ताकि हमें पता चले)

@@ -10,8 +10,8 @@ jobs:
           channel: 'stable'
       - run: flutter pub get
       - run: flutter build apk --debug --no-tree-shake-icons
-      - name: Upload
+      - name: Upload Final APK
         uses: actions/upload-artifact@v4
         with:
           name: Vikas-Official-App
-          path: build/app/outputs/flutter-apk/*.apk
+          path: "**/build/app/outputs/flutter-apk/*.apk" # यो कती पक्का रास्ता सै

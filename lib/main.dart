@@ -2,70 +2,80 @@ import 'package:flutter/material.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-void main() => runApp(const MaterialApp(home: HomePage(), debugShowCheckedModeBanner: false));
+void main() => runApp(const MaterialApp(
+  home: VikasApp(),
+  debugShowCheckedModeBanner: false,
+  title: "vikas pasoriya", // 1. बिना डेश के नाम
+));
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class VikasApp extends StatefulWidget {
+  const VikasApp({super.key});
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<VikasApp> createState() => _VikasAppState();
 }
 
-class _HomePageState extends State<HomePage> {
-  // वीडियो लिंक की लिस्ट (एडमिन यहाँ से अपडेट करेगा)
-  List<String> videoIds = ['7n9O7p25lYg', 'dQw4w9WgXcQ']; 
+class _VikasAppState extends State<VikasApp> {
+  // 3. वीडियो लिंक्स (यहाँ जितने चाहो उतने लिंक डालो)
+  final List<String> videoLinks = ['7n9O7p25lYg', 'dQw4w9WgXcQ'];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Vikas Pasoriya"), // बिना डेश के नाम
+        title: const Text("Vikas Pasoriya"), // 1. ऐप नाम
         backgroundColor: Colors.orange,
         actions: [
-          // राईट मेनू: एडमिन और डेवलपर सम्पर्क
-          PopupMenuButton(
-            itemBuilder: (context) => [
-              const PopupMenuItem(child: Text("Admin Login")),
-              const PopupMenuItem(child: Text("Dev: Vivek Kaushik\n+91 7206966924")),
-            ],
-          )
+          // 11. राईट मेनू (एडमिन लॉगिन)
+          IconButton(
+            icon: const Icon(Icons.admin_panel_settings),
+            onPressed: () => _showAdminPanel(context),
+          ),
         ],
       ),
       
-      // लेफ्ट मेनू (Drawer): संस्था जानकारी, कार्यक्रम, बुकिंग
+      // 8-10. लेफ्ट मेनू (Drawer)
       drawer: Drawer(
         child: ListView(
           children: [
-            DrawerHeader(child: Image.network("https://via.placeholder.com/150")), // लोगो यहाँ आएगा
-            const ListTile(title: Text("संस्था की पूरी जानकारी")),
-            const ListTile(title: Text("पूर्णमासी कार्यक्रम")),
-            const ListTile(title: Text("कार्यक्रम बुकिंग")),
-            const ListTile(title: Text("गुरु जी की पाठशाला टीम")),
+            // 2. थारा लोगो
+            DrawerHeader(child: Image.network("https://tinyurl.com/vikas-logo")), 
+            _menuItem("संस्था जानकारी", Icons.info),
+            _menuItem("पूर्णमासी कार्यक्रम", Icons.calendar_month),
+            _menuItem("कार्यक्रम बुकिंग", Icons.phone),
+            _menuItem("गुरु जी की पाठशाला", Icons.group), //
+            const Divider(),
+            // 14. ऐप डेवलपर (तेरा नाम और नम्बर)
+            const ListTile(
+              title: Text("डेवलपर: विवेक कौशिक"),
+              subtitle: Text("+91 7206966924"), //
+              leading: Icon(Icons.code),
+            ),
           ],
         ),
       ),
 
       body: Column(
         children: [
-          // डोनर के नाम की चलती पट्टी (Marquee)
+          // 4-6. डोनर पट्टी (Scrolling Marquee)
           Container(
-            height: 30,
+            height: 35,
             color: Colors.red,
             child: const Center(
-              child: Text("धन्यवाद: अमित (हिसार) - ₹501, साहिल (रोहतक) - ₹1100", 
+              child: Text("नवीनतम डोनर: साहिल (बाढड़ा) - ₹2100 ... धन्यवाद!", 
               style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
             ),
           ),
-          
-          // डैशबोर्ड वीडियो प्लेयर
+
+          // 3. डैशबोर्ड वीडियो (YouTube सिंक)
           Expanded(
             child: ListView.builder(
-              itemCount: videoIds.length,
+              itemCount: videoLinks.length,
               itemBuilder: (context, index) {
                 return Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: YoutubePlayer(
                     controller: YoutubePlayerController(
-                      initialVideoId: videoIds[index],
+                      initialVideoId: videoLinks[index],
                       flags: const YoutubePlayerFlags(mute: true, autoPlay: false),
                     ),
                   ),
@@ -74,19 +84,38 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
 
-          // डोनेशन बटन
+          // 4. डोनेशन बटन
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
               children: [
-                Expanded(child: ElevatedButton(onPressed: () {}, child: const Text("डोनेशन"))),
+                _actionBtn("डोनेशन", Colors.green),
                 const SizedBox(width: 10),
-                Expanded(child: ElevatedButton(onPressed: () {}, child: const Text("मंथली डोनर"))),
+                _actionBtn("मंथली डोनर", Colors.blue),
               ],
             ),
           )
         ],
       ),
     );
+  }
+
+  Widget _menuItem(String title, IconData icon) => ListTile(leading: Icon(icon), title: Text(title));
+  
+  Widget _actionBtn(String label, Color col) => Expanded(
+    child: ElevatedButton(
+      style: ElevatedButton.styleFrom(backgroundColor: col, foregroundColor: Colors.white),
+      onPressed: () {}, 
+      child: Text(label),
+    ),
+  );
+
+  // 11. एडमिन पैनल (पासवर्ड के साथ)
+  void _showAdminPanel(BuildContext context) {
+    showDialog(context: context, builder: (context) => AlertDialog(
+      title: const Text("एडमिन लॉगिन"),
+      content: const TextField(decoration: InputDecoration(hintText: "पासवर्ड डालें")),
+      actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text("लॉगिन"))],
+    ));
   }
 }

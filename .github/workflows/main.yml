@@ -1,4 +1,4 @@
-name: Build Badshah Final
+name: Final Force Build
 on: [push]
 
 jobs:
@@ -11,14 +11,17 @@ jobs:
       - uses: subosito/flutter-action@v2
         with: {channel: 'stable', flutter-version: '3.19.0'}
 
-      - name: Force Overwrite Demo
+      - name: Kill Old Demo
+        # यो स्टेप पुराने 'Demo' को जबरदस्ती डिलीट करैगा
         run: |
-          chmod +x android/gradlew
-          # पुराने 'Demo' फोल्डर को जड़ तै खत्म करना
+          flutter clean
+          rm -rf android/app/src/main/kotlin
           flutter create . --overwrite --org com.vikas.pasoriya --project-name vikas_pasoriya
           flutter pub get
-          flutter build apk --debug --no-tree-shake-icons --suppress-analytics
 
-      - name: Upload Original APK
+      - name: Build Badshah APK
+        run: flutter build apk --debug --no-tree-shake-icons
+
+      - name: Deliver Original APK
         uses: actions/upload-artifact@v4
-        with: {name: Vikas-Official-APK, path: build/app/outputs/flutter-apk/app-debug.apk}
+        with: {name: Vikas-Original-App, path: build/app/outputs/flutter-apk/app-debug.apk}

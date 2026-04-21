@@ -1,17 +1,16 @@
-name: vikas
-description: Vikas Pasoriya App
-version: 1.0.0+1
-environment:
-  sdk: '>=3.0.0 <4.0.0'
-dependencies:
-  flutter:
-    sdk: flutter
-  firebase_core: ^2.27.0
-  cloud_firestore: ^4.15.8
-  youtube_player_flutter: ^8.1.2
-  pdf: ^3.10.7
-  printing: ^5.11.1
-flutter:
-  uses-material-design: true
-  assets:
-    - assets/logo.png
+name: Build App
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+      - run: flutter pub get
+      - run: flutter build apk --release --split-per-abi # साइज़ कम करने का तरीका
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-apk
+          path: build/app/outputs/flutter-apk/app-release.apk

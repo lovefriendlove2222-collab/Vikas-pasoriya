@@ -5,10 +5,11 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
+import 'dart:async';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(); // ऑनलाइन सिंक के लिए जरूरी
+  await Firebase.initializeApp(); // ऑनलाइन डेटा सिंक के लिए
   runApp(VikasPasoriyaApp());
 }
 
@@ -17,8 +18,8 @@ class VikasPasoriyaApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'vikas pasoriya', // बिना डेश के नाम
-      theme: ThemeData(primarySwatch: Colors.orange),
+      title: 'vikas pasoriya', // शर्त 1: बिना डेश के नाम
+      theme: ThemeData(primaryColor: Colors.orange, primarySwatch: Colors.orange),
       home: DashboardScreen(),
     );
   }
@@ -37,71 +38,91 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text("vikas pasoriya"),
+        title: Text("vikas pasoriya"), // शर्त 1
+        centerTitle: true,
         actions: [
           IconButton(
             icon: Icon(Icons.admin_panel_settings),
-            onPressed: () => _scaffoldKey.currentState?.openEndDrawer(),
+            onPressed: () => _scaffoldKey.currentState?.openEndDrawer(), // शर्त 11
           ),
         ],
       ),
-      // --- लेफ्ट मेनू (संस्था की जानकारी और कार्यक्रम) ---
+      
+      // --- लेफ्ट मेनू (संस्था और कार्यक्रम जानकारी) ---
       drawer: Drawer(
         child: ListView(
+          padding: EdgeInsets.zero,
           children: [
-            DrawerHeader(child: Center(child: Text("संस्था लोगो यहाँ"))), // लोगो [Req 2]
-            ListTile(title: Text("पूर्णमासी कार्यक्रम"), onTap: () {}), // [Req 8]
-            ListTile(title: Text("रेगुलर कार्यक्रम"), onTap: () {}), // [Req 8]
-            ListTile(title: Text("संस्था की पूरी जानकारी"), onTap: () {}), // [Req 9]
+            DrawerHeader(
+              decoration: BoxDecoration(color: Colors.orange),
+              child: Column(
+                children: [
+                  CircleAvatar(radius: 40, backgroundImage: AssetImage('assets/logo.png')), // शर्त 2: लोगो
+                  SizedBox(height: 10),
+                  Text("गुरु जी की पाठशाला", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                ],
+              ),
+            ),
+            ListTile(leading: Icon(Icons.event), title: Text("पूर्णमासी कार्यक्रम"), onTap: () {}), // शर्त 8
+            ListTile(leading: Icon(Icons.calendar_today), title: Text("रेगुलर कार्यक्रम"), onTap: () {}), // शर्त 8
+            ListTile(leading: Icon(Icons.info), title: Text("संस्था की पूरी जानकारी"), onTap: () {}), // शर्त 9
             Divider(),
-            ListTile(title: Text("कार्यक्रम बुकिंग (मोबाईल)"), onTap: () {}), // [Req 10]
-            ListTile(title: Text("गुरु जी की पाठशाला टीम संपर्क"), onTap: () {}), // [Req 10]
+            ListTile(leading: Icon(Icons.phone), title: Text("कार्यक्रम बुकिंग"), subtitle: Text("संपर्क सूत्र"), onTap: () {}), // शर्त 10
+            ListTile(leading: Icon(Icons.group), title: Text("टीम संपर्क"), onTap: () {}), // शर्त 10
           ],
         ),
       ),
-      // --- राइट मेनू (एडमिन और डेवलपर संपर्क) ---
+
+      // --- राइट मेनू (एडमिन पैनल और डेवलपर संपर्क) ---
       endDrawer: Drawer(
-        child: ListView(
+        child: Column(
           children: [
-            UserAccountsDrawerHeader(accountName: Text("एडमिन पैनल"), accountEmail: Text("लॉगिन करें")),
-            ListTile(title: Text("UPI आईडी अपडेट करें"), onTap: () {}),
-            ListTile(title: Text("वीडियो लिंक डालें"), onTap: () {}),
-            ListTile(title: Text("डोनर लिस्ट (PDF)"), onTap: () {}),
-            Divider(),
-            // [Req 14] डेवलपर संपर्क
-            ListTile(
-              tileColor: Colors.orange[50],
-              title: Text("एप डेवलोपर सम्पर्क"),
-              subtitle: Text("विवेक कौशिक\n+91 7206966924"),
-              leading: Icon(Icons.code),
+            UserAccountsDrawerHeader(
+              accountName: Text("एडमिन कंट्रोल"),
+              accountEmail: Text("पासवर्ड सुरक्षित लॉगिन"),
+              currentAccountPicture: Icon(Icons.security, color: Colors.white, size: 50),
+            ),
+            Expanded(
+              child: ListView(
+                children: [
+                  ListTile(leading: Icon(Icons.add_link), title: Text("वीडियो लिंक जोड़ें"), onTap: () {}),
+                  ListTile(leading: Icon(Icons.payment), title: Text("UPI आईडी बदलें"), onTap: () {}),
+                  ListTile(leading: Icon(Icons.picture_as_pdf), title: Text("डोनर लिस्ट निकालें"), onTap: () {}),
+                ],
+              ),
+            ),
+            // शर्त 14: डेवलपर संपर्क
+            Container(
+              color: Colors.grey[200],
+              child: ListTile(
+                title: Text("एप डेवलोपर सम्पर्क", style: TextStyle(fontWeight: FontWeight.bold)),
+                subtitle: Text("विवेक कौशिक\n+91 7206966924"),
+                leading: Icon(Icons.developer_mode, color: Colors.blue),
+              ),
             ),
           ],
         ),
       ),
+
       body: Column(
         children: [
-          // [Req 4, 5] डोनर का नाम डैशबोर्ड पर चलता रहे
+          // शर्त 4, 5: डोनर टिकर (नाम और राशि डैशबोर्ड पर चलेगी)
           Container(
-            height: 35,
-            color: Colors.yellow[700],
+            height: 40,
+            width: double.infinity,
+            color: Colors.yellowAccent,
             child: StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance.collection('donors').snapshots(),
+              stream: FirebaseFirestore.instance.collection('donations').snapshots(),
               builder: (context, snapshot) {
-                if (!snapshot.hasData) return Center(child: Text("Loading..."));
-                String donorData = snapshot.data!.docs
-                    .map((d) => "${d['name']} (${d['village']}) - ₹${d['amount']}")
-                    .join("  |  ");
-                return SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(donorData, style: TextStyle(fontWeight: FontWeight.bold)),
-                  ),
-                );
+                if (!snapshot.hasData) return Center(child: Text("Loading Donors..."));
+                String tickerText = snapshot.data!.docs.map((d) => 
+                  "${d['name']} (${d['village']}) - ₹${d['amount']} | ").join(" ");
+                return MarqueeScroll(text: tickerText); // नाम चलाने वाला विजेट
               },
             ),
           ),
-          // [Req 3, 5] वीडियो डैशबोर्ड (म्यूट के साथ)
+
+          // शर्त 3, 5: वीडियो डैशबोर्ड (हजारों वीडियो लिंक सिंक होंगे)
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance.collection('videos').snapshots(),
@@ -110,18 +131,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 return ListView.builder(
                   itemCount: snapshot.data!.docs.length,
                   itemBuilder: (context, index) {
-                    var v = snapshot.data!.docs[index];
-                    return VideoCard(videoUrl: v['url']);
+                    var videoData = snapshot.data!.docs[index];
+                    return VideoPlayerCard(url: videoData['link']); // म्यूट/अनम्यूट के साथ
                   },
                 );
               },
             ),
           ),
-          // [Req 7] संस्था के डेली काम (Admin Post)
-          Container(
-            padding: EdgeInsets.all(10),
-            color: Colors.grey[200],
-            child: Text("संस्था के आज के कार्य यहाँ दिखेंगे"),
+          
+          // शर्त 4, 6: डोनेशन और मंथली डोनर बटन
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(onPressed: () {}, child: Text("डोनेशन दें")),
+                ElevatedButton(onPressed: () {}, child: Text("मंथली डोनर बनें")),
+              ],
+            ),
           ),
         ],
       ),
@@ -129,15 +156,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 }
 
-// वीडियो प्लेयर क्लास (म्यूट/अनम्यूट बटन के साथ)
-class VideoCard extends StatefulWidget {
-  final String videoUrl;
-  VideoCard({required this.videoUrl});
+// --- वीडियो प्लेयर विजेट (शर्त 3 के अनुसार म्यूट फीचर के साथ) ---
+class VideoPlayerCard extends StatefulWidget {
+  final String url;
+  VideoPlayerCard({required this.url});
   @override
-  _VideoCardState createState() => _VideoCardState();
+  _VideoPlayerCardState createState() => _VideoPlayerCardState();
 }
 
-class _VideoCardState extends State<VideoCard> {
+class _VideoPlayerCardState extends State<VideoPlayerCard> {
   late YoutubePlayerController _controller;
   bool isMuted = true;
 
@@ -145,7 +172,7 @@ class _VideoCardState extends State<VideoCard> {
   void initState() {
     super.initState();
     _controller = YoutubePlayerController(
-      initialVideoId: YoutubePlayer.convertUrlToId(widget.videoUrl)!,
+      initialVideoId: YoutubePlayer.convertUrlToId(widget.url)!,
       flags: YoutubePlayerFlags(mute: true, autoPlay: false),
     );
   }
@@ -157,18 +184,52 @@ class _VideoCardState extends State<VideoCard> {
       child: Column(
         children: [
           YoutubePlayer(controller: _controller),
-          TextButton.icon(
+          IconButton(
+            icon: Icon(isMuted ? Icons.volume_off : Icons.volume_up),
             onPressed: () {
               setState(() {
                 isMuted = !isMuted;
                 isMuted ? _controller.mute() : _controller.unMute();
               });
             },
-            icon: Icon(isMuted ? Icons.volume_off : Icons.volume_up),
-            label: Text(isMuted ? "Unmute करें" : "Mute करें"),
-          )
+          ),
         ],
       ),
+    );
+  }
+}
+
+// --- डोनर नाम चलाने वाला विजेट (टिकर) ---
+class MarqueeScroll extends StatefulWidget {
+  final String text;
+  MarqueeScroll({required this.text});
+  @override
+  _MarqueeScrollState createState() => _MarqueeScrollState();
+}
+
+class _MarqueeScrollState extends State<MarqueeScroll> {
+  late ScrollController _scrollController;
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+    Timer.periodic(Duration(milliseconds: 50), (timer) {
+      if (_scrollController.hasClients) {
+        if (_scrollController.offset >= _scrollController.position.maxScrollExtent) {
+          _scrollController.jumpTo(0);
+        } else {
+          _scrollController.animateTo(_scrollController.offset + 2, 
+          duration: Duration(milliseconds: 50), curve: Curves.linear);
+        }
+      }
+    });
+  }
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      controller: _scrollController,
+      scrollDirection: Axis.horizontal,
+      children: [Text(widget.text, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red))],
     );
   }
 }

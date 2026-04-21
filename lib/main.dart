@@ -9,7 +9,8 @@ import 'dart:async';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(); // ऑनलाइन डेटा सिंक के लिए
+  // Firebase initialization (ensure google-services.json is in android/app)
+  await Firebase.initializeApp(); 
   runApp(VikasPasoriyaApp());
 }
 
@@ -19,7 +20,7 @@ class VikasPasoriyaApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'vikas pasoriya', // शर्त 1: बिना डेश के नाम
-      theme: ThemeData(primaryColor: Colors.orange, primarySwatch: Colors.orange),
+      theme: ThemeData(primarySwatch: Colors.orange),
       home: DashboardScreen(),
     );
   }
@@ -39,66 +40,55 @@ class _DashboardScreenState extends State<DashboardScreen> {
       key: _scaffoldKey,
       appBar: AppBar(
         title: Text("vikas pasoriya"), // शर्त 1
-        centerTitle: true,
         actions: [
           IconButton(
             icon: Icon(Icons.admin_panel_settings),
-            onPressed: () => _scaffoldKey.currentState?.openEndDrawer(), // शर्त 11
+            onPressed: () => _scaffoldKey.currentState?.openEndDrawer(), // शर्त 11: एडमिन लॉगिन
           ),
         ],
       ),
-      
-      // --- लेफ्ट मेनू (संस्था और कार्यक्रम जानकारी) ---
+
+      // --- लेफ्ट मेनू (Requirement 8, 9, 10) ---
       drawer: Drawer(
         child: ListView(
-          padding: EdgeInsets.zero,
           children: [
             DrawerHeader(
-              decoration: BoxDecoration(color: Colors.orange),
-              child: Column(
-                children: [
-                  CircleAvatar(radius: 40, backgroundImage: AssetImage('assets/logo.png')), // शर्त 2: लोगो
-                  SizedBox(height: 10),
-                  Text("गुरु जी की पाठशाला", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                ],
-              ),
+              child: Center(child: Text("संस्था का लोगो")), // शर्त 2: लोगो
             ),
-            ListTile(leading: Icon(Icons.event), title: Text("पूर्णमासी कार्यक्रम"), onTap: () {}), // शर्त 8
-            ListTile(leading: Icon(Icons.calendar_today), title: Text("रेगुलर कार्यक्रम"), onTap: () {}), // शर्त 8
-            ListTile(leading: Icon(Icons.info), title: Text("संस्था की पूरी जानकारी"), onTap: () {}), // शर्त 9
+            ListTile(title: Text("पूर्णमासी कार्यक्रम"), onTap: () {}), // शर्त 8
+            ListTile(title: Text("रेगुलर कार्यक्रम"), onTap: () {}), // शर्त 8
+            ListTile(title: Text("संस्था की पूरी जानकारी"), onTap: () {}), // शर्त 9
             Divider(),
-            ListTile(leading: Icon(Icons.phone), title: Text("कार्यक्रम बुकिंग"), subtitle: Text("संपर्क सूत्र"), onTap: () {}), // शर्त 10
-            ListTile(leading: Icon(Icons.group), title: Text("टीम संपर्क"), onTap: () {}), // शर्त 10
+            ListTile(title: Text("कार्यक्रम बुकिंग संपर्क"), subtitle: Text("मोबाईल नम्बर"), onTap: () {}), // शर्त 10
+            ListTile(title: Text("टीम संपर्क सूत्र"), onTap: () {}), // शर्त 10
           ],
         ),
       ),
 
-      // --- राइट मेनू (एडमिन पैनल और डेवलपर संपर्क) ---
+      // --- राइट मेनू (Requirement 11, 14) ---
       endDrawer: Drawer(
         child: Column(
           children: [
             UserAccountsDrawerHeader(
-              accountName: Text("एडमिन कंट्रोल"),
-              accountEmail: Text("पासवर्ड सुरक्षित लॉगिन"),
-              currentAccountPicture: Icon(Icons.security, color: Colors.white, size: 50),
+              accountName: Text("एडमिन पैनल"),
+              accountEmail: Text("पासवर्ड प्रोटेक्टेड"),
             ),
             Expanded(
               child: ListView(
                 children: [
-                  ListTile(leading: Icon(Icons.add_link), title: Text("वीडियो लिंक जोड़ें"), onTap: () {}),
-                  ListTile(leading: Icon(Icons.payment), title: Text("UPI आईडी बदलें"), onTap: () {}),
-                  ListTile(leading: Icon(Icons.picture_as_pdf), title: Text("डोनर लिस्ट निकालें"), onTap: () {}),
+                  ListTile(title: Text("वीडियो लिंक डालें"), onTap: () {}),
+                  ListTile(title: Text("UPI आईडी अपडेट करें"), onTap: () {}),
+                  ListTile(title: Text("डोनर लिस्ट (PDF)"), onTap: () {}), // शर्त 11
                 ],
               ),
             ),
-            // शर्त 14: डेवलपर संपर्क
-            Container(
-              color: Colors.grey[200],
-              child: ListTile(
-                title: Text("एप डेवलोपर सम्पर्क", style: TextStyle(fontWeight: FontWeight.bold)),
-                subtitle: Text("विवेक कौशिक\n+91 7206966924"),
-                leading: Icon(Icons.developer_mode, color: Colors.blue),
-              ),
+            Divider(),
+            // शर्त 14: एप डेवलोपर सम्पर्क
+            ListTile(
+              tileColor: Colors.orange[50],
+              title: Text("एप डेवलोपर सम्पर्क"),
+              subtitle: Text("विवेक कौशिक\n+91 7206966924"),
+              leading: Icon(Icons.code),
             ),
           ],
         ),
@@ -106,23 +96,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
       body: Column(
         children: [
-          // शर्त 4, 5: डोनर टिकर (नाम और राशि डैशबोर्ड पर चलेगी)
+          // शर्त 4, 5: डोनर का नाम डैशबोर्ड पर चलता रहे (Ticker)
           Container(
             height: 40,
-            width: double.infinity,
             color: Colors.yellowAccent,
             child: StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance.collection('donations').snapshots(),
+              stream: FirebaseFirestore.instance.collection('donors').snapshots(),
               builder: (context, snapshot) {
-                if (!snapshot.hasData) return Center(child: Text("Loading Donors..."));
-                String tickerText = snapshot.data!.docs.map((d) => 
-                  "${d['name']} (${d['village']}) - ₹${d['amount']} | ").join(" ");
-                return MarqueeScroll(text: tickerText); // नाम चलाने वाला विजेट
+                if (!snapshot.hasData) return Center(child: Text("Loading..."));
+                String donors = snapshot.data!.docs.map((d) => "${d['name']} (₹${d['amount']})").join(" | ");
+                return MarqueeWidget(text: donors);
               },
             ),
           ),
 
-          // शर्त 3, 5: वीडियो डैशबोर्ड (हजारों वीडियो लिंक सिंक होंगे)
+          // शर्त 3, 5: वीडियो डैशबोर्ड (म्यूट/अनम्यूट के साथ)
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance.collection('videos').snapshots(),
@@ -131,32 +119,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 return ListView.builder(
                   itemCount: snapshot.data!.docs.length,
                   itemBuilder: (context, index) {
-                    var videoData = snapshot.data!.docs[index];
-                    return VideoPlayerCard(url: videoData['link']); // म्यूट/अनम्यूट के साथ
+                    var v = snapshot.data!.docs[index];
+                    return VideoPlayerCard(url: v['link']);
                   },
                 );
               },
             ),
           ),
           
-          // शर्त 4, 6: डोनेशन और मंथली डोनर बटन
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(onPressed: () {}, child: Text("डोनेशन दें")),
-                ElevatedButton(onPressed: () {}, child: Text("मंथली डोनर बनें")),
-              ],
-            ),
-          ),
+          // शर्त 7: संस्था के कार्य
+          Container(height: 50, child: Center(child: Text("संस्था के डेली कार्य यहाँ दिखेंगे"))),
         ],
       ),
     );
   }
 }
 
-// --- वीडियो प्लेयर विजेट (शर्त 3 के अनुसार म्यूट फीचर के साथ) ---
+// --- वीडियो प्लेयर म्यूट फीचर के साथ (Requirement 3) ---
 class VideoPlayerCard extends StatefulWidget {
   final String url;
   VideoPlayerCard({required this.url});
@@ -180,7 +159,7 @@ class _VideoPlayerCardState extends State<VideoPlayerCard> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: EdgeInsets.all(10),
+      margin: EdgeInsets.all(8),
       child: Column(
         children: [
           YoutubePlayer(controller: _controller),
@@ -199,15 +178,15 @@ class _VideoPlayerCardState extends State<VideoPlayerCard> {
   }
 }
 
-// --- डोनर नाम चलाने वाला विजेट (टिकर) ---
-class MarqueeScroll extends StatefulWidget {
+// --- नाम चलाने वाला टिकर ---
+class MarqueeWidget extends StatefulWidget {
   final String text;
-  MarqueeScroll({required this.text});
+  MarqueeWidget({required this.text});
   @override
-  _MarqueeScrollState createState() => _MarqueeScrollState();
+  _MarqueeWidgetState createState() => _MarqueeWidgetState();
 }
 
-class _MarqueeScrollState extends State<MarqueeScroll> {
+class _MarqueeWidgetState extends State<MarqueeWidget> {
   late ScrollController _scrollController;
   @override
   void initState() {
@@ -215,12 +194,8 @@ class _MarqueeScrollState extends State<MarqueeScroll> {
     _scrollController = ScrollController();
     Timer.periodic(Duration(milliseconds: 50), (timer) {
       if (_scrollController.hasClients) {
-        if (_scrollController.offset >= _scrollController.position.maxScrollExtent) {
-          _scrollController.jumpTo(0);
-        } else {
-          _scrollController.animateTo(_scrollController.offset + 2, 
-          duration: Duration(milliseconds: 50), curve: Curves.linear);
-        }
+        _scrollController.animateTo(_scrollController.offset + 1, 
+        duration: Duration(milliseconds: 50), curve: Curves.linear);
       }
     });
   }
@@ -229,7 +204,7 @@ class _MarqueeScrollState extends State<MarqueeScroll> {
     return ListView(
       controller: _scrollController,
       scrollDirection: Axis.horizontal,
-      children: [Text(widget.text, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red))],
+      children: [Text(widget.text, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))],
     );
   }
 }

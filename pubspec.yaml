@@ -1,9 +1,20 @@
+name: vikas
+description: Vikas Pasoriya Official App
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
 dependencies:
   flutter:
     sdk: flutter
-  youtube_player_flutter: ^8.1.2
-  cloud_firestore: ^4.15.8
   firebase_core: ^2.27.0
-  url_launcher: ^6.2.5
+  cloud_firestore: ^4.15.8
+  youtube_player_flutter: ^8.1.2
   pdf: ^3.10.7
   printing: ^5.11.1
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/logo.png

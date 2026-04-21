@@ -1,15 +1,23 @@
 name: vikas_pasoriya
-description: "Vikas Pasoriya Official App"
+description: "Vikas Pasoriya Official Social App"
 version: 1.0.0+1
 publish_to: 'none'
 
 environment:
-  sdk: '>=3.3.0 <4.0.0'
+  sdk: '>=3.3.0 <4.0.0' # थारी मशीन की डिमांड
 
 dependencies:
   flutter:
     sdk: flutter
-  url_launcher: ^6.2.5
+  youtube_player_flutter: ^9.1.3 # वीडियो खात्तर
+  url_launcher: ^6.2.5 # मैप और बुकिंग खात्तर
+  cloud_firestore: ^4.15.8 # डेटा सिंक खात्तर
+  firebase_core: ^2.27.0 # असली मशीन
+  pdf: ^3.10.7 # रशीद खात्तर
+  printing: ^5.11.1
+  path_provider: ^2.1.2
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/logo.jpg # थारी फोटो यहाँ डालिये

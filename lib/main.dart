@@ -1,121 +1,104 @@
 import 'package:flutter/material.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
 
-void main() => runApp(const MaterialApp(
-  home: VikasApp(),
-  debugShowCheckedModeBanner: false,
-  title: "vikas pasoriya", // 1. बिना डेश के नाम
-));
-
-class VikasApp extends StatefulWidget {
-  const VikasApp({super.key});
-  @override
-  State<VikasApp> createState() => _VikasAppState();
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  // Firebase initialization code here
+  runApp(VikasPasoriyaApp());
 }
 
-class _VikasAppState extends State<VikasApp> {
-  // 3. वीडियो लिंक्स (यहाँ जितने चाहो उतने लिंक डालो)
-  final List<String> videoLinks = ['7n9O7p25lYg', 'dQw4w9WgXcQ'];
+class VikasPasoriyaApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'vikas pasoriya', // बिना डेश के नाम [Requirement 1]
+      theme: ThemeData(primarySwatch: Colors.orange),
+      home: MainDashboard(),
+    );
+  }
+}
 
+// 3, 4, 5. मैन डैशबोर्ड और वीडियो म्यूट फीचर
+class MainDashboard extends StatefulWidget {
+  @override
+  _MainDashboardState createState() => _MainDashboardState();
+}
+
+class _MainDashboardState extends State<MainDashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Vikas Pasoriya"), // 1. ऐप नाम
-        backgroundColor: Colors.orange,
-        actions: [
-          // 11. राईट मेनू (एडमिन लॉगिन)
-          IconButton(
-            icon: const Icon(Icons.admin_panel_settings),
-            onPressed: () => _showAdminPanel(context),
-          ),
-        ],
-      ),
-      
-      // 8-10. लेफ्ट मेनू (Drawer)
-      drawer: Drawer(
-        child: ListView(
-          children: [
-            // 2. थारा लोगो
-            DrawerHeader(child: Image.network("https://tinyurl.com/vikas-logo")), 
-            _menuItem("संस्था जानकारी", Icons.info),
-            _menuItem("पूर्णमासी कार्यक्रम", Icons.calendar_month),
-            _menuItem("कार्यक्रम बुकिंग", Icons.phone),
-            _menuItem("गुरु जी की पाठशाला", Icons.group), //
-            const Divider(),
-            // 14. ऐप डेवलपर (तेरा नाम और नम्बर)
-            const ListTile(
-              title: Text("डेवलपर: विवेक कौशिक"),
-              subtitle: Text("+91 7206966924"), //
-              leading: Icon(Icons.code),
-            ),
-          ],
-        ),
-      ),
-
+      appBar: AppBar(title: Text("vikas pasoriya")),
+      drawer: buildLeftMenu(context), // 8, 9, 10. लेफ्ट मेनू
+      endDrawer: buildRightAdminMenu(context), // 11, 14. राइट एडमिन मेनू
       body: Column(
         children: [
-          // 4-6. डोनर पट्टी (Scrolling Marquee)
+          // 4, 5. डोनर टिकर (डैशबोर्ड पर चलता हुआ नाम)
           Container(
-            height: 35,
-            color: Colors.red,
-            child: const Center(
-              child: Text("नवीनतम डोनर: साहिल (बाढड़ा) - ₹2100 ... धन्यवाद!", 
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-            ),
-          ),
-
-          // 3. डैशबोर्ड वीडियो (YouTube सिंक)
-          Expanded(
-            child: ListView.builder(
-              itemCount: videoLinks.length,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: YoutubePlayer(
-                    controller: YoutubePlayerController(
-                      initialVideoId: videoLinks[index],
-                      flags: const YoutubePlayerFlags(mute: true, autoPlay: false),
-                    ),
-                  ),
-                );
+            height: 30,
+            color: Colors.yellow,
+            child: StreamBuilder(
+              stream: FirebaseFirestore.instance.collection('donors').snapshots(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) return Container();
+                var donors = snapshot.data!.docs.map((d) => "${d['name']} (गांव: ${d['village']}) ने ₹${d['amount']} दान दिए").join(" | ");
+                return Text(donors, style: TextStyle(fontWeight: FontWeight.bold));
               },
             ),
           ),
-
-          // 4. डोनेशन बटन
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
+          
+          // 3. वीडियो फीड (FB/YT लिंक म्यूट बटन के साथ)
+          Expanded(
+            child: ListView(
               children: [
-                _actionBtn("डोनेशन", Colors.green),
-                const SizedBox(width: 10),
-                _actionBtn("मंथली डोनर", Colors.blue),
+                VideoPlayerWidget(videoUrl: "YOUR_YT_LINK_HERE"), // एडमिन पैनल से लिंक आएंगे
+                // यहाँ हजारों वीडियो की लिस्ट एडमिन पैनल से सिंक होगी
               ],
             ),
-          )
+          ),
+          
+          // 7. संस्था के डेली काम (Admin Post)
+          buildDailyWorkSection(),
         ],
       ),
     );
   }
 
-  Widget _menuItem(String title, IconData icon) => ListTile(leading: Icon(icon), title: Text(title));
-  
-  Widget _actionBtn(String label, Color col) => Expanded(
-    child: ElevatedButton(
-      style: ElevatedButton.styleFrom(backgroundColor: col, foregroundColor: Colors.white),
-      onPressed: () {}, 
-      child: Text(label),
-    ),
-  );
-
-  // 11. एडमिन पैनल (पासवर्ड के साथ)
-  void _showAdminPanel(BuildContext context) {
-    showDialog(context: context, builder: (context) => AlertDialog(
-      title: const Text("एडमिन लॉगिन"),
-      content: const TextField(decoration: InputDecoration(hintText: "पासवर्ड डालें")),
-      actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text("लॉगिन"))],
-    ));
+  // 14. राइट मेनू में डेवलपर संपर्क
+  Widget buildRightAdminMenu(BuildContext context) {
+    return Drawer(
+      child: ListView(
+        children: [
+          ListTile(title: Text("एडमिन लॉगिन"), onTap: () {/* लॉगिन कोड */}),
+          Divider(),
+          ListTile(
+            title: Text("एप डेवलोपर सम्पर्क"),
+            subtitle: Text("विवेक कौशिक: +91 7206966924"), // [Requirement 14]
+            leading: Icon(Icons.contact_phone),
+          ),
+        ],
+      ),
+    );
   }
+}
+
+// 12. डिजिटल रसीद फंक्शन
+Future<void> generateReceipt(Map donorData) async {
+  final pdf = pw.Document();
+  pdf.addPage(pw.Page(
+    build: (pw.Context context) => pw.Center(
+      child: pw.Column(children: [
+        pw.Text("संस्था का नाम: गुरु जी की पाठशाला"), // संस्था का नाम [Requirement 4]
+        pw.Text("डोनर: ${donorData['name']}"),
+        pw.Text("गांव: ${donorData['village']}"),
+        pw.Text("मोबाईल: ${donorData['mobile']}"),
+        pw.Text("राशि: ₹${donorData['amount']}"),
+        pw.Text("समय: ${DateTime.now()}"),
+      ]),
+    ),
+  ));
+  await Printing.layoutPdf(onLayout: (format) => pdf.save());
 }

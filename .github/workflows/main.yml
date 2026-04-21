@@ -1,4 +1,4 @@
-name: Force Original Build
+name: Build Vikas Pasoriya App
 on: [push]
 
 jobs:
@@ -15,18 +15,16 @@ jobs:
           channel: 'stable'
           flutter-version: '3.19.0'
 
-      - name: Delete Old Demo & Sync New Data
+      - name: Auto-Fix & Build
         run: |
-          # पुराने डेमो को उखाड़ फेंकना
-          rm -rf android/app/src/main/kotlin
+          chmod +x android/gradlew
+          flutter config --no-analytics
           flutter create . --overwrite --org com.vikas.pasoriya --project-name vikas_pasoriya
           flutter pub get
+          flutter build apk --debug --no-tree-shake-icons --suppress-analytics
 
-      - name: Build Final Badshah APK
-        run: flutter build apk --debug --suppress-analytics
-
-      - name: Upload Original APK
+      - name: Deliver APK
         uses: actions/upload-artifact@v4
         with:
-          name: Badshah-Vivek-Original-APK
+          name: Vikas-Pasoriya-Full-App
           path: build/app/outputs/flutter-apk/app-debug.apk

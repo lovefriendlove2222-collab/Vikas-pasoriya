@@ -7,27 +7,20 @@ import 'dart:async';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(); 
-  runApp(VikasPasoriyaApp());
+  runApp(MaterialApp(
+    debugShowCheckedModeBanner: false,
+    title: 'vikas pasoriya',
+    theme: ThemeData(primarySwatch: Colors.orange),
+    home: AppDashboard(),
+  ));
 }
 
-class VikasPasoriyaApp extends StatelessWidget {
+class AppDashboard extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'vikas pasoriya',
-      theme: ThemeData(primarySwatch: Colors.orange),
-      home: Dashboard(),
-    );
-  }
+  _AppDashboardState createState() => _AppDashboardState();
 }
 
-class Dashboard extends StatefulWidget {
-  @override
-  _DashboardState createState() => _DashboardState();
-}
-
-class _DashboardState extends State<Dashboard> {
+class _AppDashboardState extends State<AppDashboard> {
   final GlobalKey<ScaffoldState> _key = GlobalKey<ScaffoldState>();
 
   @override
@@ -38,8 +31,17 @@ class _DashboardState extends State<Dashboard> {
         title: Text("vikas pasoriya"),
         actions: [IconButton(icon: Icon(Icons.security), onPressed: () => _key.currentState?.openEndDrawer())],
       ),
-      drawer: buildLeftDrawer(),
-      endDrawer: buildRightAdminDrawer(),
+      drawer: Drawer(child: ListView(children: [
+        DrawerHeader(child: Center(child: Text("गुरु जी की पाठशाला"))),
+        ListTile(title: Text("पूर्णमासी कार्यक्रम")),
+        ListTile(title: Text("संस्था जानकारी")),
+      ])),
+      endDrawer: Drawer(child: Column(children: [
+        UserAccountsDrawerHeader(accountName: Text("Admin"), accountEmail: Text("Secure")),
+        ListTile(title: Text("UPI अपडेट")),
+        Spacer(),
+        ListTile(title: Text("डेवलपर: विवेक कौशिक"), subtitle: Text("+91 7206966924"), tileColor: Colors.orange[50]),
+      ])),
       body: Column(
         children: [
           // डोनर टिकर
@@ -54,7 +56,7 @@ class _DashboardState extends State<Dashboard> {
               },
             ),
           ),
-          // वीडियो लिस्ट
+          // वीडियो फीड
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance.collection('videos').snapshots(),
@@ -71,19 +73,6 @@ class _DashboardState extends State<Dashboard> {
       ),
     );
   }
-
-  Widget buildLeftDrawer() => Drawer(child: ListView(children: [
-    DrawerHeader(child: Center(child: Text("गुरु जी की पाठशाला"))),
-    ListTile(title: Text("पूर्णमासी कार्यक्रम")),
-    ListTile(title: Text("संस्था जानकारी")),
-  ]));
-
-  Widget buildRightAdminDrawer() => Drawer(child: Column(children: [
-    UserAccountsDrawerHeader(accountName: Text("Admin"), accountEmail: Text("Secure")),
-    ListTile(title: Text("UPI अपडेट")),
-    Spacer(),
-    ListTile(title: Text("डेवलपर: विवेक कौशिक"), subtitle: Text("+91 7206966924"), tileColor: Colors.grey[200]),
-  ]));
 }
 
 class VideoItem extends StatefulWidget {

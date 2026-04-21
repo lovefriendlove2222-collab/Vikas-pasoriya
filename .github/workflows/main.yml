@@ -1,16 +1,35 @@
-name: Build
+name: Build Vikas Pasoriya Final
 on: [push]
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-      - run: flutter pub get
-      - run: flutter build apk --release --split-per-abi
-      - uses: actions/upload-artifact@v4
+          flutter-version: '3.19.0'
+
+      - name: Force Clean & Repair
+        # यो स्टेप 'Conflicting names' को खुद फिक्स करैगा
+        run: |
+          chmod +x android/gradlew
+          flutter config --no-analytics
+          # पुराने प्रोजेक्ट को हटाकै जमा फ्रेश शुरुआत
+          rm -rf .dart_tool
+          flutter create . --overwrite --org com.vikas.pasoriya --project-name vikas_pasoriya
+          flutter pub get
+
+      - name: Build Badshah APK
+        run: flutter build apk --debug --no-tree-shake-icons --suppress-analytics
+
+      - name: Deliver APK
+        uses: actions/upload-artifact@v4
         with:
-          name: vikas-app
-          path: build/app/outputs/flutter-apk/app-release.apk
+          name: Vikas-Pasoriya-Official-App
+          path: build/app/outputs/flutter-apk/app-debug.apk

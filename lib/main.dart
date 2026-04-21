@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
-void main() => runApp(const MaterialApp(home: VikasApp(), debugShowCheckedModeBanner: false));
+void main() => runApp(const MaterialApp(home: BadshahApp(), debugShowCheckedModeBanner: false));
 
-class VikasApp extends StatelessWidget {
-  const VikasApp({super.key});
+class BadshahApp extends StatelessWidget {
+  const BadshahApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -17,21 +17,23 @@ class VikasApp extends StatelessWidget {
       drawer: Drawer(
         child: ListView(
           children: [
-            // 2. लोगो
+            // 2. थारा लोगो
             DrawerHeader(child: Icon(Icons.person, size: 80, color: Colors.orange)),
-            const ListTile(title: Text("संस्था की जानकारी"), leading: Icon(Icons.info)),
+            const ListTile(title: Text("संस्था जानकारी"), leading: Icon(Icons.info)),
             const ListTile(title: Text("कार्यक्रम बुकिंग"), leading: Icon(Icons.phone)),
-            const ListTile(title: Text("डेवलपर: विवेक (+91 7206966924)")), // 14
+            const ListTile(title: Text("डेवलपर: विवेक कौशिक (+91 7206966924)")), // 14
           ],
         ),
       ),
       body: Column(
         children: [
-          // 4. डोनर पट्टी
-          Container(height: 30, color: Colors.red, child: const Center(child: Text("धन्यवाद डोनर: अमित (बाढड़ा) - ₹1100", style: TextStyle(color: Colors.white)))),
-          // 3. वीडियो डैशबोर्ड (हजारों वीडियो खात्तर तैयार)
-          const Expanded(child: Center(child: Text("यहाँ थारे सारे वीडियो चलेंगे\n(एडमिन पैनल सिंक चालू सै)", textAlign: TextAlign.center))),
-          // 4. डोनेशन बटन
+          // 4. डोनर पट्टी (Marquee)
+          Container(height: 30, color: Colors.red, child: const Center(child: Text("धन्यवाद डोनर: अमित (बाढड़ा) - ₹1100", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)))),
+          
+          // 3, 5. वीडियो डैशबोर्ड
+          const Expanded(child: Center(child: Text("यहाँ थारे सारे वीडियो चलेंगे\n(एडमिन सिंक तैयार सै)", textAlign: TextAlign.center, style: TextStyle(fontSize: 18)))),
+          
+          // 4, 6. डोनेशन बटन
           Padding(padding: const EdgeInsets.all(10), child: Row(children: [
             Expanded(child: ElevatedButton(onPressed: () {}, style: ElevatedButton.styleFrom(backgroundColor: Colors.green), child: const Text("डोनेशन", style: TextStyle(color: Colors.white)))),
             const SizedBox(width: 10),

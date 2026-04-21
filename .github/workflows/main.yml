@@ -1,4 +1,4 @@
-name: Final Force Build
+name: Ultimate Force Build
 on: [push]
 
 jobs:
@@ -11,17 +11,18 @@ jobs:
       - uses: subosito/flutter-action@v2
         with: {channel: 'stable', flutter-version: '3.19.0'}
 
-      - name: Kill Old Demo
-        # यो स्टेप पुराने 'Demo' को जबरदस्ती डिलीट करैगा
+      - name: Wipe Everything and Rebuild
+        # यो स्टेप 'Demo' के नाम-ओ-निशान को मिटा देगा
         run: |
           flutter clean
-          rm -rf android/app/src/main/kotlin
+          rm -rf android/app/src/main/kotlin/com/example
+          rm -rf .dart_tool
           flutter create . --overwrite --org com.vikas.pasoriya --project-name vikas_pasoriya
           flutter pub get
 
-      - name: Build Badshah APK
+      - name: Build Official APK
         run: flutter build apk --debug --no-tree-shake-icons
 
       - name: Deliver Original APK
         uses: actions/upload-artifact@v4
-        with: {name: Vikas-Original-App, path: build/app/outputs/flutter-apk/app-debug.apk}
+        with: {name: Vikas-Final-App, path: build/app/outputs/flutter-apk/app-debug.apk}

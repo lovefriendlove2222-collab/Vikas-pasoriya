@@ -11,18 +11,18 @@ jobs:
       - uses: subosito/flutter-action@v2
         with: {channel: 'stable', flutter-version: '3.19.0'}
 
-      - name: Wipe Everything and Rebuild
-        # यो स्टेप 'Demo' के नाम-ओ-निशान को मिटा देगा
+      - name: Wipe and Rebuild From Scratch
+        # यो स्टेप 'Flutter Demo' के नाम-ओ-निशान को मिटा देगा
         run: |
           flutter clean
-          rm -rf android/app/src/main/kotlin/com/example
           rm -rf .dart_tool
+          rm -rf android/app/src/main/kotlin/com
           flutter create . --overwrite --org com.vikas.pasoriya --project-name vikas_pasoriya
           flutter pub get
 
       - name: Build Official APK
         run: flutter build apk --debug --no-tree-shake-icons
 
-      - name: Deliver Original APK
+      - name: Deliver Final APK
         uses: actions/upload-artifact@v4
-        with: {name: Vikas-Final-App, path: build/app/outputs/flutter-apk/app-debug.apk}
+        with: {name: Vikas-Official-App, path: build/app/outputs/flutter-apk/app-debug.apk}

@@ -1,4 +1,4 @@
-name: Ultimate Force Build
+name: Build Badshah Official
 on: [push]
 
 jobs:
@@ -11,18 +11,15 @@ jobs:
       - uses: subosito/flutter-action@v2
         with: {channel: 'stable', flutter-version: '3.19.0'}
 
-      - name: Wipe and Rebuild From Scratch
-        # यो स्टेप 'Flutter Demo' के नाम-ओ-निशान को मिटा देगा
+      - name: Wipe and Force Rebuild
         run: |
           flutter clean
           rm -rf .dart_tool
-          rm -rf android/app/src/main/kotlin/com
+          # यो कमांड पुराने नाम के रोड़े खत्म करैगी
           flutter create . --overwrite --org com.vikas.pasoriya --project-name vikas_pasoriya
           flutter pub get
+          flutter build apk --debug --no-tree-shake-icons --suppress-analytics
 
-      - name: Build Official APK
-        run: flutter build apk --debug --no-tree-shake-icons
-
-      - name: Deliver Final APK
+      - name: Deliver Original APK
         uses: actions/upload-artifact@v4
-        with: {name: Vikas-Official-App, path: build/app/outputs/flutter-apk/app-debug.apk}
+        with: {name: Vikas-Badshah-App, path: build/app/outputs/flutter-apk/app-debug.apk}

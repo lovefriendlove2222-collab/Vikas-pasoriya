@@ -12,9 +12,9 @@ class VikasApp extends StatefulWidget {
 }
 
 class _VikasAppState extends State<VikasApp> {
-  // 3. वीडियो लिंक्स (यूट्यूब/फेसबुक) - एडमिन यहाँ से लिंक बढ़ा सकेगा
-  List<String> videoIds = ['7n9O7p25lYg', 'dQw4w9WgXcQ']; 
-  String instLogo = "गुरु जी की पाठशाला"; // संस्था का नाम
+  // 3. वीडियो लिंक्स (एडमिन पैनल से यहाँ सिंक होंगे)
+  List<String> videoIds = ['7n9O7p25lYg', 'dQw4w9WgXcQ'];
+  String instName = "गुरु जी की पाठशाला"; // 12. संस्था का नाम
 
   @override
   Widget build(BuildContext context) {
@@ -23,14 +23,14 @@ class _VikasAppState extends State<VikasApp> {
         title: const Text("vikas pasoriya"), // 1. नाम
         backgroundColor: Colors.orange,
         actions: [
+          // 11. एडमिन लॉगिन और 14. डेवलपर विवेक कौशिक
           PopupMenuButton(itemBuilder: (context) => [
-            const PopupMenuItem(child: Text("11. एडमिन लॉगिन")), // पासवर्ड वाला पैनल
+            const PopupMenuItem(child: Text("11. एडमिन लॉगिन")),
             PopupMenuItem(child: const Text("14. डेवलपर: विवेक कौशिक \n+91 7206966924"),
               onTap: () => launchUrl(Uri.parse("tel:+917206966924"))),
           ]),
         ],
       ),
-
       // 8, 9, 10. लेफ्ट मेनू रिक्वायरमेंट्स
       drawer: Drawer(
         child: ListView(
@@ -43,46 +43,43 @@ class _VikasAppState extends State<VikasApp> {
           ],
         ),
       ),
-
       body: Column(
         children: [
-          // 4, 5. डोनर पट्टी (Marquee style)
-          Container(height: 40, color: Colors.red, child: const Center(
-            child: Text("धन्यवाद डोनर: अमित (बाढड़ा) - ₹1100 ... संस्था: गुरु जी की पाठशाला", 
+          // 4, 5. डोनर पट्टी (Marquee)
+          Container(height: 35, color: Colors.red, child: const Center(
+            child: Text("नवीनतम डोनर: अमित (बाढड़ा) - ₹1100 ... संस्था: गुरु जी की पाठशाला", 
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)))),
-
           // 3. वीडियो डैशबोर्ड (Mute/Unmute)
           Expanded(child: ListView.builder(itemCount: videoIds.length, itemBuilder: (context, i) {
             return Padding(padding: const EdgeInsets.all(8.0), child: YoutubePlayer(
               controller: YoutubePlayerController(initialVideoId: videoIds[i], 
               flags: const YoutubePlayerFlags(mute: true, autoPlay: false))));
           })),
-
-          // 4, 6, 7. डोनेशन और मंथली डोनर बटन
-          Container(padding: const EdgeInsets.all(12), color: Colors.grey[200], child: Row(children: [
-            _btn("डोनेशन", Colors.green, () => _showDonationDialog(context, "सिंगल")),
+          // 4, 6. डोनेशन और मंथली डोनर बटन
+          Container(padding: const EdgeInsets.all(10), color: Colors.grey[200], child: Row(children: [
+            _btn("डोनेशन", Colors.green, () => _donationForm(context)),
             const SizedBox(width: 10),
-            _btn("मंथली डोनर", Colors.blue, () => _showDonationDialog(context, "मंथली")),
+            _btn("मंथली डोनर", Colors.blue, () => _donationForm(context)),
           ])),
         ],
       ),
     );
   }
 
-  // 4, 12. डोनर रशीद और डिटेल फॉर्म
-  void _showDonationDialog(BuildContext context, String type) {
+  // 4, 12. डोनर फॉर्म और रशीद का ढांचा
+  void _donationForm(BuildContext context) {
     showDialog(context: context, builder: (context) => AlertDialog(
-      title: Text("$type डोनेशन"),
+      title: const Text("डोनर जानकारी"),
       content: Column(mainAxisSize: MainAxisSize.min, children: const [
         TextField(decoration: InputDecoration(hintText: "नाम")),
         TextField(decoration: InputDecoration(hintText: "गाँव")),
         TextField(decoration: InputDecoration(hintText: "मोबाइल नम्बर")),
       ]),
-      actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text("पेमेंट कन्फर्म (रशीद जनरेट)"))],
+      actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text("पेमेंट कन्फर्म (रशीद)"))],
     ));
   }
 
   Widget _menuTile(String t, IconData i) => ListTile(leading: Icon(i, color: Colors.orange), title: Text(t));
-  Widget _btn(String l, Color c, VoidCallback action) => Expanded(child: ElevatedButton(
-    onPressed: action, style: ElevatedButton.styleFrom(backgroundColor: c, foregroundColor: Colors.white), child: Text(l)));
+  Widget _btn(String l, Color c, VoidCallback act) => Expanded(child: ElevatedButton(
+    onPressed: act, style: ElevatedButton.styleFrom(backgroundColor: c, foregroundColor: Colors.white), child: Text(l)));
 }

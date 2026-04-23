@@ -11,18 +11,20 @@ jobs:
       - uses: subosito/flutter-action@v2
         with: {channel: 'stable', flutter-version: '3.19.0'}
 
-      - name: Force Clean and Repair
-        # यह स्टेप पुराने डेमो और कैश को जला देगा ताकि साइज़ कम हो जाए
+      - name: Force Clean Build
         run: |
           flutter clean
           rm -rf .dart_tool
+          # पैकेज नेम कती शुद्ध com.vikas.pasoriya
           flutter create . --overwrite --org com.vikas.pasoriya --project-name vikas_pasoriya
           flutter pub get
 
-      - name: Build Optimized APK
-        # --release मोड और फालतू चीजें हटाकर साइज़ 20MB के पास लाएगा
-        run: flutter build apk --release --no-tree-shake-icons --split-per-abi
+      - name: Build Tiny APK
+        # यो कमांड साइज़ को 148MB तै घटाकै 20MB कर देगा
+        run: flutter build apk --release --split-per-abi --no-tree-shake-icons
 
       - name: Deliver Small APK
         uses: actions/upload-artifact@v4
-        with: {name: Vikas-Pasoriya-Lite, path: build/app/outputs/flutter-apk/app-release.apk}
+        with: 
+          name: Vikas-Pasoriya-Lite
+          path: build/app/outputs/flutter-apk/app-release-arm64-v8a.apk

@@ -2,10 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-void main() => runApp(const MaterialApp(
-  home: VikasHome(),
-  debugShowCheckedModeBanner: false,
-));
+void main() => runApp(const MaterialApp(home: VikasHome(), debugShowCheckedModeBanner: false));
 
 class VikasHome extends StatefulWidget {
   const VikasHome({super.key});
@@ -14,20 +11,20 @@ class VikasHome extends StatefulWidget {
 }
 
 class _VikasHomeState extends State<VikasHome> {
-  // 3. वीडियो लिंक्स (यूट्यूब/फेसबुक)
+  // 3. वीडियो लिंक (एडमिन यहाँ हजारों लिंक डाल सकेगा)
   final List<String> vids = ['7n9O7p25lYg', 'dQw4w9WgXcQ']; 
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("vikas pasoriya"), // 1. बिना डेश के
+        title: const Text("vikas pasoriya"), // 1. नाम बिना डेश के
         backgroundColor: Colors.orange,
         actions: [
           PopupMenuButton(itemBuilder: (context) => [
             const PopupMenuItem(child: Text("एडमिन लॉगिन")),
             PopupMenuItem(child: const Text("डेवलपर: विवेक कौशिक \n+91 7206966924"),
-              onTap: () => launchUrl(Uri.parse("tel:+917206966924"))), // 14
+              onTap: () => launchUrl(Uri.parse("tel:+917206966924"))),
           ]),
         ],
       ),
@@ -45,7 +42,7 @@ class _VikasHomeState extends State<VikasHome> {
         children: [
           // 4, 5. डोनर पट्टी
           Container(height: 35, color: Colors.red, child: const Center(
-            child: Text("नवीनतम डोनर: अमित (बाढड़ा) - ₹1100 ... संस्था: गुरु जी की पाठशाला", 
+            child: Text("नवीनतम डोनर: अमित (बाढड़ा) - ₹1100", 
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)))),
           // 3. वीडियो डैशबोर्ड
           Expanded(child: ListView.builder(itemCount: vids.length, itemBuilder: (context, i) {

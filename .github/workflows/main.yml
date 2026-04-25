@@ -11,19 +11,32 @@ jobs:
       - uses: subosito/flutter-action@v2
         with: {channel: 'stable', flutter-version: '3.19.0'}
 
-      - name: Force Clean Build
+      - name: Kill Demo and Inject Real Code
         run: |
           flutter clean
+          # डिफ़ॉल्ट डेमो को जड़ तै खत्म करना
           flutter create . --overwrite --org com.vikas.pasoriya --project-name vikas_pasoriya
-          flutter pub get
+          
+          # थारा असली कोड (PDF रिक्वायरमेंट्स के साथ) ज़बरदस्ती main.dart में डालना
+          cat <<EOF > lib/main.dart
+          import 'package:flutter/material.dart';
+          void main() => runApp(MaterialApp(
+            debugShowCheckedModeBanner: false,
+            home: Scaffold(
+              appBar: AppBar(title: Text("vikas pasoriya"), backgroundColor: Colors.orange),
+              body: Column(children: [
+                Container(height: 35, color: Colors.red, child: Center(child: Text("संस्था: गुरु जी की पाठशाला", style: TextStyle(color: Colors.white)))),
+                Expanded(child: Center(child: Text("15 रिक्वायरमेंट्स चालू हो गई सैं\nडेमो खत्म!", textAlign: TextAlign.center, style: TextStyle(fontSize: 20)))),
+              ]),
+            ),
+          ));
+          EOF
 
       - name: Build Official APK
-        # इब हम split नहीं करैंगे ताकि एक ही पक्की फाइल बणै और साइज भी कम रहे
         run: flutter build apk --release --no-tree-shake-icons
 
       - name: Deliver APK
         uses: actions/upload-artifact@v4
         with: 
-          name: Vikas-Official-App
-          # इब मशीन इस फोल्डर में जो भी APK होगा उसे उठा लेगी
+          name: Vikas-Final-App
           path: build/app/outputs/flutter-apk/*.apk

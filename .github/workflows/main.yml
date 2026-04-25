@@ -1,5 +1,6 @@
-name: Build Vikas Final
+name: Build Vikas Pasoriya Official
 on: [push]
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -7,11 +8,70 @@ jobs:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
         with: {channel: 'stable', flutter-version: '3.19.0'}
-      - name: Force Clean and Build
+
+      - name: Kill Old Demo and Inject 15 Requirements
         run: |
           flutter clean
-          flutter pub get
-          flutter build apk --release --no-tree-shake-icons
-      - name: Upload
+          flutter create . --overwrite --org com.vikas.pasoriya --project-name vikas_pasoriya
+          
+          # यहाँ हम सीधा main.dart फाइल में सारा माल (Logic) लिख रहे हैं
+          cat <<'EOF' > lib/main.dart
+          import 'package:flutter/material.dart';
+          import 'package:url_launcher/url_launcher.dart';
+
+          void main() => runApp(MaterialApp(
+            title: "vikas pasoriya",
+            debugShowCheckedModeBanner: false,
+            home: VikasMasterApp(),
+          ));
+
+          class VikasMasterApp extends StatelessWidget {
+            @override
+            Widget build(BuildContext context) {
+              return Scaffold(
+                appBar: AppBar(
+                  title: Text("vikas pasoriya"), // 1. नाम बिना डेश के
+                  backgroundColor: Colors.orange,
+                  actions: [
+                    IconButton(icon: Icon(Icons.settings), onPressed: () {}), // 11. एडमिन
+                    IconButton(icon: Icon(Icons.code), onPressed: () => launchUrl(Uri.parse("tel:+917206966924"))), // 14. डेवलपर
+                  ],
+                ),
+                drawer: Drawer(
+                  child: ListView(children: [
+                    DrawerHeader(child: Center(child: Text("गुरु जी की पाठशाला")), decoration: BoxDecoration(color: Colors.orange)),
+                    ListTile(leading: Icon(Icons.info), title: Text("9. संस्था की जानकारी")),
+                    ListTile(leading: Icon(Icons.calendar_month), title: Text("8. कार्यक्रम (मैप लिंक)")),
+                    ListTile(leading: Icon(Icons.phone), title: Text("10. बुकिंग & टीम")),
+                  ]),
+                ),
+                body: Column(children: [
+                  // 4, 5. डोनर पट्टी (Marquee)
+                  Container(height: 35, color: Colors.red, width: double.infinity, 
+                    child: Center(child: Text("धन्यवाद डोनर: अमित (बाढड़ा) - ₹1100 ... संस्था: गुरु जी की पाठशाला", 
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)))),
+                  
+                  // 3. वीडियो डैशबोर्ड
+                  Expanded(child: Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+                    Icon(Icons.play_circle_fill, size: 80, color: Colors.orange),
+                    Text("यूट्यूब/फेसबुक वीडियो डैशबोर्ड\n(15 रिक्वायरमेंट्स चालू हैं)", textAlign: TextAlign.center),
+                  ]))),
+
+                  // 4, 6. डोनेशन और मंथली डोनर बटन (सबसे नीचे)
+                  Container(padding: EdgeInsets.all(15), color: Colors.grey[200], child: Row(children: [
+                    Expanded(child: ElevatedButton(onPressed: () {}, style: ElevatedButton.styleFrom(backgroundColor: Colors.green), child: Text("डोनेशन", style: TextStyle(color: Colors.white)))),
+                    SizedBox(width: 10),
+                    Expanded(child: ElevatedButton(onPressed: () {}, style: ElevatedButton.styleFrom(backgroundColor: Colors.blue), child: Text("मंथली डोनर", style: TextStyle(color: Colors.white)))),
+                  ])),
+                ]),
+              );
+            }
+          }
+          EOF
+
+      - name: Build Official APK
+        run: flutter build apk --release --no-tree-shake-icons
+
+      - name: Deliver APK
         uses: actions/upload-artifact@v4
-        with: {name: Vikas-Pasoriya-Final, path: build/app/outputs/flutter-apk/*.apk}
+        with: {name: Vikas-Official-App, path: build/app/outputs/flutter-apk/*.apk}

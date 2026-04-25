@@ -1,65 +1,84 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-void main() => runApp(const MaterialApp(home: VikasApp(), debugShowCheckedModeBanner: false));
+void main() => runApp(const MaterialApp(
+  home: VikasFinalApp(),
+  debugShowCheckedModeBanner: false,
+));
 
-class VikasApp extends StatefulWidget {
-  const VikasApp({super.key});
+class VikasFinalApp extends StatefulWidget {
+  const VikasFinalApp({super.key});
   @override
-  State<VikasApp> createState() => _VikasAppState();
+  State<VikasFinalApp> createState() => _VikasFinalState();
 }
 
-class _VikasAppState extends State<VikasApp> {
+class _VikasFinalState extends State<VikasFinalApp> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // 1. ऊपर की पट्टी (नाम के साथ)
+      // 1. ऊपर की पट्टी (एडमिन पैनल का बटन यहाँ सै)
       appBar: AppBar(
-        title: const Text("vikas pasoriya"), 
+        title: const Text("vikas pasoriya"),
         backgroundColor: Colors.orange,
-        actions: [IconButton(icon: const Icon(Icons.admin_panel_settings), onPressed: () {})], // 11. एडमिन
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.admin_panel_settings, size: 30),
+            onPressed: () => _openAdminPanel(), // 11. एडमिन पैनल यहाँ तै खुलेगा
+          )
+        ],
       ),
 
-      // 8, 9, 10. लेफ्ट मेनू (३ डंडियों पे क्लिक करते ही दिखेगा)
+      // 8, 9, 10. लेफ्ट मेनू (३ डंडियों पे क्लिक करिये, सारे ऑप्शन यहाँ सैं)
       drawer: Drawer(
         child: ListView(
           children: [
-            const DrawerHeader(decoration: BoxDecoration(color: Colors.orange), child: Icon(Icons.person, size: 60, color: Colors.white)),
-            _menuTile("संस्था की जानकारी", Icons.info), // 9
-            _menuTile("पूर्णमासी कार्यक्रम", Icons.event), // 8
-            _menuTile("कार्यक्रम बुकिंग", Icons.phone), // 10
-            _menuTile("डेवलपर सम्पर्क", Icons.code), // 14
+            const DrawerHeader(
+              decoration: BoxDecoration(color: Colors.orange),
+              child: Center(child: Icon(Icons.account_circle, size: 80, color: Colors.white)),
+            ),
+            _menuTile("संस्था की पूरी जानकारी", Icons.info, () {}),
+            _menuTile("पूर्णमासी कार्यक्रम", Icons.event, () {}),
+            _menuTile("कार्यक्रम बुकिंग", Icons.phone, () => launchUrl(Uri.parse("tel:+917206966924"))),
+            _menuTile("डेवलपर सम्पर्क", Icons.code, () => launchUrl(Uri.parse("tel:+917206966924"))),
           ],
         ),
       ),
 
-      // असली माल यहाँ सै (जो थारे में सफ़ेद दिख रहा था)
       body: Column(
         children: [
           // 4, 5. डोनर पट्टी (Marquee)
-          Container(height: 35, color: Colors.red, width: double.infinity, child: const Center(
-            child: Text("डोनर: अमित (बाढड़ा) - ₹1100 ... संस्था: गुरु जी की पाठशाला", 
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)))),
+          Container(
+            height: 40,
+            color: Colors.red,
+            width: double.infinity,
+            child: const Center(
+              child: Text("नवीनतम डोनर: अमित (बाढड़ा) - ₹1100 ... संस्था: गुरु जी की पाठशाला", 
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
+          ),
 
-          // 3. वीडियो डैशबोर्ड का हिस्सा
-          const Expanded(child: Center(child: Text("यहाँ यूट्यूब वीडियो चलेंगे\n(एडमिन पैनल से लिंक डालें)", 
-            textAlign: TextAlign.center, style: TextStyle(fontSize: 18, color: Colors.grey)))),
+          // 3. वीडियो वाला हिस्सा (जो सफ़ेद दिख रहा था)
+          const Expanded(
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.play_circle_fill, size: 100, color: Colors.orange),
+                  Text("यूट्यूब डैशबोर्ड चालू सै!\nसारे ऑप्शन इब लोड हो रहे सैं", 
+                  textAlign: TextAlign.center, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                ],
+              ),
+            ),
+          ),
 
-          // 4, 6. डोनेशन और मंथली डोनर बटन (इब ये सबसे नीचे पक्के दिखेंगे)
+          // 4, 6. डोनेशन और मंथली डोनर बटन (सबसे नीचे पट्टी)
           Container(
             padding: const EdgeInsets.all(15),
-            color: Colors.grey[200],
+            decoration: const BoxDecoration(color: Colors.white, boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10)]),
             child: Row(
               children: [
-                Expanded(child: ElevatedButton(
-                  onPressed: () => _openForm("डोनेशन"), 
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.green, padding: const EdgeInsets.symmetric(vertical: 15)),
-                  child: const Text("डोनेशन", style: TextStyle(color: Colors.white, fontSize: 16)))),
+                Expanded(child: _actionBtn("डोनेशन", Colors.green, () => _openForm("डोनेशन"))),
                 const SizedBox(width: 10),
-                Expanded(child: ElevatedButton(
-                  onPressed: () => _openForm("मंथली"), 
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.blue, padding: const EdgeInsets.symmetric(vertical: 15)),
-                  child: const Text("मंथली डोनर", style: TextStyle(color: Colors.white, fontSize: 16)))),
+                Expanded(child: _actionBtn("मंथली डोनर", Colors.blue, () => _openForm("मंथली"))),
               ],
             ),
           ),
@@ -68,14 +87,25 @@ class _VikasAppState extends State<VikasApp> {
     );
   }
 
-  // डोनर फॉर्म जो बटन दबाते ही खुलेगा
-  void _openForm(String type) {
+  // एडमिन पैनल का ऑप्शन
+  void _openAdminPanel() {
+    showDialog(context: context, builder: (context) => const AlertDialog(
+      title: Text("11. एडमिन पैनल लॉगिन"),
+      content: TextField(decoration: InputDecoration(hintText: "पासवर्ड भरें")),
+    ));
+  }
+
+  // डोनर रशीद फॉर्म (पॉइंट 12)
+  void _openForm(String title) {
     showDialog(context: context, builder: (context) => AlertDialog(
-      title: Text("$type फॉर्म"),
-      content: const Text("डोनर का नाम, गाँव और मोबाइल नम्बर यहाँ भरें।"),
+      title: Text("गुरु जी की पाठशाला - $title"),
+      content: const Text("डोनर का नाम, गाँव और मोबाइल यहाँ भरें।"),
       actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text("बंद करें"))],
     ));
   }
 
-  Widget _menuTile(String t, IconData i) => ListTile(leading: Icon(i, color: Colors.orange), title: Text(t));
+  Widget _menuTile(String t, IconData i, VoidCallback onTap) => ListTile(leading: Icon(i, color: Colors.orange), title: Text(t), onTap: onTap);
+  Widget _actionBtn(String l, Color c, VoidCallback onTap) => ElevatedButton(
+    onPressed: onTap, style: ElevatedButton.styleFrom(backgroundColor: c, padding: const EdgeInsets.symmetric(vertical: 15)),
+    child: Text(l, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)));
 }
